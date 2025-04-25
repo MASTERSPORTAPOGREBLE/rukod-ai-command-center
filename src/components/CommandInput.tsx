@@ -6,7 +6,9 @@ import { useCommandContext } from '@/context/CommandContext';
 
 export const CommandInput: React.FC = () => {
   const [command, setCommand] = useState('');
-  const { addCommand, isProcessing } = useCommandContext();
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const { addCommand, isProcessing, installedModules } = useCommandContext();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -18,6 +20,9 @@ export const CommandInput: React.FC = () => {
     if (!command.trim() || isProcessing) return;
     
     addCommand(command);
+    // Add to command history
+    setCommandHistory(prev => [command, ...prev.slice(0, 19)]);
+    setHistoryIndex(-1);
     setCommand('');
   };
 
@@ -25,6 +30,47 @@ export const CommandInput: React.FC = () => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      // Navigate command history upwards
+      if (historyIndex < commandHistory.length - 1) {
+        const newIndex = historyIndex + 1;
+        setHistoryIndex(newIndex);
+        setCommand(commandHistory[newIndex]);
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      // Navigate command history downwards
+      if (historyIndex > 0) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        setCommand(commandHistory[newIndex]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setCommand('');
+      }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      // Simple auto-completion for commands
+      const currentInput = command.toLowerCase();
+      
+      // Get all available commands from installed modules
+      const availableCommands = installedModules.flatMap(module => 
+        Object.keys(module.commands)
+      );
+      
+      // Special commands
+      const specialCommands = ['скачать:', 'запуск:', 'авторизация:'];
+      const allCommands = [...availableCommands, ...specialCommands];
+      
+      // Find matching command
+      const matchingCommand = allCommands.find(cmd => 
+        cmd.startsWith(currentInput) && cmd !== currentInput
+      );
+      
+      if (matchingCommand) {
+        setCommand(matchingCommand + (specialCommands.includes(matchingCommand) ? ' ' : ''));
+      }
     }
   };
 

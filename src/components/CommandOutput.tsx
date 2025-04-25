@@ -1,9 +1,9 @@
 
 import React, { useEffect, useRef } from 'react';
-import { useCommandContext, CommandOutput } from '@/context/CommandContext';
+import { useCommandContext, CommandOutputItem } from '@/context/CommandContext';
 import { Loader2 } from 'lucide-react';
 
-const CommandItem: React.FC<{ item: CommandOutput }> = ({ item }) => {
+const CommandItem: React.FC<{ item: CommandOutputItem }> = ({ item }) => {
   return (
     <div className="mb-4 animate-fade-in">
       {item.command && (
@@ -45,7 +45,7 @@ export const CommandOutput: React.FC = () => {
   return (
     <div 
       ref={outputRef}
-      className="flex-1 overflow-y-auto p-4 terminal-text">
+      className="flex-1 overflow-y-auto p-4 terminal-text code-editor-like">
       {history.map((item) => (
         <CommandItem key={item.id} item={item} />
       ))}
