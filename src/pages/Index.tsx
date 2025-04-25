@@ -7,6 +7,7 @@ import { NavigationBar } from '@/components/NavigationBar';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { AiWidget } from '@/components/AiWidget';
 import { CommandProvider } from '@/context/CommandContext';
+import { Toaster } from '@/components/ui/toaster';
 
 const Index = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -61,6 +62,7 @@ const Index = () => {
         
         <SettingsPanel isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
         <AiWidget />
+        <Toaster />
       </div>
     </CommandProvider>
   );

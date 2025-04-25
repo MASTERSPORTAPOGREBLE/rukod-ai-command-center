@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useCommandContext, CommandOutputItem } from '@/context/CommandContext';
-import { Loader2, Code, ExternalLink } from 'lucide-react';
+import { Loader2, Code, ExternalLink, Translate } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -60,6 +60,11 @@ interface CodeBlockProps {
 }
 
 const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, title }) => {
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(code);
+    // Could add toast here for feedback
+  };
+  
   return (
     <div className="my-3 rounded-md overflow-hidden border border-rukod-purple border-opacity-30">
       {title && (
@@ -69,7 +74,11 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, title }) => {
             <span className="text-xs font-mono">{title}</span>
           </div>
           <div className="flex space-x-1">
-            <button className="text-xs hover:text-rukod-purple transition-colors" title="Copy code">
+            <button 
+              className="text-xs hover:text-rukod-purple transition-colors" 
+              title="Copy code"
+              onClick={handleCopyCode}
+            >
               <Code className="h-3.5 w-3.5" />
             </button>
             <button className="text-xs hover:text-rukod-purple transition-colors" title="Open in editor">
@@ -106,6 +115,14 @@ const CommandItem: React.FC<{ item: CommandOutputItem }> = ({ item }) => {
         <div className="flex items-center mb-1">
           <span className="text-rukod-purple terminal-text mr-2">$</span>
           <span className="terminal-text">{item.command}</span>
+          
+          {/* Show translation indicator if available */}
+          {item.translatedCommand && (
+            <div className="ml-2 flex items-center text-xs text-gray-400">
+              <Translate className="h-3 w-3 mr-1" />
+              <span>{item.translatedCommand}</span>
+            </div>
+          )}
         </div>
       )}
       
