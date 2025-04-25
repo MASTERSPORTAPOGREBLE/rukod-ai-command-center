@@ -45,7 +45,8 @@ export const CommandOutput: React.FC = () => {
   return (
     <div 
       ref={outputRef}
-      className="flex-1 overflow-y-auto p-4 terminal-text code-editor-like">
+      className="flex-1 overflow-y-auto p-4 terminal-text code-editor-like"
+      style={{ scrollBehavior: 'smooth' }}>
       {history.map((item) => (
         <CommandItem key={item.id} item={item} />
       ))}
