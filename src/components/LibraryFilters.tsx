@@ -1,0 +1,96 @@
+
+import React from 'react';
+import { ProgrammingLanguage } from '../models/types';
+import { useTheme } from '../context/ThemeContext';
+import { Search, Flame, Code, Filter } from 'lucide-react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Switch } from './ui/switch';
+import { Label } from './ui/label';
+
+interface LibraryFiltersProps {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  selectedLanguage: ProgrammingLanguage | undefined;
+  onLanguageChange: (language?: ProgrammingLanguage) => void;
+  showFreeOnly: boolean;
+  onFreeOnlyChange: (value: boolean) => void;
+  showGamesOnly: boolean;
+  onGamesOnlyChange: (value: boolean) => void;
+}
+
+export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
+  searchQuery,
+  onSearchChange,
+  selectedLanguage,
+  onLanguageChange,
+  showFreeOnly,
+  onFreeOnlyChange,
+  showGamesOnly,
+  onGamesOnlyChange
+}) => {
+  const { currentTheme } = useTheme();
+  
+  return (
+    <div className="mb-6 space-y-4">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Поиск библиотек..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-9"
+          style={{
+            backgroundColor: currentTheme.backgroundColor,
+            color: currentTheme.textColor,
+            borderColor: currentTheme.primaryColor
+          }}
+        />
+      </div>
+      
+      <Tabs defaultValue={selectedLanguage || "all"} onValueChange={(value) => 
+        onLanguageChange(value === "all" ? undefined : value as ProgrammingLanguage)}>
+        <TabsList className="w-full grid grid-cols-4">
+          <TabsTrigger value="all">Все</TabsTrigger>
+          <TabsTrigger value="python">Python</TabsTrigger>
+          <TabsTrigger value="cpp">C++</TabsTrigger>
+          <TabsTrigger value="lua">Lua</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <Switch 
+            id="free-only" 
+            checked={showFreeOnly} 
+            onCheckedChange={onFreeOnlyChange}
+          />
+          <Label htmlFor="free-only">Только бесплатные</Label>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Switch 
+            id="games-only" 
+            checked={showGamesOnly} 
+            onCheckedChange={onGamesOnlyChange}
+          />
+          <Label htmlFor="games-only">Для игр</Label>
+        </div>
+      </div>
+      
+      <div className="flex justify-between gap-2">
+        <Button variant="outline" className="w-1/2"
+                style={{ borderColor: currentTheme.primaryColor, color: currentTheme.primaryColor }}>
+          <Filter className="h-4 w-4 mr-2" />
+          Сбросить
+        </Button>
+        <Button className="w-1/2"
+                style={{ backgroundColor: currentTheme.primaryColor, color: currentTheme.backgroundColor }}>
+          <Flame className="h-4 w-4 mr-2" />
+          Турбо-установка
+        </Button>
+      </div>
+    </div>
+  );
+};
