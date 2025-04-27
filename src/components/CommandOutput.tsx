@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useCommandContext, CommandOutputItem } from '@/context/CommandContext';
-import { Loader2, Code, ExternalLink, Translate } from 'lucide-react';
+import { Loader2, Code, ExternalLink, Globe } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -119,7 +119,7 @@ const CommandItem: React.FC<{ item: CommandOutputItem }> = ({ item }) => {
           {/* Show translation indicator if available */}
           {item.translatedCommand && (
             <div className="ml-2 flex items-center text-xs text-gray-400">
-              <Translate className="h-3 w-3 mr-1" />
+              <Globe className="h-3 w-3 mr-1" />
               <span>{item.translatedCommand}</span>
             </div>
           )}
