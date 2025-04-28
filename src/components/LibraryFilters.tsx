@@ -2,12 +2,13 @@
 import React from 'react';
 import { ProgrammingLanguage } from '../models/types';
 import { useTheme } from '../context/ThemeContext';
-import { Search, Flame, Code, Filter } from 'lucide-react';
+import { Search, Flame, Code, Filter, BookOpen, Globe, Gamepad2, ChartBar, Layout } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
+import { Badge } from './ui/badge';
 
 interface LibraryFiltersProps {
   searchQuery: string;
@@ -18,6 +19,8 @@ interface LibraryFiltersProps {
   onFreeOnlyChange: (value: boolean) => void;
   showGamesOnly: boolean;
   onGamesOnlyChange: (value: boolean) => void;
+  selectedCategory?: string;
+  onCategoryChange?: (category?: string) => void;
 }
 
 export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
@@ -28,7 +31,9 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
   showFreeOnly,
   onFreeOnlyChange,
   showGamesOnly,
-  onGamesOnlyChange
+  onGamesOnlyChange,
+  selectedCategory,
+  onCategoryChange
 }) => {
   const { currentTheme } = useTheme();
   
@@ -37,7 +42,16 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
     onLanguageChange(undefined);
     onFreeOnlyChange(false);
     onGamesOnlyChange(false);
+    if (onCategoryChange) onCategoryChange(undefined);
   };
+
+  const categories = [
+    { id: 'machine-learning', name: 'Машинное обучение', icon: ChartBar },
+    { id: 'web-dev', name: 'Веб-разработка', icon: Globe },
+    { id: 'game-dev', name: 'Игровая разработка', icon: Gamepad2 },
+    { id: 'data-science', name: 'Обработка данных', icon: BookOpen },
+    { id: 'gui', name: 'Интерфейсы', icon: Layout }
+  ];
   
   return (
     <div className="mb-6 space-y-4">
@@ -69,6 +83,23 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
           <TabsTrigger value="more">Ещё...</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      {/* Categories */}
+      <div className="flex flex-wrap gap-2">
+        {categories.map(category => (
+          <Badge 
+            key={category.id}
+            variant={selectedCategory === category.id ? "default" : "outline"}
+            className="cursor-pointer flex items-center gap-1 px-3 py-1"
+            onClick={() => onCategoryChange && onCategoryChange(
+              selectedCategory === category.id ? undefined : category.id
+            )}
+          >
+            <category.icon className="h-3 w-3" />
+            <span>{category.name}</span>
+          </Badge>
+        ))}
+      </div>
       
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">

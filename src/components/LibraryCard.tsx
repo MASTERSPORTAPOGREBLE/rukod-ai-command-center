@@ -3,17 +3,25 @@ import React from 'react';
 import { Library } from '../models/types';
 import { useTheme } from '../context/ThemeContext';
 import { toast } from 'sonner';
-import { Download, Star } from 'lucide-react';
+import { Download, Star, Check } from 'lucide-react';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { Checkbox } from './ui/checkbox';
 
 interface LibraryCardProps {
   library: Library;
   onInstall: (libraryId: string) => void;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
 
-export const LibraryCard: React.FC<LibraryCardProps> = ({ library, onInstall }) => {
+export const LibraryCard: React.FC<LibraryCardProps> = ({ 
+  library, 
+  onInstall, 
+  isSelected = false, 
+  onToggleSelect 
+}) => {
   const { currentTheme } = useTheme();
 
   const handleInstall = () => {
@@ -24,11 +32,25 @@ export const LibraryCard: React.FC<LibraryCardProps> = ({ library, onInstall }) 
   };
 
   return (
-    <Card className="w-full mb-4 overflow-hidden hover:shadow-lg transition-shadow duration-300"
-          style={{ backgroundColor: currentTheme.backgroundColor, color: currentTheme.textColor, borderColor: currentTheme.primaryColor }}>
+    <Card className={`w-full mb-4 overflow-hidden hover:shadow-lg transition-shadow duration-300 ${isSelected ? 'ring-2 ring-offset-2' : ''}`}
+          style={{ 
+            backgroundColor: currentTheme.backgroundColor, 
+            color: currentTheme.textColor, 
+            borderColor: currentTheme.primaryColor,
+            ...(isSelected && { ringColor: currentTheme.primaryColor })
+          }}>
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xl font-semibold" style={{ color: currentTheme.primaryColor }}>{library.name}</h3>
+          <div className="flex items-center">
+            {onToggleSelect && (
+              <Checkbox 
+                checked={isSelected}
+                onCheckedChange={onToggleSelect}
+                className="mr-3"
+              />
+            )}
+            <h3 className="text-xl font-semibold" style={{ color: currentTheme.primaryColor }}>{library.name}</h3>
+          </div>
           <div className="flex items-center">
             <Star className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500" />
             <span className="text-sm">{library.popularity.toFixed(1)}</span>

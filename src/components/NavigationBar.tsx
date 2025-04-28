@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Settings, MessageSquare, LogOut } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { Settings, MessageSquare, LogOut, Terminal, Package, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -14,6 +15,63 @@ export const NavigationBar: React.FC = () => {
   return (
     <div className="h-16 border-t border-border bg-rukod-dark flex items-center justify-center px-4">
       <div className="flex space-x-4">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <NavLink to="/" className={({ isActive }) => 
+                `flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
+                  isActive ? 'bg-rukod-purple bg-opacity-20' : 'hover:bg-rukod-purple hover:bg-opacity-10'
+                }`
+              }>
+                {({ isActive }) => (
+                  <Home className={`h-5 w-5 ${isActive ? 'text-rukod-purple' : 'text-white'}`} />
+                )}
+              </NavLink>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Главная</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <NavLink to="/terminal" className={({ isActive }) => 
+                `flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
+                  isActive ? 'bg-rukod-purple bg-opacity-20' : 'hover:bg-rukod-purple hover:bg-opacity-10'
+                }`
+              }>
+                {({ isActive }) => (
+                  <Terminal className={`h-5 w-5 ${isActive ? 'text-rukod-purple' : 'text-white'}`} />
+                )}
+              </NavLink>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Терминал</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <NavLink to="/libraries" className={({ isActive }) => 
+                `flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
+                  isActive ? 'bg-rukod-purple bg-opacity-20' : 'hover:bg-rukod-purple hover:bg-opacity-10'
+                }`
+              }>
+                {({ isActive }) => (
+                  <Package className={`h-5 w-5 ${isActive ? 'text-rukod-purple' : 'text-white'}`} />
+                )}
+              </NavLink>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Библиотеки</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>

@@ -1,12 +1,16 @@
 
+import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { ContainerProvider } from './context/ContainerContext';
 import { CommandProvider } from './context/CommandContext';
-import { LibraryManager } from './components/LibraryManager';
-import { ContainerManager } from './components/ContainerManager';
-import { SystemStats } from './components/SystemStats';
-import { AIAssistant } from './components/AIAssistant';
 import { Toaster } from 'sonner';
+import { NavigationBar } from './components/NavigationBar';
+
+// Pages
+import HomePage from './pages/HomePage';
+import Terminal from './pages/Terminal';
+import NotFound from './pages/NotFound';
+
 import './App.css';
 
 function App() {
@@ -18,21 +22,14 @@ function App() {
             <div className="container mx-auto py-4 px-4 md:px-8">
               <h1 className="text-2xl font-bold mb-6 text-center">CodeVerse IDE</h1>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2">
-                  <div className="mb-6">
-                    <SystemStats />
-                  </div>
-                  <LibraryManager />
-                </div>
-                
-                <div className="md:col-span-1">
-                  <ContainerManager />
-                </div>
-              </div>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/terminal" element={<Terminal />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </div>
+            <NavigationBar />
             <Toaster />
-            <AIAssistant isActive={true} />
           </div>
         </CommandProvider>
       </ContainerProvider>
