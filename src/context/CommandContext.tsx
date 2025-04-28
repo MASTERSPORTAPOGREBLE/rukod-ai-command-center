@@ -14,6 +14,7 @@ export interface CommandOutputItem {
 }
 
 interface Module {
+  id?: string; // Add the id property
   name: string;
   version: string;
   commands: Record<string, (args: string[]) => Promise<string>>;
@@ -41,6 +42,7 @@ const CommandContext = createContext<CommandContextType | undefined>(undefined);
 // Mock installed modules
 const mockModules: Module[] = [
   {
+    id: 'core-001',
     name: 'core',
     version: '1.0.0',
     commands: {
@@ -63,6 +65,7 @@ const mockModules: Module[] = [
     }
   },
   {
+    id: 'python-001',
     name: 'python',
     version: '3.11',
     commands: {
@@ -71,6 +74,7 @@ const mockModules: Module[] = [
     }
   },
   {
+    id: 'cpp-001',
     name: 'cpp',
     version: '17',
     commands: {
