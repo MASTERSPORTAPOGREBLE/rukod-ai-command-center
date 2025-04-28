@@ -32,6 +32,13 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
 }) => {
   const { currentTheme } = useTheme();
   
+  const handleReset = () => {
+    onSearchChange('');
+    onLanguageChange(undefined);
+    onFreeOnlyChange(false);
+    onGamesOnlyChange(false);
+  };
+  
   return (
     <div className="mb-6 space-y-4">
       <div className="relative">
@@ -51,11 +58,15 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
       
       <Tabs defaultValue={selectedLanguage || "all"} onValueChange={(value) => 
         onLanguageChange(value === "all" ? undefined : value as ProgrammingLanguage)}>
-        <TabsList className="w-full grid grid-cols-4">
+        <TabsList className="w-full grid grid-cols-8">
           <TabsTrigger value="all">Все</TabsTrigger>
           <TabsTrigger value="python">Python</TabsTrigger>
           <TabsTrigger value="cpp">C++</TabsTrigger>
           <TabsTrigger value="lua">Lua</TabsTrigger>
+          <TabsTrigger value="javascript">JS</TabsTrigger>
+          <TabsTrigger value="rust">Rust</TabsTrigger>
+          <TabsTrigger value="ruby">Ruby</TabsTrigger>
+          <TabsTrigger value="more">Ещё...</TabsTrigger>
         </TabsList>
       </Tabs>
       
@@ -81,14 +92,16 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
       
       <div className="flex justify-between gap-2">
         <Button variant="outline" className="w-1/2"
+                onClick={handleReset}
                 style={{ borderColor: currentTheme.primaryColor, color: currentTheme.primaryColor }}>
           <Filter className="h-4 w-4 mr-2" />
           Сбросить
         </Button>
+        
         <Button className="w-1/2"
                 style={{ backgroundColor: currentTheme.primaryColor, color: currentTheme.backgroundColor }}>
-          <Flame className="h-4 w-4 mr-2" />
-          Турбо-установка
+          <Search className="h-4 w-4 mr-2" />
+          Найти все
         </Button>
       </div>
     </div>

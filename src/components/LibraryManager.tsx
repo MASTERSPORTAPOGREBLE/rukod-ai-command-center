@@ -6,7 +6,7 @@ import { getFilteredLibraries } from '../data/mockLibraries';
 import { LibraryCard } from './LibraryCard';
 import { LibraryFilters } from './LibraryFilters';
 import { toast } from 'sonner';
-import { Package, ScrollText, Cpu } from 'lucide-react';
+import { Package, ScrollText, Cpu, Zap } from 'lucide-react';
 
 export const LibraryManager: React.FC = () => {
   const { currentTheme } = useTheme();
@@ -14,6 +14,7 @@ export const LibraryManager: React.FC = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<ProgrammingLanguage | undefined>();
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [showGamesOnly, setShowGamesOnly] = useState(false);
+  const [installingAll, setInstallingAll] = useState(false);
   
   const filteredLibraries = getFilteredLibraries(
     selectedLanguage,
@@ -38,6 +39,37 @@ export const LibraryManager: React.FC = () => {
         error: `Ошибка при установке ${library.name}`
       }
     );
+  };
+  
+  const handleTurboInstall = () => {
+    if (filteredLibraries.length === 0) {
+      toast.error("Нет библиотек для установки. Измените фильтры поиска.");
+      return;
+    }
+    
+    setInstallingAll(true);
+    
+    // Show initial toast
+    toast.info(`Турбо-установка ${filteredLibraries.length} библиотек запущена!`, {
+      description: "Подготовка контейнеров и зависимостей..."
+    });
+    
+    // Process each library with a staggered delay
+    filteredLibraries.forEach((library, index) => {
+      setTimeout(() => {
+        toast.info(`Установка ${library.name} (${index+1}/${filteredLibraries.length})`, {
+          description: `Язык: ${library.language}, Версия: ${library.version}`
+        });
+      }, index * 800);
+    });
+    
+    // Complete the process after all libraries would be "installed"
+    setTimeout(() => {
+      toast.success(`Турбо-установка завершена!`, {
+        description: `Установлено ${filteredLibraries.length} библиотек`
+      });
+      setInstallingAll(false);
+    }, filteredLibraries.length * 800 + 1000);
   };
   
   return (
@@ -78,6 +110,31 @@ export const LibraryManager: React.FC = () => {
         showGamesOnly={showGamesOnly}
         onGamesOnlyChange={setShowGamesOnly}
       />
+      
+      <div className="mb-4">
+        <button
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md transition-colors"
+          style={{ 
+            backgroundColor: installingAll ? `${currentTheme.primaryColor}60` : currentTheme.primaryColor,
+            color: currentTheme.backgroundColor
+          }}
+          onClick={handleTurboInstall}
+          disabled={installingAll || filteredLibraries.length === 0}
+        >
+          <Zap className="h-5 w-5" />
+          {installingAll ? (
+            <span className="flex items-center">
+              <span className="mr-2">Турбо-установка...</span>
+              <span className="animate-pulse">⚡</span>
+            </span>
+          ) : (
+            <span>Турбо-установка всех библиотек</span>
+          )}
+        </button>
+        <div className="text-xs text-center mt-1 opacity-70">
+          Одним кликом установит все отображаемые библиотеки с автоматическим разрешением зависимостей
+        </div>
+      </div>
       
       <div className="space-y-4">
         {filteredLibraries.length > 0 ? (
