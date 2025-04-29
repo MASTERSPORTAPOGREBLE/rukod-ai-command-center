@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ProgrammingLanguage } from '../models/types';
@@ -97,7 +98,8 @@ export const CommandProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [installedModules] = useState<Module[]>(mockModules);
   const [userPreferences] = useState<UserPreferences>(initialPreferences);
 
-  const addCommand = (command: string, translatedCommand?: string) => {
+  // Make addCommand async to allow using await inside
+  const addCommand = async (command: string, translatedCommand?: string): Promise<void> => {
     // Process code commands
     if (command.startsWith('code:') || command.startsWith('код:')) {
       const commandParts = command.split(':');

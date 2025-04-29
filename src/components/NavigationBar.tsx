@@ -3,12 +3,12 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Terminal, FileCode } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useMobile } from '../hooks/use-mobile';
+import { useIsMobile } from '../hooks/use-mobile';
 
 export const NavigationBar = () => {
   const location = useLocation();
   const { currentTheme } = useTheme();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   const navItems = [
     {
