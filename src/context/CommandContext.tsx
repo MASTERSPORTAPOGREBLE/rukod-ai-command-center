@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ProgrammingLanguage } from '../models/types';
@@ -32,7 +31,7 @@ interface CommandContextType {
   installedModules: Module[];
   language: 'ru' | 'en';
   userPreferences: UserPreferences;
-  addCommand: (command: string) => Promise<void>;
+  addCommand: (command: string, translatedCommand?: string) => Promise<void>;
   clearHistory: () => void;
   setLanguage: (lang: 'ru' | 'en') => void;
 }
@@ -91,14 +90,49 @@ const initialPreferences: UserPreferences = {
   recentCommands: ['help', 'install numpy python', 'start cpp']
 };
 
-export const CommandProvider = ({ children }: { children: ReactNode }) => {
+export const CommandProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [history, setHistory] = useState<CommandOutputItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [language, setLanguage] = useState<'ru' | 'en'>('ru');
   const [installedModules] = useState<Module[]>(mockModules);
   const [userPreferences] = useState<UserPreferences>(initialPreferences);
 
-  const addCommand = async (command: string) => {
+  const addCommand = (command: string, translatedCommand?: string) => {
+    // Process code commands
+    if (command.startsWith('code:') || command.startsWith('код:')) {
+      const commandParts = command.split(':');
+      if (commandParts.length > 1) {
+        const codeCommand = commandParts[1].trim();
+        
+        // Create a new output item for the code command
+        const newItem: CommandOutputItem = {
+          id: uuidv4(),
+          timestamp: new Date(),
+          command,
+          translatedCommand,
+          output: `Обработка команды для кода: ${codeCommand}...`,
+          status: 'processing'
+        };
+        
+        setHistory(prev => [...prev, newItem]);
+        
+        // Simulate processing
+        setTimeout(() => {
+          setHistory(prev => prev.map(item => 
+            item.id === newItem.id 
+              ? { 
+                  ...item, 
+                  status: 'success', 
+                  output: `Выполнено: ${codeCommand}` 
+                }
+              : item
+          ));
+        }, 1000);
+        
+        return;
+      }
+    }
+    
     // Add command to history immediately to show user input
     const commandId = uuidv4();
     

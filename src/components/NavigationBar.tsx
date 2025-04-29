@@ -1,130 +1,53 @@
 
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Settings, MessageSquare, LogOut, Terminal, Package, Home } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Terminal, FileCode } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { useMobile } from '../hooks/use-mobile';
 
-export const NavigationBar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string | null>(null);
-  
-  const handleTabClick = (tab: string) => {
-    setActiveTab(activeTab === tab ? null : tab);
-  };
-  
+export const NavigationBar = () => {
+  const location = useLocation();
+  const { currentTheme } = useTheme();
+  const isMobile = useMobile();
+
+  const navItems = [
+    {
+      name: 'Главная',
+      icon: <Home className="w-5 h-5" />,
+      path: '/'
+    },
+    {
+      name: 'Терминал',
+      icon: <Terminal className="w-5 h-5" />,
+      path: '/terminal'
+    },
+    {
+      name: 'Код',
+      icon: <FileCode className="w-5 h-5" />,
+      path: '/code'
+    }
+  ];
+
   return (
-    <div className="h-16 border-t border-border bg-rukod-dark flex items-center justify-center px-4">
-      <div className="flex space-x-4">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <NavLink to="/" className={({ isActive }) => 
-                `flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
-                  isActive ? 'bg-rukod-purple bg-opacity-20' : 'hover:bg-rukod-purple hover:bg-opacity-10'
-                }`
-              }>
-                {({ isActive }) => (
-                  <Home className={`h-5 w-5 ${isActive ? 'text-rukod-purple' : 'text-white'}`} />
-                )}
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Главная</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <NavLink to="/terminal" className={({ isActive }) => 
-                `flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
-                  isActive ? 'bg-rukod-purple bg-opacity-20' : 'hover:bg-rukod-purple hover:bg-opacity-10'
-                }`
-              }>
-                {({ isActive }) => (
-                  <Terminal className={`h-5 w-5 ${isActive ? 'text-rukod-purple' : 'text-white'}`} />
-                )}
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Терминал</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <NavLink to="/libraries" className={({ isActive }) => 
-                `flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
-                  isActive ? 'bg-rukod-purple bg-opacity-20' : 'hover:bg-rukod-purple hover:bg-opacity-10'
-                }`
-              }>
-                {({ isActive }) => (
-                  <Package className={`h-5 w-5 ${isActive ? 'text-rukod-purple' : 'text-white'}`} />
-                )}
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Библиотеки</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => handleTabClick('settings')}
-                className={activeTab === 'settings' ? 'bg-rukod-purple bg-opacity-20' : ''}
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Настройки</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => handleTabClick('feedback')}
-                className={activeTab === 'feedback' ? 'bg-rukod-purple bg-opacity-20' : ''}
-              >
-                <MessageSquare className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Обратная связь</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => handleTabClick('exit')}
-                className={activeTab === 'exit' ? 'bg-rukod-purple bg-opacity-20' : ''}
-              >
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Выход</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-slate-950 bg-opacity-95 backdrop-blur-sm z-10">
+      <div className="container mx-auto flex justify-around items-center">
+        {navItems.map(item => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`flex flex-col items-center py-3 px-6 transition-colors ${
+              location.pathname === item.path
+                ? 'text-rukod-purple'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            style={{
+              color: location.pathname === item.path ? currentTheme.primaryColor : undefined
+            }}
+          >
+            <div className="mb-1">{item.icon}</div>
+            {!isMobile && <span className="text-xs">{item.name}</span>}
+          </Link>
+        ))}
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { ProgrammingLanguage } from "../models/types";
 
 // Interface for language plugins
@@ -41,10 +40,21 @@ export const pythonPlugin: LanguagePlugin = {
       return true;
     },
     list: async () => {
-      return ['numpy', 'pandas', 'matplotlib', 'torch', 'tensorflow']; // Mock installed packages
+      // Extended list of Python packages
+      return [
+        'numpy', 'pandas', 'matplotlib', 'scikit-learn', 'tensorflow',
+        'pytorch', 'keras', 'opencv-python', 'nltk', 'spacy', 'gensim',
+        'beautifulsoup4', 'scrapy', 'requests', 'flask', 'django',
+        'fastapi', 'sqlalchemy', 'pygame', 'pillow', 'sympy',
+        'xgboost', 'lightgbm', 'catboost', 'scipy'
+      ];
     },
     checkInstalled: async (packageName: string) => {
-      return ['numpy', 'pandas', 'matplotlib', 'torch', 'tensorflow'].includes(packageName);
+      return ['numpy', 'pandas', 'matplotlib', 'scikit-learn', 'tensorflow',
+        'pytorch', 'keras', 'opencv-python', 'nltk', 'spacy', 'gensim',
+        'beautifulsoup4', 'scrapy', 'requests', 'flask', 'django',
+        'fastapi', 'sqlalchemy', 'pygame', 'pillow', 'sympy',
+        'xgboost', 'lightgbm', 'catboost', 'scipy'].includes(packageName);
     }
   },
   run: async (code: string) => {
@@ -103,10 +113,21 @@ export const cppPlugin: LanguagePlugin = {
       return true;
     },
     list: async () => {
-      return ['boost', 'sfml', 'qt', 'opencv', 'eigen']; // Mock installed packages
+      // Extended list of C++ libraries
+      return [
+        'boost', 'eigen', 'opencv', 'qt', 'sfml', 'sdl',
+        'opengl', 'vulkan', 'glm', 'poco', 'cgal', 'pcl',
+        'dlib', 'tensorflow-cpp', 'fftw', 'ceres-solver',
+        'arrayfire', 'nlohmann-json', 'catch2', 'fmt',
+        'spdlog', 'zeromq', 'libcurl', 'rapidjson', 'openmp'
+      ];
     },
     checkInstalled: async (packageName: string) => {
-      return ['boost', 'sfml', 'qt', 'opencv', 'eigen'].includes(packageName);
+      return ['boost', 'eigen', 'opencv', 'qt', 'sfml', 'sdl',
+        'opengl', 'vulkan', 'glm', 'poco', 'cgal', 'pcl',
+        'dlib', 'tensorflow-cpp', 'fftw', 'ceres-solver',
+        'arrayfire', 'nlohmann-json', 'catch2', 'fmt',
+        'spdlog', 'zeromq', 'libcurl', 'rapidjson', 'openmp'].includes(packageName);
     }
   },
   run: async (code: string) => {
@@ -172,10 +193,19 @@ export const luaPlugin: LanguagePlugin = {
       return true;
     },
     list: async () => {
-      return ['luasocket', 'luafilesystem', 'luarocks', 'love']; // Mock installed packages
+      // Extended list of Lua libraries
+      return [
+        'luasocket', 'luafilesystem', 'luarocks', 'love',
+        'penlight', 'lua-cjson', 'luaunit', 'copas',
+        'lua-llthreads2', 'luasql', 'lualogging',
+        'luaxml', 'luagl', 'lpeg', 'lua-curl', 'moonscript'
+      ];
     },
     checkInstalled: async (packageName: string) => {
-      return ['luasocket', 'luafilesystem', 'luarocks', 'love'].includes(packageName);
+      return ['luasocket', 'luafilesystem', 'luarocks', 'love',
+        'penlight', 'lua-cjson', 'luaunit', 'copas',
+        'lua-llthreads2', 'luasql', 'lualogging',
+        'luaxml', 'luagl', 'lpeg', 'lua-curl', 'moonscript'].includes(packageName);
     }
   },
   run: async (code: string) => {
@@ -335,11 +365,22 @@ export const pluginRegistry = {
     console.log(`Plugin ${plugin.id} registered successfully`);
   },
 
-  // Get plugin by language
+  // Enhanced getByLanguage method with more robust language detection
   getByLanguage: (language: ProgrammingLanguage): LanguagePlugin | undefined => {
+    // Normalize language input
+    const normalizedLang = language.toLowerCase();
+    
+    // Match by exact id
+    if (Object.values(pluginRegistry)
+        .filter(value => typeof value !== 'function')
+        .some((plugin: any) => plugin.id === normalizedLang)) {
+      return (pluginRegistry as any)[normalizedLang];
+    }
+    
+    // Match by language
     return Object.values(pluginRegistry)
       .filter(value => typeof value !== 'function')
-      .find((plugin: any) => plugin.language === language);
+      .find((plugin: any) => plugin.language === normalizedLang);
   },
 
   // Get all registered plugins

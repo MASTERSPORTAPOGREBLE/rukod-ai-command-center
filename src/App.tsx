@@ -9,6 +9,7 @@ import { NavigationBar } from './components/NavigationBar';
 // Pages
 import HomePage from './pages/HomePage';
 import Terminal from './pages/Terminal';
+import CodeTerminal from './pages/CodeTerminal';
 import NotFound from './pages/NotFound';
 
 import './App.css';
@@ -25,6 +26,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/terminal" element={<Terminal />} />
+                <Route path="/code" element={<CodeTerminal />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>

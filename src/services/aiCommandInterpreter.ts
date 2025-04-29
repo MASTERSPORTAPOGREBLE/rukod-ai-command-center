@@ -1,4 +1,3 @@
-
 import { ProgrammingLanguage } from '../models/types';
 import { pluginRegistry } from '../plugins/languagePlugin';
 import { toast } from 'sonner';
@@ -135,6 +134,68 @@ const commandPatterns = [
     extractParams: (matches: RegExpMatchArray) => ({
       language: mapLanguage(matches[1])
     })
+  },
+  
+  // Code execution commands
+  {
+    pattern: /запустить\s+код\s+([a-zA-Z0-9\.\_\-]+)(?:\s+на\s+([a-zA-Z\+]+))?/i,
+    action: 'runCode',
+    extractParams: (matches: RegExpMatchArray) => ({
+      fileName: matches[1],
+      language: mapLanguage(matches[2])
+    })
+  },
+  {
+    pattern: /run\s+code\s+([a-zA-Z0-9\.\_\-]+)(?:\s+in\s+([a-zA-Z\+]+))?/i,
+    action: 'runCode',
+    extractParams: (matches: RegExpMatchArray) => ({
+      fileName: matches[1],
+      language: mapLanguage(matches[2])
+    })
+  },
+  
+  // Code saving commands
+  {
+    pattern: /сохрани(?:ть)?\s+(?:файл|код)\s+([a-zA-Z0-9\.\_\-]+)/i,
+    action: 'saveCode',
+    extractParams: (matches: RegExpMatchArray) => ({
+      fileName: matches[1]
+    })
+  },
+  {
+    pattern: /save\s+(?:file|code)\s+([a-zA-Z0-9\.\_\-]+)/i,
+    action: 'saveCode',
+    extractParams: (matches: RegExpMatchArray) => ({
+      fileName: matches[1]
+    })
+  },
+  
+  // Code format commands
+  {
+    pattern: /формат(?:ировать)?\s+код/i,
+    action: 'formatCode',
+    extractParams: () => ({})
+  },
+  {
+    pattern: /format\s+code/i,
+    action: 'formatCode',
+    extractParams: () => ({})
+  },
+  
+  // Code language selection
+  {
+    pattern: /использовать\s+язык\s+([a-zA-Z\+]+)/i,
+    action: 'setLanguage',
+    extractParams: (matches: RegExpMatchArray) => ({
+      language: mapLanguage(matches[1])
+    })
+  },
+  {
+    pattern: /use\s+language\s+([a-zA-Z\+]+)/i,
+    action: 'setLanguage',
+    extractParams: (matches: RegExpMatchArray) => ({
+      language: mapLanguage(matches[1])
+    })
   }
 ];
 
@@ -214,6 +275,18 @@ async function executeCommand(
       
     case 'turboInstall':
       return turboInstall(params.language);
+      
+    case 'runCode':
+      return runCode(params.fileName, params.language);
+      
+    case 'saveCode':
+      return saveCode(params.fileName);
+      
+    case 'formatCode':
+      return formatCode();
+      
+    case 'setLanguage':
+      return setCodeLanguage(params.language);
       
     default:
       return {
@@ -500,7 +573,7 @@ function showHelp(): Promise<CommandResult> {
 ### Системные команды
 - помощь - показать эту справку
 - очистить - очистить консоль
-- статус - информация о системе
+- стат��с - информация о системе
 
 ### Языки
 Поддерживаемые языки: python, c++, lua, javascript, rust, ruby
@@ -674,6 +747,106 @@ function getMockPopularLibraries(language: ProgrammingLanguage): {name: string, 
   return popularLibrariesMap[language] || [];
 }
 
+// Run code file
+async function runCode(fileName: string, language?: ProgrammingLanguage): Promise<CommandResult> {
+  if (!fileName) {
+    return {
+      success: false,
+      output: 'Пожалуйста, укажите имя файла для запуска.'
+    };
+  }
+  
+  // If language not specified, try to detect from file extension
+  if (!language) {
+    const fileExt = fileName.split('.').pop()?.toLowerCase();
+    if (fileExt) {
+      switch (fileExt) {
+        case 'py': language = 'python'; break;
+        case 'cpp': case 'cc': case 'cxx': case 'c': language = 'cpp'; break;
+        case 'lua': language = 'lua'; break;
+        case 'rs': language = 'rust'; break;
+        case 'rb': language = 'ruby'; break;
+        case 'js': language = 'javascript'; break;
+      }
+    }
+  }
+  
+  if (!language) {
+    return {
+      success: false,
+      output: `Невозможно определить язык для файла "${fileName}". Пожалуйста, укажите язык явно.`
+    };
+  }
+  
+  // Mock code execution
+  let outputText = `Запуск файла "${fileName}" (${language})...\n\n`;
+  
+  // Wait a bit to simulate execution
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Sample outputs for different languages
+  const outputs: Record<ProgrammingLanguage, string> = {
+    'python': 'Hello, world!\nPython выполнен успешно.',
+    'cpp': 'Hello, world!\nC++ выполнен успешно.',
+    'lua': 'Hello, world!\nLua выполнен успешно.',
+    'rust': 'Hello, world!\nRust выполнен успешно.',
+    'ruby': 'Hello, world!\nRuby выполнен успешно.',
+    'javascript': 'Hello, world!\nJavaScript выполнен успешно.'
+  };
+  
+  outputText += outputs[language] || 'Код выполнен успешно.';
+  
+  return {
+    success: true,
+    output: outputText,
+    action: 'code_executed',
+    params: { fileName, language }
+  };
+}
+
+// Save code file
+async function saveCode(fileName: string): Promise<CommandResult> {
+  if (!fileName) {
+    return {
+      success: false,
+      output: 'Пожалуйста, укажите имя файла для сохранения.'
+    };
+  }
+  
+  return {
+    success: true,
+    output: `Файл "${fileName}" успешно сохранен.`,
+    action: 'code_saved',
+    params: { fileName }
+  };
+}
+
+// Format code
+async function formatCode(): Promise<CommandResult> {
+  return {
+    success: true,
+    output: 'Код успешно отформатирован.',
+    action: 'code_formatted'
+  };
+}
+
+// Set code language
+async function setCodeLanguage(language: ProgrammingLanguage): Promise<CommandResult> {
+  if (!language) {
+    return {
+      success: false,
+      output: 'Пожалуйста, укажите язык программирования.'
+    };
+  }
+  
+  return {
+    success: true,
+    output: `Язык программирования изменен на ${language}.`,
+    action: 'language_set',
+    params: { language }
+  };
+}
+
 // Process command using AI (simplified mock version)
 async function processWithAI(command: string): Promise<CommandResult> {
   // In a real app, this would connect to an AI service
@@ -700,6 +873,42 @@ async function processWithAI(command: string): Promise<CommandResult> {
     return {
       success: true,
       output: 'Я понимаю, что вы хотите работать с контейнером. Пожалуйста, укажите действие и язык. Например: "запустить контейнер python"',
+    };
+  }
+  
+  if (command.toLowerCase().includes('run') || 
+      command.toLowerCase().includes('запустить')) {
+    
+    return {
+      success: true,
+      output: 'Я понимаю, что вы хотите запустить код. Пожалуйста, укажите имя файла и язык. Например: "запустить код main.py на python"',
+    };
+  }
+  
+  if (command.toLowerCase().includes('save') || 
+      command.toLowerCase().includes('сохранить')) {
+    
+    return {
+      success: true,
+      output: 'Я понимаю, что вы хотите сохранить код. Пожалуйста, укажите имя файла. Например: "сохранить код main.py"',
+    };
+  }
+  
+  if (command.toLowerCase().includes('format') || 
+      command.toLowerCase().includes('форматировать')) {
+    
+    return {
+      success: true,
+      output: 'Я понимаю, что вы хотите отформатировать код. Пожалуйста, укажите язык. Например: "форматировать код на python"',
+    };
+  }
+  
+  if (command.toLowerCase().includes('language') || 
+      command.toLowerCase().includes('язык')) {
+    
+    return {
+      success: true,
+      output: 'Я понимаю, что вы хотите изменить язык программирования. Пожалуйста, укажите язык. Например: "использовать язык python"',
     };
   }
   
