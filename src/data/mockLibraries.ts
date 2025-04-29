@@ -1,3 +1,4 @@
+
 import { Library, ProgrammingLanguage } from "../models/types";
 
 export const mockLibraries: Library[] = [
@@ -966,4 +967,8 @@ export const mockLibraries: Library[] = [
     language: "cpp",
     source: "Conan",
     popularity: 4.7,
-    tags: ["computer-vision", "image
+    tags: ["computer-vision", "image-processing", "machine-learning"],
+    isPaid: false,
+    isGame: false
+  }
+]
