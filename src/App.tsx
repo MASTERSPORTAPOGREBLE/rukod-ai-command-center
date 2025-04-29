@@ -11,6 +11,7 @@ import HomePage from './pages/HomePage';
 import Terminal from './pages/Terminal';
 import CodeTerminal from './pages/CodeTerminal';
 import NotFound from './pages/NotFound';
+import Libraries from './pages/Libraries';
 
 import './App.css';
 
@@ -19,19 +20,20 @@ function App() {
     <ThemeProvider>
       <ContainerProvider>
         <CommandProvider>
-          <div className="min-h-screen bg-slate-950 text-slate-50">
-            <div className="container mx-auto py-4 px-4 md:px-8">
-              <h1 className="text-2xl font-bold mb-6 text-center">CodeVerse IDE</h1>
+          <div className="min-h-screen bg-slate-950 text-slate-100">
+            <div className="container mx-auto py-2 px-1 md:px-4 h-[calc(100vh-56px)]">
+              <h1 className="text-2xl font-bold mb-4 text-center text-rukod-purple">CodeVerse IDE</h1>
               
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/terminal" element={<Terminal />} />
                 <Route path="/code" element={<CodeTerminal />} />
+                <Route path="/libraries" element={<Libraries />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
             <NavigationBar />
-            <Toaster />
+            <Toaster position="top-right" />
           </div>
         </CommandProvider>
       </ContainerProvider>

@@ -29,7 +29,7 @@
     /* Custom theme variables */
     --primary-color: #88C0D0;
     --secondary-color: #81A1C1;
-    --background-color: #2E3440;
+    --background-color: #1A1F2C;
     --text-color: #ECEFF4;
     --accent-color: #5E81AC;
   }
@@ -64,6 +64,17 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Add improved contrast for text */
+  .bg-slate-950 {
+    color: #ECEFF4;
+  }
+  .text-slate-400 {
+    color: #D8DEE9;
+  }
+  .text-slate-500 {
+    color: #C2C8D2;
+  }
 }
 
 /* Add custom styles for the mobile IDE */
@@ -72,3 +83,53 @@
   font-size: 14px;
   line-height: 1.5;
 }
+
+/* Terminal text styling */
+.terminal-text {
+  font-family: "JetBrains Mono", Consolas, Monaco, "Andale Mono", monospace;
+  color: #ECEFF4;
+}
+
+/* Code editor styling */
+.code-editor-like {
+  font-family: "JetBrains Mono", monospace;
+  background-color: #1A1F2C;
+  border-radius: 0.375rem;
+}
+
+/* Custom scrollbar for better visibility */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(30, 30, 46, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(155, 135, 245, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(155, 135, 245, 0.7);
+}
+
+/* Animation utilities */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1s infinite;
+}
+
+.glass-panel {
+  background: rgba(30, 30, 46, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+

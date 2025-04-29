@@ -176,6 +176,68 @@ export const mockLibraries: Library[] = [
     isGame: false
   },
   
+  // New Python libraries
+  {
+    id: "python-requests",
+    name: "Requests",
+    description: "Элегантная HTTP-библиотека для Python",
+    version: "2.31.0",
+    language: "python",
+    source: "PyPI",
+    popularity: 4.9,
+    tags: ["http", "api", "web"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "python-beautifulsoup",
+    name: "BeautifulSoup4",
+    description: "Библиотека для парсинга HTML и XML документов",
+    version: "4.12.2",
+    language: "python",
+    source: "PyPI",
+    popularity: 4.7,
+    tags: ["parsing", "html", "scraping"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "python-sqlalchemy",
+    name: "SQLAlchemy",
+    description: "Python SQL инструментарий и ORM",
+    version: "2.0.0",
+    language: "python",
+    source: "PyPI",
+    popularity: 4.8,
+    tags: ["database", "orm", "sql"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "python-tornado",
+    name: "Tornado",
+    description: "Асинхронный веб-фреймворк и библиотека клиент-сервера",
+    version: "6.4.0",
+    language: "python",
+    source: "PyPI",
+    popularity: 4.5,
+    tags: ["web", "async", "framework"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "python-pydantic",
+    name: "Pydantic",
+    description: "Библиотека валидации данных с аннотациями типов Python",
+    version: "2.5.2",
+    language: "python",
+    source: "PyPI",
+    popularity: 4.8,
+    tags: ["validation", "types", "schema"],
+    isPaid: false,
+    isGame: false
+  },
+  
   // C++ Libraries - Core and Utilities
   {
     id: "cpp-boost",
@@ -360,6 +422,92 @@ export const mockLibraries: Library[] = [
     source: "Conan",
     popularity: 4.6,
     tags: ["rpc", "protobuf", "networking"],
+    isPaid: false,
+    isGame: false
+  },
+  
+  // New C++ libraries
+  {
+    id: "cpp-catch2",
+    name: "Catch2",
+    description: "Современный фреймворк для модульного тестирования на C++",
+    version: "3.4.0",
+    language: "cpp",
+    source: "Conan",
+    popularity: 4.7,
+    tags: ["testing", "unit-tests", "tdd"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "cpp-nlohmann-json",
+    name: "JSON for Modern C++",
+    description: "Библиотека для работы с JSON в современном C++",
+    version: "3.11.2",
+    language: "cpp",
+    source: "Conan",
+    popularity: 4.8,
+    tags: ["json", "serialization", "parsing"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "cpp-opencv",
+    name: "OpenCV",
+    description: "Библиотека компьютерного зрения для C++",
+    version: "4.8.0",
+    language: "cpp",
+    source: "Conan",
+    popularity: 4.7,
+    tags: ["computer-vision", "image-processing"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "cpp-drogon",
+    name: "Drogon",
+    description: "Высокопроизводительный веб-фреймворк для C++",
+    version: "1.8.6",
+    language: "cpp",
+    source: "Conan",
+    popularity: 4.4,
+    tags: ["web", "async", "http"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "cpp-folly",
+    name: "Folly",
+    description: "Библиотека основных компонентов C++ от Facebook",
+    version: "2023.10.16.00",
+    language: "cpp",
+    source: "Conan",
+    popularity: 4.5,
+    tags: ["utilities", "facebook", "performance"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "cpp-cpprestsdk",
+    name: "C++ REST SDK",
+    description: "Инструментарий для клиент-серверной REST коммуникации",
+    version: "2.10.18",
+    language: "cpp",
+    source: "Conan",
+    popularity: 4.3,
+    tags: ["rest", "http", "networking"],
+    isPaid: false,
+    isGame: false
+  },
+  {
+    id: "cpp-armadillo",
+    name: "Armadillo",
+    description: "Библиотека линейной алгебры для C++",
+    version: "12.6.0",
+    language: "cpp",
+    source: "Conan",
+    popularity: 4.5,
+    tags: ["linear-algebra", "scientific", "mathematics"],
     isPaid: false,
     isGame: false
   },
