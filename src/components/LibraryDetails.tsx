@@ -4,7 +4,7 @@ import { Library } from '../models/types';
 import { useTheme } from '../context/ThemeContext';
 import { 
   X, Download, Star, Code, Calendar, Globe, Package, Tag, ArrowRight, FileCode, 
-  RefreshCw, GitHub, Book, FileText, CheckCircle, Play, Terminal, BarChart3, Info, ExternalLink 
+  RefreshCw, Github, Book, FileText, CheckCircle, Play, Terminal, BarChart3, Info, ExternalLink 
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';

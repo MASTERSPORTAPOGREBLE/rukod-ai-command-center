@@ -1,8 +1,10 @@
+
 import { Library, ProgrammingLanguage } from "../models/types";
 import { luaLibraries } from "./luaLibraries";
 import { rubyLibraries } from "./rubyLibraries";
 import { rustLibraries } from "./rustLibraries";
 import { javascriptLibraries } from "./javascriptLibraries";
+import { cppLibraries } from "./cppLibraries";
 
 // Core set of Python libraries (kept inline for reference)
 export const pythonLibraries: Library[] = [

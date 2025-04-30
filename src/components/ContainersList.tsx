@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import { terminalService, ContainerInfo } from '../services/terminalService';
+import { terminalService } from '../services/terminalService';
+import { ContainerInfo, ProgrammingLanguage } from '../models/types';
 import { useTheme } from '../context/ThemeContext';
 import { Server, Power, Trash2, RotateCw, Info, Play, Terminal, FileCode, RefreshCw, Package, Shield } from 'lucide-react';
 import { Button } from './ui/button';

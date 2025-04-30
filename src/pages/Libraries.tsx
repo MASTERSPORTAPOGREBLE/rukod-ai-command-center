@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { mockLibraries, getLibrariesByLanguageCount, getLibraryById } from '../data/mockLibraries';
-import { Library, ProgrammingLanguage } from '../models/types';
+import { Library, ProgrammingLanguage, LogEntry } from '../models/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Search, Filter, Database, Star, Package, Download, Loader2, Book, 
@@ -128,21 +128,23 @@ const Libraries = () => {
     );
     
     // In a real app, we would also update the terminal logs
-    terminalService.addLog({
+    const installStartLog: LogEntry = {
       id: `install-${Date.now()}`,
       level: 'info',
       message: `Начало установки библиотеки ${library.name} (${library.language})`,
       timestamp: new Date()
-    });
+    };
+    terminalService.addLog(installStartLog);
     
     // After "installation" is complete
     setTimeout(() => {
-      terminalService.addLog({
+      const installCompleteLog: LogEntry = {
         id: `install-complete-${Date.now()}`,
         level: 'success',
         message: `Библиотека ${library.name} версии ${library.version} успешно установлена`,
         timestamp: new Date()
-      });
+      };
+      terminalService.addLog(installCompleteLog);
     }, 2000);
   };
   
