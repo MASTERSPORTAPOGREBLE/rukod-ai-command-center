@@ -50,4 +50,8 @@ export interface SystemStats {
   diskUsage: number;
   activeContainers: number;
   uptime: number;
+  // Add these properties to fix the type errors
+  ramUsage: number;
+  diskSpace: number;
+  diskFree: number;
 }
