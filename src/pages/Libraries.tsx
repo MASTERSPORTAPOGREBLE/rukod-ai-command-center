@@ -1,14 +1,18 @@
-
-import React, { useState, useEffect } from 'react';
-import { mockLibraries, getLibrariesByLanguageCount } from '../data/mockLibraries';
+import React, { useState, useEffect, useMemo } from 'react';
+import { mockLibraries, getLibrariesByLanguageCount, getLibraryById } from '../data/mockLibraries';
 import { Library, ProgrammingLanguage } from '../models/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, Database, Star, Package, Download, Loader2, Book, Grid3X3, Columns2, List } from 'lucide-react';
+import { 
+  Search, Filter, Database, Star, Package, Download, Loader2, Book, 
+  Grid3X3, Columns2, List, ChevronLeft, ChevronRight, Info
+} from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { toast } from 'sonner';
 import { LibraryDetails } from '../components/LibraryDetails';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { terminalService } from '../services/terminalService';
 
 const Libraries = () => {
   const { currentTheme } = useTheme();
@@ -19,42 +23,127 @@ const Libraries = () => {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(null);
+  const [installedLibraries, setInstalledLibraries] = useState<Set<string>>(new Set());
+  const [showOnlyFree, setShowOnlyFree] = useState(false);
+  const [showOnlyGames, setShowOnlyGames] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  
   const librariesPerPage = 18;
   const libraryCount = getLibrariesByLanguageCount();
   
   const filterLibraries = () => {
     return mockLibraries.filter(lib => 
+      // Filter by language
       (activeTab === 'all' || lib.language === activeTab) &&
+      
+      // Filter by free
+      (!showOnlyFree || !lib.isPaid) &&
+      
+      // Filter by games
+      (!showOnlyGames || lib.isGame) &&
+      
+      // Filter by category
+      (!activeCategory || (lib.tags && lib.tags.includes(activeCategory))) &&
+      
+      // Filter by search query
       (lib.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-       lib.description.toLowerCase().includes(searchQuery.toLowerCase()))
+       lib.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       lib.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
     );
   };
+
+  // Calculate total pages and current page libraries
+  const filteredLibraries = useMemo(() => filterLibraries(), [
+    activeTab, searchQuery, showOnlyFree, showOnlyGames, activeCategory
+  ]);
+  
+  const totalPages = Math.ceil(filteredLibraries.length / librariesPerPage);
   
   // Handle initial loading and pagination
   useEffect(() => {
     setIsLoading(true);
     // Simulate API loading delay
     setTimeout(() => {
-      const filtered = filterLibraries();
-      const paginatedLibraries = filtered.slice(0, page * librariesPerPage);
+      const start = (page - 1) * librariesPerPage;
+      const end = start + librariesPerPage;
+      const paginatedLibraries = filteredLibraries.slice(start, end);
       setDisplayedLibraries(paginatedLibraries);
       setIsLoading(false);
     }, 300);
-  }, [activeTab, searchQuery, page]);
+  }, [filteredLibraries, page]);
+  
+  // Reset to first page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, searchQuery, showOnlyFree, showOnlyGames, activeCategory]);
+  
+  // Keep track of installed libraries
+  useEffect(() => {
+    // In a real app, we'd load this from a service
+    // For now, just start with an empty set
+    const containers = terminalService.getContainers();
+    const installedSet = new Set<string>();
+    
+    // Assume each container has a "libraryId" property that links to the library
+    containers.forEach(container => {
+      if (container.libraryId) {
+        installedSet.add(container.libraryId);
+      }
+    });
+    
+    setInstalledLibraries(installedSet);
+  }, []);
   
   const handleLoadMore = () => {
     setPage(prevPage => prevPage + 1);
   };
   
+  const handlePreviousPage = () => {
+    setPage(p => Math.max(1, p - 1));
+  };
+  
+  const handleNextPage = () => {
+    setPage(p => Math.min(totalPages, p + 1));
+  };
+  
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+  
   const handleInstallLibrary = (library: Library) => {
     toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1500)),
+      new Promise((resolve) => {
+        // Simulate installation process
+        setTimeout(() => {
+          // Add to installed libraries
+          setInstalledLibraries(prev => new Set(prev).add(library.id));
+          resolve(true);
+        }, 1500);
+      }),
       {
         loading: `Установка ${library.name}...`,
         success: `Библиотека ${library.name} успешно установлена!`,
         error: `Ошибка при установке ${library.name}`
       }
     );
+    
+    // In a real app, we would also update the terminal logs
+    terminalService.addLog({
+      id: `install-${Date.now()}`,
+      level: 'info',
+      message: `Начало установки библиотеки ${library.name} (${library.language})`,
+      timestamp: new Date()
+    });
+    
+    // After "installation" is complete
+    setTimeout(() => {
+      terminalService.addLog({
+        id: `install-complete-${Date.now()}`,
+        level: 'success',
+        message: `Библиотека ${library.name} версии ${library.version} успешно установлена`,
+        timestamp: new Date()
+      });
+    }, 2000);
   };
   
   const handleOpenDetails = (library: Library) => {
@@ -65,8 +154,76 @@ const Libraries = () => {
     setSelectedLibrary(null);
   };
   
-  const totalFilteredLibraries = filterLibraries().length;
-  const hasMoreToLoad = displayedLibraries.length < totalFilteredLibraries;
+  const isLibraryInstalled = (libraryId: string) => {
+    return installedLibraries.has(libraryId);
+  };
+  
+  const handleCategoryClick = (category: string) => {
+    if (activeCategory === category) {
+      setActiveCategory(null); // Toggle off
+    } else {
+      setActiveCategory(category);
+    }
+  };
+  
+  // Get unique tags for category filtering
+  const commonTags = useMemo(() => {
+    const tagCounts: Record<string, number> = {};
+    
+    filteredLibraries.forEach(lib => {
+      if (lib.tags) {
+        lib.tags.forEach(tag => {
+          tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        });
+      }
+    });
+    
+    return Object.entries(tagCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([tag]) => tag);
+  }, [filteredLibraries]);
+  
+  // Generate pagination UI
+  const getPaginationItems = () => {
+    // Always show the first page, the last page, and pages around the current page
+    const pageItems: (number | string)[] = [];
+    
+    if (totalPages <= 7) {
+      // If we have 7 or fewer pages, show all page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        pageItems.push(i);
+      }
+    } else {
+      // Always show first page
+      pageItems.push(1);
+      
+      // Add ellipsis if needed
+      if (page > 3) {
+        pageItems.push('...');
+      }
+      
+      // Show pages around current page
+      const startPage = Math.max(2, page - 1);
+      const endPage = Math.min(totalPages - 1, page + 1);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pageItems.push(i);
+      }
+      
+      // Add ellipsis if needed
+      if (page < totalPages - 2) {
+        pageItems.push('...');
+      }
+      
+      // Always show last page if we have more than 1 page
+      if (totalPages > 1) {
+        pageItems.push(totalPages);
+      }
+    }
+    
+    return pageItems;
+  };
 
   return (
     <div className="h-[calc(100vh-120px)] flex flex-col overflow-hidden">
@@ -74,7 +231,7 @@ const Libraries = () => {
         <div className="flex items-center">
           <Database className="h-6 w-6 mr-2" style={{ color: currentTheme.primaryColor }} />
           <h1 className="text-xl font-bold" style={{ color: currentTheme.primaryColor }}>
-            Библиотеки <span className="text-sm opacity-70">({totalFilteredLibraries})</span>
+            Библиотеки <span className="text-sm opacity-70">({filteredLibraries.length})</span>
           </h1>
         </div>
         
@@ -109,9 +266,39 @@ const Libraries = () => {
             </Button>
           </div>
           
-          <button className="p-1 rounded-md bg-slate-900 border border-slate-700">
-            <Filter className="h-4 w-4 text-slate-400" />
-          </button>
+          <div className="relative">
+            <Button
+              variant="outline"
+              className="flex items-center gap-1 text-xs h-8"
+            >
+              <Filter className="h-3.5 w-3.5" />
+              Фильтры
+            </Button>
+            <div className="absolute top-full right-0 mt-1 p-3 bg-slate-900 border border-slate-700 rounded-md shadow-lg z-10 hidden group-hover:block">
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    id="free-only" 
+                    checked={showOnlyFree}
+                    onChange={() => setShowOnlyFree(!showOnlyFree)}
+                    className="mr-2"
+                  />
+                  <label htmlFor="free-only" className="text-sm">Только бесплатные</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    id="games-only" 
+                    checked={showOnlyGames}
+                    onChange={() => setShowOnlyGames(!showOnlyGames)}
+                    className="mr-2"
+                  />
+                  <label htmlFor="games-only" className="text-sm">Только игровые</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
       
@@ -145,6 +332,32 @@ const Libraries = () => {
           </TabsList>
         </div>
         
+        {/* Top categories section */}
+        {commonTags.length > 0 && (
+          <div className="px-4 pt-2 pb-1 flex flex-wrap gap-2 border-b border-slate-800">
+            {commonTags.map(tag => (
+              <Badge 
+                key={tag}
+                variant={activeCategory === tag ? "default" : "outline"}
+                className={`cursor-pointer ${activeCategory === tag ? 'bg-rukod-purple' : ''}`}
+                onClick={() => handleCategoryClick(tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+            {activeCategory && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs py-0 h-6" 
+                onClick={() => setActiveCategory(null)}
+              >
+                Очистить
+              </Button>
+            )}
+          </div>
+        )}
+        
         <div className="flex-grow overflow-auto p-4 relative">
           {isLoading && displayedLibraries.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full">
@@ -161,6 +374,7 @@ const Libraries = () => {
                       library={lib} 
                       onInstall={handleInstallLibrary} 
                       onViewDetails={handleOpenDetails}
+                      isInstalled={isLibraryInstalled(lib.id)}
                     />
                   ))}
                 </div>
@@ -172,6 +386,7 @@ const Libraries = () => {
                       library={lib}
                       onInstall={handleInstallLibrary}
                       onViewDetails={handleOpenDetails}
+                      isInstalled={isLibraryInstalled(lib.id)}
                     />
                   ))}
                 </div>
@@ -185,15 +400,53 @@ const Libraries = () => {
                 </div>
               )}
               
-              {hasMoreToLoad && (
-                <div className="flex justify-center mt-6">
-                  <button 
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-md flex items-center gap-2"
-                    onClick={handleLoadMore}
-                  >
-                    {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Загрузить еще
-                  </button>
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex justify-center">
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={handlePreviousPage} 
+                      disabled={page === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    
+                    <div className="flex items-center space-x-1">
+                      {getPaginationItems().map((pageItem, index) => {
+                        if (pageItem === '...') {
+                          return (
+                            <div key={`ellipsis-${index}`} className="px-2">
+                              ...
+                            </div>
+                          );
+                        }
+                        
+                        const pageNumber = Number(pageItem);
+                        return (
+                          <Button
+                            key={`page-${pageNumber}`}
+                            variant={page === pageNumber ? "default" : "outline"}
+                            size="sm"
+                            className={page === pageNumber ? "bg-rukod-purple" : ""}
+                            onClick={() => handlePageChange(pageNumber)}
+                          >
+                            {pageNumber}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={handleNextPage}
+                      disabled={page === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </>
@@ -206,6 +459,7 @@ const Libraries = () => {
           library={selectedLibrary}
           onClose={handleCloseDetails}
           onInstall={handleInstallLibrary}
+          isInstalled={isLibraryInstalled(selectedLibrary.id)}
         />
       )}
     </div>
@@ -216,9 +470,10 @@ interface LibraryCardProps {
   library: Library;
   onInstall: (library: Library) => void;
   onViewDetails: (library: Library) => void;
+  isInstalled?: boolean;
 }
 
-const LibraryCard = ({ library, onInstall, onViewDetails }: LibraryCardProps) => {
+const LibraryCard = ({ library, onInstall, onViewDetails, isInstalled = false }: LibraryCardProps) => {
   const { currentTheme } = useTheme();
   
   const languageColors = {
@@ -238,27 +493,49 @@ const LibraryCard = ({ library, onInstall, onViewDetails }: LibraryCardProps) =>
       onClick={() => onViewDetails(library)}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-bold text-lg" style={{ color: currentTheme.primaryColor }}>
-          {library.name}
-        </h3>
-        <div className="flex items-center">
-          <span className="text-yellow-400 flex items-center mr-2">
-            <Star className="h-3.5 w-3.5 fill-yellow-400 mr-1" />
-            {library.popularity.toFixed(1)}
-          </span>
-          <span 
-            className="text-xs px-2 py-1 rounded" 
-            style={{ 
-              backgroundColor: languageColor.bg, 
-              color: languageColor.text
-            }}
-          >
-            {library.language}
-          </span>
+        <div className="flex flex-col">
+          <div className="flex items-center">
+            <h3 className="font-bold text-lg" style={{ color: currentTheme.primaryColor }}>
+              {library.name}
+            </h3>
+            {isInstalled && (
+              <Badge variant="secondary" className="ml-2 bg-green-900 text-green-100 border-none text-xs">
+                Установлено
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center mt-1">
+            <span 
+              className="text-xs px-2 py-1 rounded mr-2" 
+              style={{ 
+                backgroundColor: languageColor.bg, 
+                color: languageColor.text
+              }}
+            >
+              {library.language}
+            </span>
+            <span className="text-yellow-400 flex items-center">
+              <Star className="h-3.5 w-3.5 fill-yellow-400 mr-1" />
+              {library.popularity.toFixed(1)}
+            </span>
+          </div>
         </div>
       </div>
       
-      <p className="text-sm text-slate-300 mb-3">{library.description}</p>
+      <p className="text-sm text-slate-300 mb-3 line-clamp-2">{library.description}</p>
+      
+      <div className="flex flex-wrap gap-1 mb-3">
+        {library.tags?.slice(0, 3).map(tag => (
+          <Badge key={tag} variant="outline" className="text-xs">
+            {tag}
+          </Badge>
+        ))}
+        {library.tags && library.tags.length > 3 && (
+          <Badge variant="outline" className="text-xs">
+            +{library.tags.length - 3}
+          </Badge>
+        )}
+      </div>
       
       <div className="flex items-center justify-between mt-2">
         <div className="flex items-center text-xs text-slate-400">
@@ -267,16 +544,42 @@ const LibraryCard = ({ library, onInstall, onViewDetails }: LibraryCardProps) =>
         </div>
         
         <div className="flex items-center">
-          <button 
-            className="text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded flex items-center"
-            onClick={(e) => {
-              e.stopPropagation();
-              onInstall(library);
-            }}
-          >
-            <Download className="w-3.5 h-3.5 mr-1" />
-            Установить
-          </button>
+          <div className="flex items-center mr-2">
+            <button 
+              className="text-xs p-1 rounded flex items-center hover:text-rukod-purple"
+              onClick={(e) => {
+                e.stopPropagation();
+                toast.info(`Информация о ${library.name}`, {
+                  description: `Версия: ${library.version}, Источник: ${library.source}`
+                });
+              }}
+            >
+              <Info className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          
+          {isInstalled ? (
+            <button 
+              className="text-xs bg-slate-800 hover:bg-green-900 px-2 py-1 rounded flex items-center text-green-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                toast.info(`Библиотека ${library.name} уже установлена`);
+              }}
+            >
+              Установлено
+            </button>
+          ) : (
+            <button 
+              className="text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded flex items-center"
+              onClick={(e) => {
+                e.stopPropagation();
+                onInstall(library);
+              }}
+            >
+              <Download className="w-3.5 h-3.5 mr-1" />
+              Установить
+            </button>
+          )}
         </div>
       </div>
       
@@ -289,7 +592,7 @@ const LibraryCard = ({ library, onInstall, onViewDetails }: LibraryCardProps) =>
   );
 };
 
-const LibraryListItem = ({ library, onInstall, onViewDetails }: LibraryCardProps) => {
+const LibraryListItem = ({ library, onInstall, onViewDetails, isInstalled = false }: LibraryCardProps) => {
   const { currentTheme } = useTheme();
   
   const languageColors = {
@@ -332,8 +635,20 @@ const LibraryListItem = ({ library, onInstall, onViewDetails }: LibraryCardProps
                 Платная
               </Badge>
             )}
+            {isInstalled && (
+              <Badge variant="secondary" className="bg-green-900 text-green-100 border-none text-xs py-0 h-4">
+                Установлено
+              </Badge>
+            )}
           </div>
           <p className="text-sm text-slate-300 line-clamp-1">{library.description}</p>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {library.tags?.slice(0, 3).map(tag => (
+              <Badge key={tag} variant="outline" className="text-xs py-0">
+                {tag}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
       
@@ -343,16 +658,28 @@ const LibraryListItem = ({ library, onInstall, onViewDetails }: LibraryCardProps
           {library.popularity.toFixed(1)}
         </span>
         
-        <button 
-          className="text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded flex items-center"
-          onClick={(e) => {
-            e.stopPropagation();
-            onInstall(library);
-          }}
-        >
-          <Download className="w-3.5 h-3.5 mr-1" />
-          Установить
-        </button>
+        {isInstalled ? (
+          <button 
+            className="text-xs bg-slate-800 px-2 py-1 rounded flex items-center text-green-400 hover:bg-green-900"
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.info(`Библиотека ${library.name} уже установлена`);
+            }}
+          >
+            Установлено
+          </button>
+        ) : (
+          <button 
+            className="text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded flex items-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              onInstall(library);
+            }}
+          >
+            <Download className="w-3.5 h-3.5 mr-1" />
+            Установить
+          </button>
+        )}
       </div>
     </div>
   );

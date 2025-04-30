@@ -1,6 +1,11 @@
 import { Library, ProgrammingLanguage } from "../models/types";
+import { luaLibraries } from "./luaLibraries";
+import { rubyLibraries } from "./rubyLibraries";
+import { rustLibraries } from "./rustLibraries";
+import { javascriptLibraries } from "./javascriptLibraries";
 
-export const mockLibraries: Library[] = [
+// Core set of Python libraries (kept inline for reference)
+export const pythonLibraries: Library[] = [
   // Python Libraries - Machine Learning & Data Science
   {
     id: "python-numpy",
@@ -972,6 +977,16 @@ export const mockLibraries: Library[] = [
   }
 ];
 
+// Combine all libraries
+export const mockLibraries: Library[] = [
+  ...pythonLibraries,
+  ...cppLibraries,
+  ...luaLibraries,
+  ...rustLibraries,
+  ...rubyLibraries,
+  ...javascriptLibraries
+];
+
 // Add the missing utility functions for LibraryManager
 export const getFilteredLibraries = (
   language?: ProgrammingLanguage,
@@ -1078,4 +1093,96 @@ export const getRelatedLibraries = (libraryId: string, count: number = 3): Libra
     .slice(0, count);
     
   return relatedLibs.map(item => item.library);
+};
+
+// New utility functions for enhanced features
+
+export const getLibraryById = (id: string): Library | undefined => {
+  return mockLibraries.find(lib => lib.id === id);
+};
+
+export const getNewestLibraries = (count: number = 5): Library[] => {
+  // In a real app, we'd use actual release dates
+  // Here we'll simulate by returning random libraries
+  const shuffled = [...mockLibraries].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
+export const getTrendingLibraries = (count: number = 5): Library[] => {
+  // In a real app, we'd use actual trending metrics
+  // Here we'll use highest popularity score
+  return [...mockLibraries]
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, count);
+};
+
+export const getRecommendedLibraries = (language: ProgrammingLanguage, count: number = 3): Library[] => {
+  // Get only top libraries for the specified language
+  return [...mockLibraries]
+    .filter(lib => lib.language === language)
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, count);
+};
+
+export const getLibrariesByTags = (tags: string[], count: number = 10): Library[] => {
+  // Find libraries that match any of the provided tags
+  return mockLibraries
+    .filter(lib => lib.tags && lib.tags.some(tag => tags.includes(tag)))
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, count);
+};
+
+export const getMostPopularTags = (count: number = 10): { tag: string, count: number }[] => {
+  const tagCounts: Record<string, number> = {};
+  
+  mockLibraries.forEach(lib => {
+    if (lib.tags) {
+      lib.tags.forEach(tag => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      });
+    }
+  });
+  
+  return Object.entries(tagCounts)
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, count);
+};
+
+export const searchLibrariesByFunction = (searchText: string, count: number = 10): Library[] => {
+  // This would be more sophisticated in a real app with better search capabilities
+  const lowerSearchText = searchText.toLowerCase();
+  
+  return mockLibraries
+    .filter(lib => 
+      lib.name.toLowerCase().includes(lowerSearchText) ||
+      lib.description.toLowerCase().includes(lowerSearchText) ||
+      lib.tags?.some(tag => tag.toLowerCase().includes(lowerSearchText))
+    )
+    .slice(0, count);
+};
+
+export const getPaidLibraries = (count: number = 10): Library[] => {
+  return mockLibraries
+    .filter(lib => lib.isPaid)
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, count);
+};
+
+export const getFreeAlternativesToPaidLibrary = (paidLibraryId: string, count: number = 3): Library[] => {
+  const paidLib = mockLibraries.find(lib => lib.id === paidLibraryId && lib.isPaid);
+  
+  if (!paidLib || !paidLib.tags) {
+    return [];
+  }
+  
+  return mockLibraries
+    .filter(lib => 
+      !lib.isPaid && 
+      lib.language === paidLib.language && 
+      lib.id !== paidLib.id &&
+      lib.tags?.some(tag => paidLib.tags?.includes(tag))
+    )
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, count);
 };
