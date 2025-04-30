@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Terminal, FileCode, Settings, Database } from 'lucide-react';
+import { Home, Terminal, FileCode, Database, User, HelpCircle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useIsMobile } from '../hooks/use-mobile';
 
@@ -30,6 +30,16 @@ export const NavigationBar = () => {
       name: 'Библиотеки',
       icon: <Database className="w-5 h-5" />,
       path: '/libraries'
+    },
+    {
+      name: 'Аккаунт',
+      icon: <User className="w-5 h-5" />,
+      path: '/auth'
+    },
+    {
+      name: 'Помощь',
+      icon: <HelpCircle className="w-5 h-5" />,
+      path: '/help'
     }
   ];
 
@@ -40,7 +50,7 @@ export const NavigationBar = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`flex flex-col items-center py-3 px-4 transition-colors ${
+            className={`flex flex-col items-center py-3 px-2 md:px-4 transition-colors ${
               location.pathname === item.path
                 ? 'text-rukod-purple'
                 : 'text-slate-300 hover:text-slate-100'
