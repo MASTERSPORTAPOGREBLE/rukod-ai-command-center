@@ -1,6 +1,6 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { ContainerInfo, ProgrammingLanguage } from '../models/types';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ContainerContextType {
   containers: ContainerInfo[];
@@ -38,17 +38,24 @@ export function ContainerProvider({ children }: { children: ReactNode }) {
     // Mock container creation
     await mockContainerOperation(2000);
     
-    const newContainer: ContainerInfo = {
-      id: `${language}-${Date.now()}`,
-      name: `${language}-container`,
-      language,
-      status: 'running',
-      memoryUsage: Math.random() * 100,
-      cpuUsage: Math.random() * 20
+    const createContainer = (name: string, language: ProgrammingLanguage) => {
+      const newContainer: ContainerInfo = {
+        id: uuidv4(),
+        name,
+        language,
+        status: 'ready',
+        memoryUsage: 0,
+        cpuUsage: 0,
+        startTime: new Date() // Add this line
+      };
+      
+      setContainers(prev => [...prev, newContainer]);
+      setActiveContainer(newContainer);
+      
+      return newContainer;
     };
     
-    setContainers(prev => [...prev, newContainer]);
-    setActiveContainer(newContainer);
+    const newContainer = createContainer(`${language}-container`, language);
     
     return newContainer;
   };

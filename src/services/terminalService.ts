@@ -143,8 +143,15 @@ export const terminalService = {
     };
   },
   
-  addLog: (log: LogEntry) => {
-    mockLogs.push(log);
+  addLog: (message: string, level: string = 'info') => {
+    const newLog: LogEntry = {
+      id: `log-${mockLogs.length + 1}`,
+      level,
+      message,
+      timestamp: new Date()
+    };
+    
+    mockLogs.push(newLog);
     
     // Notify listeners
     logListeners.forEach(listener => listener([...mockLogs]));
@@ -159,5 +166,82 @@ export const terminalService = {
     logListeners.forEach(listener => listener([...mockLogs]));
     
     return true;
+  },
+
+  // Execute command method
+  executeCommand: async (command: string) => {
+    // Add log for command execution
+    terminalService.addLog(`Выполнение команды: ${command}`, 'info');
+    
+    // Simulate command execution delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Process different commands
+    if (command.toLowerCase().includes('container start') || command.toLowerCase().includes('запуск контейнера')) {
+      const parts = command.split(' ');
+      const language = parts[parts.length - 1] as ProgrammingLanguage;
+      
+      const container = mockContainers.find(c => c.language === language);
+      if (container) {
+        terminalService.startContainer(container.id);
+        terminalService.addLog(`Контейнер ${language} успешно запущен`, 'success');
+      } else {
+        const newContainer: ContainerInfo = {
+          id: `container-${mockContainers.length + 1}`,
+          name: `${language}-new`,
+          language: language as ProgrammingLanguage,
+          status: 'running',
+          memoryUsage: Math.random() * 30,
+          cpuUsage: Math.random() * 15,
+          tags: ['new'],
+          startTime: new Date()
+        };
+        
+        mockContainers.push(newContainer);
+        containerListeners.forEach(listener => listener([...mockContainers]));
+        terminalService.addLog(`Новый контейнер ${language} создан и запущен`, 'success');
+      }
+      return `Контейнер ${language} запущен`;
+    } else if (command.toLowerCase().includes('container stop') || command.toLowerCase().includes('остановить контейнер')) {
+      const parts = command.split(' ');
+      const id = parts[parts.length - 1];
+      
+      if (terminalService.stopContainer(id)) {
+        terminalService.addLog(`Контейнер ${id} остановлен`, 'success');
+        return `Контейнер ${id} остановлен`;
+      } else {
+        terminalService.addLog(`Контейнер ${id} не найден`, 'error');
+        return `Контейнер ${id} не найден`;
+      }
+    } else if (command.toLowerCase().includes('container list') || command.toLowerCase().includes('список контейнеров')) {
+      const containers = terminalService.getContainers();
+      terminalService.addLog(`Список контейнеров: ${containers.length} найдено`, 'info');
+      return `Найдено ${containers.length} контейнеров`;
+    } else if (command.toLowerCase().includes('clear') || command.toLowerCase().includes('очистить')) {
+      terminalService.clearLogs();
+      return 'История команд очищена';
+    } else if (command.toLowerCase().includes('help') || command.toLowerCase().includes('помощь')) {
+      terminalService.addLog('Вызвана команда помощи', 'info');
+      return `Доступные команды:
+- container start [язык] - запустить контейнер
+- container stop [id] - остановить контейнер
+- container list - список контейнеров
+- clear - очистить историю команд
+- help - показать эту справку`;
+    } else if (command.toLowerCase().includes('run') || command.toLowerCase().includes('запустить')) {
+      const parts = command.split(' ');
+      const file = parts[parts.length - 1];
+      
+      terminalService.addLog(`Запуск файла: ${file}`, 'info');
+      
+      // Simulate file execution
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      terminalService.addLog(`Файл ${file} успешно выполнен`, 'success');
+      return `Файл ${file} выполнен`;
+    } else {
+      terminalService.addLog(`Неизвестная команда: ${command}`, 'warning');
+      return `Неизвестная команда: ${command}. Введите "help" для получения списка команд.`;
+    }
   }
 };

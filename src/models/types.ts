@@ -43,3 +43,11 @@ export interface LogEntry {
   message: string;
   timestamp: Date;
 }
+
+export interface SystemStats {
+  cpuUsage: number;
+  memoryUsage: number;
+  diskUsage: number;
+  activeContainers: number;
+  uptime: number;
+}

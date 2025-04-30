@@ -23,7 +23,8 @@ import {
   Maximize2,
   Minimize2,
   Send,
-  List
+  List,
+  Play
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,8 @@ const Terminal = () => {
   const [terminalInput, setTerminalInput] = useState('');
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [selectedFile, setSelectedFile] = useState('main.py');
+  const [isRunning, setIsRunning] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   
   // Update memory usage to simulate activity
@@ -68,7 +71,9 @@ const Terminal = () => {
     
     // Process command
     try {
-      await terminalService.executeCommand(terminalInput);
+      const result = await terminalService.executeCommand(terminalInput);
+      // Add the result as a log
+      terminalService.addLog(result, 'info');
     } catch (error) {
       console.error('Error executing command:', error);
       terminalService.addLog(`Ошибка выполнения: ${error}`, 'error');
@@ -103,10 +108,53 @@ const Terminal = () => {
     }
   };
   
+  // Run the selected file
+  const handleRunFile = async () => {
+    if (isRunning) return;
+    
+    setIsRunning(true);
+    try {
+      terminalService.addLog(`Запуск файла: ${selectedFile}`, 'info');
+      
+      // Simulating execution
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      
+      // Add some mock output
+      if (selectedFile.includes('.py')) {
+        terminalService.addLog('Python interpreter started', 'info');
+        terminalService.addLog('Importing dependencies...', 'info');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        terminalService.addLog('Dependencies loaded successfully', 'success');
+        terminalService.addLog('Running main function...', 'info');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        terminalService.addLog('Output: Hello, РУКОД Terminal!', 'success');
+      } else if (selectedFile.includes('.cpp')) {
+        terminalService.addLog('Compiling C++ code...', 'info');
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        terminalService.addLog('Compilation successful', 'success');
+        terminalService.addLog('Running executable...', 'info');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        terminalService.addLog('Output: Hello, C++ World!', 'success');
+      } else {
+        terminalService.addLog(`Executing ${selectedFile}...`, 'info');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        terminalService.addLog('Execution completed successfully', 'success');
+      }
+      
+      toast.success(`Файл ${selectedFile} успешно выполнен`);
+    } catch (error) {
+      console.error('Error running file:', error);
+      terminalService.addLog(`Ошибка выполнения файла: ${error}`, 'error');
+      toast.error(`Ошибка выполнения файла ${selectedFile}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+  
   // Get installed library count per language
   const getLibraryCount = (language: string) => {
     // Mock counts, in a real app this would come from the actual installed libraries
-    const counts = {
+    const counts: Record<string, number> = {
       python: 18,
       cpp: 16,
       lua: 10,
@@ -114,7 +162,7 @@ const Terminal = () => {
       rust: 3,
       ruby: 1
     };
-    return counts[language as keyof typeof counts] || 0;
+    return counts[language] || 0;
   };
   
   const environmentOptions = [
@@ -131,6 +179,15 @@ const Terminal = () => {
       toast.success("Полноэкранный режим включен");
     }
   };
+
+  // Sample files for quick access
+  const sampleFiles = [
+    { name: 'main.py', language: 'python' },
+    { name: 'app.js', language: 'javascript' },
+    { name: 'main.cpp', language: 'cpp' },
+    { name: 'game.lua', language: 'lua' },
+    { name: 'src/utils.rs', language: 'rust' }
+  ];
   
   return (
     <div className={`flex flex-col animate-fade-in ${isFullscreen ? 'fixed inset-0 z-50 bg-slate-950' : 'h-[calc(100vh-120px)]'}`}>
@@ -227,6 +284,30 @@ const Terminal = () => {
               <SystemStats />
             </div>
             
+            {/* Quick run file selector */}
+            <div className="flex items-center gap-2 p-2 bg-slate-900 rounded border border-slate-800">
+              <span className="text-xs text-slate-400">Быстрый запуск:</span>
+              <select 
+                className="bg-slate-800 text-sm p-1 rounded border border-slate-700"
+                value={selectedFile}
+                onChange={(e) => setSelectedFile(e.target.value)}
+              >
+                {sampleFiles.map((file, idx) => (
+                  <option key={idx} value={file.name}>{file.name}</option>
+                ))}
+              </select>
+              
+              <Button 
+                className={`ml-auto ${isRunning ? 'bg-amber-600' : 'bg-green-600'}`}
+                size="sm"
+                onClick={handleRunFile}
+                disabled={isRunning}
+              >
+                <Play className="h-4 w-4 mr-1" />
+                {isRunning ? 'Выполняется...' : 'Запустить'}
+              </Button>
+            </div>
+            
             <div className="flex-grow overflow-auto">
               <CommandOutput />
             </div>
@@ -296,7 +377,7 @@ const Terminal = () => {
                       size="sm"
                       className="text-xs"
                       onClick={() => {
-                        terminalService.startContainer(env.id as any);
+                        const result = terminalService.executeCommand(`container start ${env.id}`);
                       }}
                     >
                       {env.icon}

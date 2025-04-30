@@ -162,8 +162,8 @@ export const ContainersList: React.FC<ContainersListProps> = ({
         comparison = memoryA - memoryB;
         break;
       case 'cpu':
-        const cpuA = parseFloat(a.cpuUsage);
-        const cpuB = parseFloat(b.cpuUsage);
+        const cpuA = parseFloat(a.cpuUsage.toString());
+        const cpuB = parseFloat(b.cpuUsage.toString());
         comparison = cpuA - cpuB;
         break;
     }
@@ -202,7 +202,7 @@ export const ContainersList: React.FC<ContainersListProps> = ({
               {language === 'ru' ? 'Все' : 'All'}
             </TabsTrigger>
             <TabsTrigger value="running" className="text-xs">
-              {language === 'ru' ? 'Запущенные' : 'Running'}
+              {language === 'ru' ? 'Запущенны��' : 'Running'}
             </TabsTrigger>
             <TabsTrigger value="stopped" className="text-xs">
               {language === 'ru' ? 'Остановленные' : 'Stopped'}
@@ -282,7 +282,7 @@ export const ContainersList: React.FC<ContainersListProps> = ({
                     <span className="text-slate-400">{language === 'ru' ? 'Память:' : 'Memory:'}</span> {container.memoryUsage}
                   </div>
                   <div>
-                    <span className="text-slate-400">{language === 'ru' ? 'CPU:' : 'CPU:'}</span> {container.cpuUsage}
+                    <span className="text-slate-400">{language === 'ru' ? 'CPU:' : 'CPU:'}</span> {container.cpuUsage.toString()}
                   </div>
                   <div className="col-span-2">
                     <span className="text-slate-400">{language === 'ru' ? 'Время работы:' : 'Uptime:'}</span> {getUptime(container.startTime)}

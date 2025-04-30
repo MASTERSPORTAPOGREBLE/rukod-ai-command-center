@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Library } from '../models/types';
 import { useTheme } from '../context/ThemeContext';
@@ -108,7 +107,7 @@ import ${library.name.toLowerCase()}
 # Инициализация
 client = ${library.name.toLowerCase()}.Client()
 
-# Пример функции
+# Приме�� функции
 result = client.process_data([1, 2, 3, 4, 5])
 print(f"Результат: {result}")`;
       
@@ -339,7 +338,7 @@ print("Результат: " .. result)`;
                   className="flex items-center justify-center gap-2"
                   onClick={handleViewSource}
                 >
-                  <GitHub className="h-4 w-4" />
+                  <Github className="h-4 w-4" />
                   Исходный код
                 </Button>
                 
@@ -445,7 +444,7 @@ print("Результат: " .. result)`;
                     onClick={() => window.open(`https://github.com/search?q=${library.name}`, '_blank')}
                   >
                     Репозиторий
-                    <GitHub className="h-3 w-3 ml-1" />
+                    <Github className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
               </div>
