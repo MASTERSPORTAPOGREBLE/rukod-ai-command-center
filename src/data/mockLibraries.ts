@@ -1,4 +1,3 @@
-
 import { Library, ProgrammingLanguage } from "../models/types";
 
 export const mockLibraries: Library[] = [
@@ -971,4 +970,112 @@ export const mockLibraries: Library[] = [
     isPaid: false,
     isGame: false
   }
-]
+];
+
+// Add the missing utility functions for LibraryManager
+export const getFilteredLibraries = (
+  language?: ProgrammingLanguage,
+  searchQuery: string = '',
+  isPaid?: boolean,
+  isGame?: boolean
+): Library[] => {
+  return mockLibraries.filter(lib => {
+    // Filter by language if specified
+    if (language && lib.language !== language) {
+      return false;
+    }
+    
+    // Filter by paid status if specified
+    if (isPaid !== undefined && lib.isPaid !== isPaid) {
+      return false;
+    }
+    
+    // Filter by game status if specified
+    if (isGame !== undefined && lib.isGame !== isGame) {
+      return false;
+    }
+    
+    // Filter by search query if provided
+    if (searchQuery && 
+        !lib.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
+        !lib.description.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+    
+    return true;
+  });
+};
+
+export const getLibrariesByCategory = (category: string): Library[] => {
+  return mockLibraries.filter(lib => 
+    lib.tags && lib.tags.some(tag => tag.toLowerCase() === category.toLowerCase())
+  );
+};
+
+export const getPopularLibraries = (count: number = 10): Library[] => {
+  return [...mockLibraries]
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, count);
+};
+
+// New utility functions to provide more functionality
+
+export const getLibrariesByLanguageCount = (): Record<ProgrammingLanguage | 'all', number> => {
+  const counts = {
+    all: mockLibraries.length,
+    python: 0,
+    cpp: 0,
+    lua: 0,
+    javascript: 0,
+    rust: 0,
+    ruby: 0
+  };
+  
+  mockLibraries.forEach(lib => {
+    if (counts[lib.language as ProgrammingLanguage] !== undefined) {
+      counts[lib.language as ProgrammingLanguage]++;
+    }
+  });
+  
+  return counts;
+};
+
+export const getAllTags = (): string[] => {
+  const uniqueTags = new Set<string>();
+  
+  mockLibraries.forEach(lib => {
+    if (lib.tags) {
+      lib.tags.forEach(tag => uniqueTags.add(tag));
+    }
+  });
+  
+  return Array.from(uniqueTags).sort();
+};
+
+export const getRelatedLibraries = (libraryId: string, count: number = 3): Library[] => {
+  const targetLib = mockLibraries.find(lib => lib.id === libraryId);
+  
+  if (!targetLib || !targetLib.tags || targetLib.tags.length === 0) {
+    return [];
+  }
+  
+  // Find libraries with similar tags
+  const relatedLibs = mockLibraries
+    .filter(lib => lib.id !== libraryId && lib.language === targetLib.language)
+    .map(lib => {
+      // Calculate similarity score based on matching tags
+      const matchingTags = (lib.tags || []).filter(tag => 
+        targetLib.tags?.includes(tag)
+      ).length;
+      
+      return {
+        library: lib,
+        similarity: matchingTags
+      };
+    })
+    .filter(item => item.similarity > 0)
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, count);
+    
+  return relatedLibs.map(item => item.library);
+};

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { 
@@ -157,18 +156,14 @@ export const CodeEditor: React.FC = () => {
       return;
     }
     
+    // Fixed toast.promise implementation to match expected types
     toast.promise(
       plugin.run(activeFile.content),
       {
         loading: `Выполнение ${activeFile.name}...`,
-        success: (data) => ({
-          title: `Код успешно выполнен`,
-          description: data.output
-        }),
-        error: (err) => ({
-          title: 'Ошибка выполнения',
-          description: err?.message || 'Неизвестная ошибка'
-        })
+        // Fixed: Return React elements instead of objects with title/description
+        success: (data) => `Код успешно выполнен: ${data.output}`,
+        error: (err) => `Ошибка выполнения: ${err?.message || 'Неизвестная ошибка'}`
       }
     );
 

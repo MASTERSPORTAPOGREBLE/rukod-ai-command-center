@@ -1,10 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CommandInput } from '../components/CommandInput';
 import { CommandOutput } from '../components/CommandOutput';
 import { SystemStats } from '../components/SystemStats';
 import { useTheme } from '../context/ThemeContext';
 import { useCommandContext } from '../context/CommandContext';
+import { TerminalLogs } from '../components/TerminalLogs';
+import { ContainersList } from '../components/ContainersList';
+import { terminalService } from '../services/terminalService';
 import { 
   Cpu, 
   Code, 
@@ -18,7 +21,9 @@ import {
   AlertCircle,
   Server,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Send,
+  List
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -35,9 +40,12 @@ const Terminal = () => {
   });
   const [activeTab, setActiveTab] = useState('terminal');
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [errorLogs, setErrorLogs] = useState<{message: string, timestamp: Date, level: 'error' | 'warning' | 'info'}[]>([]);
+  const [terminalInput, setTerminalInput] = useState('');
+  const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
   
-  // Simulate terminal activity
+  // Update memory usage to simulate activity
   useEffect(() => {
     const timer = setInterval(() => {
       // Update memory usage randomly to simulate activity
@@ -46,26 +54,53 @@ const Terminal = () => {
         ...prev,
         memoryUsage: newMemory
       }));
-      
-      // Occasionally add an error log
-      if (Math.random() > 0.95) {
-        addErrorLog('Низкая производительность сети', 'warning');
-      }
     }, 5000);
-    
-    // Add initial logs
-    addErrorLog('Терминал запущен', 'info');
-    addErrorLog('Окружение Python 3.11 инициализировано', 'info');
     
     return () => clearInterval(timer);
   }, []);
-
-  const addErrorLog = (message: string, level: 'error' | 'warning' | 'info') => {
-    setErrorLogs(prev => [...prev, {
-      message,
-      timestamp: new Date(),
-      level
-    }]);
+  
+  const handleSubmitCommand = async () => {
+    if (!terminalInput.trim()) return;
+    
+    // Add to history
+    setTerminalHistory(prev => [...prev, terminalInput]);
+    setHistoryIndex(-1);
+    
+    // Process command
+    try {
+      await terminalService.executeCommand(terminalInput);
+    } catch (error) {
+      console.error('Error executing command:', error);
+      terminalService.addLog(`Ошибка выполнения: ${error}`, 'error');
+    }
+    
+    // Clear input
+    setTerminalInput('');
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSubmitCommand();
+    } else if (e.key === 'ArrowUp') {
+      // Navigate history upwards
+      e.preventDefault();
+      if (historyIndex < terminalHistory.length - 1) {
+        const newIndex = historyIndex + 1;
+        setHistoryIndex(newIndex);
+        setTerminalInput(terminalHistory[terminalHistory.length - 1 - newIndex]);
+      }
+    } else if (e.key === 'ArrowDown') {
+      // Navigate history downwards
+      e.preventDefault();
+      if (historyIndex > 0) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        setTerminalInput(terminalHistory[terminalHistory.length - 1 - newIndex]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setTerminalInput('');
+      }
+    }
   };
   
   // Get installed library count per language
@@ -124,6 +159,7 @@ const Terminal = () => {
                   onClick={() => {
                     setTerminalInfo(prev => ({ ...prev, activeEnvironment: env.id }));
                     toast.info(`Среда ${env.name} выбрана`);
+                    terminalService.addLog(`Выбрана среда исполнения: ${env.name}`, 'info');
                   }}
                 >
                   {env.icon}
@@ -166,13 +202,17 @@ const Terminal = () => {
               <TerminalIcon className="h-4 w-4 mr-2" />
               Терминал
             </TabsTrigger>
-            <TabsTrigger value="history" className="data-[state=active]:border-b-2 data-[state=active]:border-rukod-purple rounded-none">
-              <History className="h-4 w-4 mr-2" />
-              История ({history.length})
-            </TabsTrigger>
             <TabsTrigger value="logs" className="data-[state=active]:border-b-2 data-[state=active]:border-rukod-purple rounded-none">
               <AlertCircle className="h-4 w-4 mr-2" />
-              Логи ({errorLogs.length})
+              Логи системы
+            </TabsTrigger>
+            <TabsTrigger value="containers" className="data-[state=active]:border-b-2 data-[state=active]:border-rukod-purple rounded-none">
+              <Server className="h-4 w-4 mr-2" />
+              Контейнеры
+            </TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:border-b-2 data-[state=active]:border-rukod-purple rounded-none">
+              <History className="h-4 w-4 mr-2" />
+              История
             </TabsTrigger>
             <TabsTrigger value="help" className="data-[state=active]:border-b-2 data-[state=active]:border-rukod-purple rounded-none">
               <BookOpen className="h-4 w-4 mr-2" />
@@ -191,8 +231,26 @@ const Terminal = () => {
               <CommandOutput />
             </div>
             
-            <div className="mt-auto">
-              <CommandInput />
+            <div className="mt-auto flex">
+              <div className="relative flex-grow">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={terminalInput}
+                  onChange={(e) => setTerminalInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-l-md focus:outline-none focus:border-rukod-purple"
+                  placeholder="Введите команду..."
+                />
+              </div>
+              <Button 
+                className="rounded-l-none"
+                style={{ backgroundColor: currentTheme.primaryColor }}
+                onClick={handleSubmitCommand}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Выполнить
+              </Button>
             </div>
             
             <div className="w-full text-center">
@@ -202,61 +260,93 @@ const Terminal = () => {
             </div>
           </TabsContent>
           
+          <TabsContent value="logs" className="flex-grow overflow-auto m-0">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>
+                Системные логи
+              </h3>
+              <div className="w-full">
+                <TerminalLogs maxHeight="calc(100vh - 250px)" />
+              </div>
+              <div className="flex justify-end">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    terminalService.clearLogs();
+                    toast.success('Логи очищены');
+                  }}
+                >
+                  Очистить логи
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="containers" className="flex-grow overflow-auto m-0">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>
+                  Управление контейнерами
+                </h3>
+                <div className="flex gap-2">
+                  {environmentOptions.map((env) => (
+                    <Button 
+                      key={env.id}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => {
+                        terminalService.startContainer(env.id as any);
+                      }}
+                    >
+                      {env.icon}
+                      <span className="ml-1">Start {env.id}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <ContainersList />
+            </div>
+          </TabsContent>
+          
           <TabsContent value="history" className="flex-grow overflow-auto m-0">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>История команд</h3>
               <div className="space-y-1">
-                {history.length > 0 ? (
-                  history.map((item, index) => (
-                    <div key={item.id} className="p-2 rounded bg-opacity-10 hover:bg-opacity-20 cursor-pointer transition-colors"
-                        style={{ backgroundColor: currentTheme.primaryColor }}>
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono text-sm">{item.command}</span>
-                        <span className="text-xs opacity-70">
-                          {item.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
+                {terminalHistory.length > 0 ? (
+                  [...terminalHistory].reverse().map((cmd, index) => (
+                    <div 
+                      key={index} 
+                      className="p-2 rounded bg-opacity-10 hover:bg-opacity-20 cursor-pointer transition-colors flex justify-between items-center"
+                      style={{ backgroundColor: currentTheme.primaryColor }}
+                      onClick={() => {
+                        setTerminalInput(cmd);
+                        if (inputRef.current) {
+                          inputRef.current.focus();
+                        }
+                      }}
+                    >
+                      <span className="font-mono text-sm">{cmd}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTerminalInput(cmd);
+                          if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                          handleSubmitCommand();
+                        }}
+                      >
+                        Повторить
+                      </Button>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-4 opacity-70">
                     История команд пуста
-                  </div>
-                )}
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="logs" className="flex-grow overflow-auto m-0">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>Системные логи</h3>
-              <div className="space-y-1">
-                {errorLogs.length > 0 ? (
-                  errorLogs.map((log, index) => (
-                    <div key={index} className="p-2 rounded border-l-4 bg-opacity-10 bg-slate-800"
-                        style={{ 
-                          borderLeftColor: log.level === 'error' 
-                            ? '#f43f5e' 
-                            : log.level === 'warning' 
-                              ? '#eab308' 
-                              : '#3b82f6'
-                        }}>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center">
-                          {log.level === 'error' && <AlertCircle className="h-4 w-4 text-red-500 mr-2" />}
-                          {log.level === 'warning' && <AlertCircle className="h-4 w-4 text-yellow-500 mr-2" />}
-                          {log.level === 'info' && <Server className="h-4 w-4 text-blue-500 mr-2" />}
-                          <span className="font-mono text-sm">{log.message}</span>
-                        </div>
-                        <span className="text-xs opacity-70">
-                          {log.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4 opacity-70">
-                    Нет доступных логов
                   </div>
                 )}
               </div>
@@ -315,19 +405,19 @@ const Terminal = () => {
                 <h4 className="text-md font-semibold">Управление контейнерами</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">запустить контейнер [язык]</div>
+                    <div className="font-mono text-sm">container start [язык]</div>
                     <div className="text-xs opacity-70">Запустить контейнер для указанного языка</div>
                   </div>
                   <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">остановить контейнер [id]</div>
+                    <div className="font-mono text-sm">container stop [id]</div>
                     <div className="text-xs opacity-70">Остановить указанный контейнер</div>
                   </div>
                   <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">контейнеры</div>
+                    <div className="font-mono text-sm">container list</div>
                     <div className="text-xs opacity-70">Список запущенных контейнеров</div>
                   </div>
                   <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">логи контейнера [id]</div>
+                    <div className="font-mono text-sm">container logs [id]</div>
                     <div className="text-xs opacity-70">Показать логи контейнера</div>
                   </div>
                 </div>
@@ -358,11 +448,11 @@ const Terminal = () => {
               <div className="p-4 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.accentColor }}>
                 <h4 className="text-md font-semibold mb-2">Примеры команд:</h4>
                 <div className="space-y-1">
-                  <div className="font-mono text-sm">установить библиотеку numpy для python</div>
-                  <div className="font-mono text-sm">запустить контейнер cpp</div>
+                  <div className="font-mono text-sm">container start python</div>
+                  <div className="font-mono text-sm">container list</div>
+                  <div className="font-mono text-sm">установить numpy</div>
                   <div className="font-mono text-sm">выполнить main.py</div>
-                  <div className="font-mono text-sm">компилировать main.cpp -o app</div>
-                  <div className="font-mono text-sm">тест tests/</div>
+                  <div className="font-mono text-sm">очистить</div>
                 </div>
               </div>
             </div>
