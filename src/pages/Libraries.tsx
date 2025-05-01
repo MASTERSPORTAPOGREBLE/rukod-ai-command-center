@@ -1,272 +1,325 @@
+
 import React, { useState, useEffect } from 'react';
-import { Library } from '../models/types';
-import { terminalService } from '../services/terminalService';
-import { v4 as uuidv4 } from 'uuid';
+import { LibraryCard } from '@/components/LibraryCard';
+import { LibraryFilters } from '@/components/LibraryFilters';
+import { SystemStats } from '@/components/SystemStats';
+import { LibraryDetails } from '@/components/LibraryDetails';
+import { LogItem } from '@/components/LogItem';
+import { useTheme } from '@/context/ThemeContext';
+import { terminalService } from '@/services/terminalService';
+import { Library, LogEntry, ProgrammingLanguage } from '@/models/types';
+import { useCommandContext } from '@/context/CommandContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import mockLibraries from '@/data/mockLibraries';
 import { toast } from 'sonner';
+import { RunButton } from '@/components/ui/terminal-button';
 
-const mockLibraries: Library[] = [
-  {
-    id: '1',
-    name: 'requests',
-    description: 'A simple, yet elegant, HTTP library.',
-    version: '2.28.1',
-    language: 'python',
-    source: 'https://pypi.org/project/requests/',
-    popularity: 98,
-    tags: ['http', 'api', 'web'],
-  },
-  {
-    id: '2',
-    name: 'numpy',
-    description: 'The fundamental package for scientific computing with Python.',
-    version: '1.23.4',
-    language: 'python',
-    source: 'https://numpy.org/',
-    popularity: 95,
-    tags: ['math', 'science', 'array'],
-  },
-  {
-    id: '3',
-    name: 'pandas',
-    description: 'Powerful data structures for data analysis, time series, and statistics.',
-    version: '1.5.1',
-    language: 'python',
-    source: 'https://pandas.pydata.org/',
-    popularity: 92,
-    tags: ['data', 'analysis', 'statistics'],
-  },
-  {
-    id: '4',
-    name: 'discord.py',
-    description: 'A Python library for interacting with the Discord API.',
-    version: '2.0.0',
-    language: 'python',
-    source: 'https://discord.com/developers/docs/intro',
-    popularity: 88,
-    tags: ['discord', 'api', 'bot'],
-    isGame: true,
-  },
-  {
-    id: '5',
-    name: 'pygame',
-    description: 'A Python library for creating games and multimedia applications.',
-    version: '2.1.2',
-    language: 'python',
-    source: 'https://www.pygame.org/',
-    popularity: 85,
-    tags: ['game', 'multimedia'],
-    isGame: true,
-  },
-  {
-    id: '6',
-    name: 'SFML',
-    description: 'Simple and Fast Multimedia Library',
-    version: '2.5.1',
-    language: 'cpp',
-    source: 'https://www.sfml-dev.org/',
-    popularity: 70,
-    tags: ['graphics', 'audio', 'window', 'multimedia'],
-    isGame: true,
-  },
-  {
-    id: '7',
-    name: 'Boost',
-    description: 'A set of portable C++ source libraries.',
-    version: '1.77.0',
-    language: 'cpp',
-    source: 'https://www.boost.org/',
-    popularity: 75,
-    tags: ['library', 'portable'],
-  },
-  {
-    id: '8',
-    name: 'LuaSocket',
-    description: 'Networking extension for Lua.',
-    version: '3.0',
-    language: 'lua',
-    source: 'https://luarocks.org/modules/luasocket/luasocket',
-    popularity: 60,
-    tags: ['networking', 'socket'],
-  },
-  {
-    id: '9',
-    name: 'love2d',
-    description: 'Free 2D game engine in Lua.',
-    version: '11.3',
-    language: 'lua',
-    source: 'https://love2d.org/',
-    popularity: 78,
-    tags: ['game', '2d'],
-    isGame: true,
-  },
-  {
-    id: '10',
-    name: 'axios',
-    description: 'Promise based HTTP client for the browser and node.js',
-    version: '0.27.2',
-    language: 'javascript',
-    source: 'https://axios-http.com/docs/intro',
-    popularity: 92,
-    tags: ['http', 'api'],
-  },
-  {
-    id: '11',
-    name: 'lodash',
-    description: 'A modern JavaScript utility library delivering modularity, performance & extras.',
-    version: '4.17.21',
-    language: 'javascript',
-    source: 'https://lodash.com/',
-    popularity: 89,
-    tags: ['utility', 'function'],
-  },
-  {
-    id: '12',
-    name: 'tokio',
-    description: 'A runtime for writing reliable asynchronous applications with Rust.',
-    version: '1.12.0',
-    language: 'rust',
-    source: 'https://tokio.rs/',
-    popularity: 80,
-    tags: ['async', 'runtime'],
-  },
-  {
-    id: '13',
-    name: 'rocket',
-    description: 'Web framework for Rust with a focus on ease-of-use, expressiveness, and safety.',
-    version: '0.5',
-    language: 'rust',
-    source: 'https://rocket.rs/',
-    popularity: 72,
-    tags: ['web', 'framework'],
-  },
-  {
-    id: '14',
-    name: 'rails',
-    description: 'Full-stack web framework optimized for sustainable productivity.',
-    version: '7.0',
-    language: 'ruby',
-    source: 'https://rubyonrails.org/',
-    popularity: 85,
-    tags: ['web', 'framework', 'full-stack'],
-  },
-  {
-    id: '15',
-    name: 'sinatra',
-    description: 'A DSL for quickly creating web applications in Ruby with minimal effort.',
-    version: '2.0',
-    language: 'ruby',
-    source: 'https://sinatrarb.com/',
-    popularity: 70,
-    tags: ['web', 'dsl'],
-  },
-];
+type SortOption = 'popular' | 'newest' | 'alphabetical';
 
-const Libraries: React.FC = () => {
-  const [libraries, setLibraries] = useState<Library[]>(mockLibraries);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [languageFilter, setLanguageFilter] = useState<string>('all');
-
+const Libraries = () => {
+  const { currentTheme } = useTheme();
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState<ProgrammingLanguage | null>(null);
+  const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(null);
+  const [showPaidOnly, setShowPaidOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('popular');
+  const [showGameLibraries, setShowGameLibraries] = useState(false);
+  const { installedModules } = useCommandContext();
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const queryClient = useQueryClient();
+  
+  // Get logs from terminal service
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-    }, 500);
-
-    return () => clearTimeout(timer);
+    // Initial load
+    setLogs(terminalService.getLogs());
+    
+    // Subscribe to logs updates
+    const unsubscribe = terminalService.addLogListener((updatedLogs) => {
+      setLogs([...updatedLogs]);
+    });
+    
+    return unsubscribe;
   }, []);
-
-  const filteredLibraries = libraries.filter(library => {
-    const searchMatch = library.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      library.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const languageMatch = languageFilter === 'all' || library.language === languageFilter;
-    return searchMatch && languageMatch;
+  
+  // Fetch libraries
+  const { data: libraries = [], isLoading } = useQuery({
+    queryKey: ['libraries', selectedLanguage],
+    queryFn: async () => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 800));
+      return mockLibraries.filter(lib => 
+        selectedLanguage ? lib.language === selectedLanguage : true
+      );
+    }
   });
-
-  const handleInstall = (library: Library) => {
-    // Simulate installation process
-    toast.promise(
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate success or failure
-          const success = Math.random() > 0.5;
-          if (success) {
-            terminalService.addLog({
-              id: uuidv4(),
-              level: "success",
-              message: `Library ${library.name} installed successfully.`,
-              timestamp: new Date()
-            });
-            resolve(`Library ${library.name} installed!`);
-          } else {
-            terminalService.addLog({
-              id: uuidv4(),
-              level: "error",
-              message: `Failed to install library ${library.name}.`,
-              timestamp: new Date()
-            });
-            reject(`Failed to install ${library.name}.`);
-          }
-        }, 2000);
-      }),
-      {
-        loading: `Installing ${library.name}...`,
-        success: (data) => data,
-        error: (error) => error,
+  
+  // Handle install library
+  const handleInstallLibrary = async (library: Library) => {
+    try {
+      toast.loading(`Installing ${library.name}...`);
+      
+      // Simulate installation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Check if a container exists for this language
+      const containers = terminalService.getContainers();
+      let containerForLanguage = containers.find(c => c.language === library.language);
+      
+      if (!containerForLanguage) {
+        // Create a new container for this language
+        await terminalService.executeCommand(`container start ${library.language}`);
+        toast.info(`Created new ${library.language} container for library installation`);
+        
+        // Get the updated containers
+        const updatedContainers = terminalService.getContainers();
+        containerForLanguage = updatedContainers.find(c => c.language === library.language);
       }
-    );
+      
+      // Log the installation
+      terminalService.addLog(`Installing ${library.name} v${library.version} for ${library.language}`, 'info');
+      
+      // Simulate installation steps
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      terminalService.addLog(`Downloading ${library.name} package...`, 'info');
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      terminalService.addLog(`Resolving dependencies for ${library.name}...`, 'info');
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      terminalService.addLog(`Unpacking ${library.name}...`, 'info');
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      terminalService.addLog(`Successfully installed ${library.name} v${library.version}`, 'success');
+      
+      // Update cache to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['libraries'] });
+      
+      toast.success(`Installed ${library.name} successfully`);
+      
+      // Add success log
+      terminalService.addLog(`Library ${library.name} installed successfully`, 'success');
+    } catch (error) {
+      console.error('Error installing library:', error);
+      toast.error(`Failed to install ${library.name}`);
+      terminalService.addLog(`Error installing ${library.name}: ${error}`, 'error');
+    }
   };
-
+  
+  const filterLibraries = () => {
+    if (!libraries) return [];
+    
+    let filtered = [...libraries];
+    
+    // Filter by search term
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(lib => 
+        lib.name.toLowerCase().includes(term) || 
+        lib.description.toLowerCase().includes(term) ||
+        (lib.tags && lib.tags.some(tag => tag.toLowerCase().includes(term)))
+      );
+    }
+    
+    // Filter by paid status
+    if (showPaidOnly) {
+      filtered = filtered.filter(lib => lib.isPaid);
+    }
+    
+    // Filter by game libraries
+    if (showGameLibraries) {
+      filtered = filtered.filter(lib => lib.isGame);
+    }
+    
+    // Sort libraries
+    switch (sortBy) {
+      case 'popular':
+        filtered.sort((a, b) => b.popularity - a.popularity);
+        break;
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.version).getTime() - new Date(a.version).getTime());
+        break;
+      case 'alphabetical':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+    }
+    
+    return filtered;
+  };
+  
+  const filteredLibraries = filterLibraries();
+  
+  const installLogEntry = (message: string) => {
+    terminalService.addLog(message, 'info');
+  };
+  
+  const errorLogEntry = (message: string) => {
+    terminalService.addLog(message, 'error');
+  };
+  
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Библиотеки</h1>
-
-      <div className="flex flex-col md:flex-row items-center justify-between mb-4">
-        <input
-          type="text"
-          placeholder="Поиск библиотек..."
-          className="p-2 border rounded text-black w-full md:w-auto mb-2 md:mb-0"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-        />
-
-        <select
-          className="p-2 border rounded text-black w-full md:w-auto"
-          value={languageFilter}
-          onChange={e => setLanguageFilter(e.target.value)}
-        >
-          <option value="all">Все языки</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-          <option value="cpp">C++</option>
-          <option value="rust">Rust</option>
-          <option value="ruby">Ruby</option>
-          <option value="lua">Lua</option>
-        </select>
+    <div className="animate-fade-in">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold" style={{ color: currentTheme.primaryColor }}>
+          Library Manager
+        </h1>
+        <p className="text-gray-400">
+          Browse, install and manage libraries for your projects
+        </p>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredLibraries.map(library => (
-          <div key={library.id} className="bg-gray-800 rounded-lg p-4">
-            <h2 className="text-lg font-semibold">{library.name}</h2>
-            <p className="text-gray-400">{library.description}</p>
-            <p className="text-sm mt-2">
-              Язык: {library.language}, Версия: {library.version}
-            </p>
-            <a
-              href={library.source}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline block mt-2"
-            >
-              Подробнее
-            </a>
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
-              onClick={() => handleInstall(library)}
-            >
-              Установить
-            </button>
+      
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <div className="space-y-4">
+            <LibraryFilters 
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              selectedLanguage={selectedLanguage}
+              setSelectedLanguage={setSelectedLanguage}
+              showPaidOnly={showPaidOnly}
+              setShowPaidOnly={setShowPaidOnly}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              showGameLibraries={showGameLibraries}
+              setShowGameLibraries={setShowGameLibraries}
+            />
+            
+            <div className="border border-slate-800 rounded-lg">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <div className="border-b border-slate-800 p-2">
+                  <TabsList className="bg-slate-900">
+                    <TabsTrigger value="all">All Libraries</TabsTrigger>
+                    <TabsTrigger value="installed">Installed</TabsTrigger>
+                    <TabsTrigger value="updates">Updates Available</TabsTrigger>
+                  </TabsList>
+                </div>
+                
+                <TabsContent value="all" className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                  {isLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-rukod-purple"></div>
+                    </div>
+                  ) : filteredLibraries.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredLibraries.map(library => (
+                        <LibraryCard 
+                          key={library.id}
+                          library={library}
+                          onSelect={() => setSelectedLibrary(library)}
+                          onInstall={() => handleInstallLibrary(library)}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-400">
+                      No libraries found matching your filters
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="installed" className="p-4">
+                  <div className="text-center py-8 text-gray-400">
+                    No libraries currently installed
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="updates" className="p-4">
+                  <div className="text-center py-8 text-gray-400">
+                    No updates available at this time
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
-        ))}
+        </div>
+        
+        <div className="space-y-4">
+          <SystemStats />
+          
+          {/* Installation logs */}
+          <div className="border border-slate-800 rounded-lg p-4">
+            <h3 className="text-lg font-semibold mb-3" style={{ color: currentTheme.primaryColor }}>
+              Installation Logs
+            </h3>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {logs.length > 0 ? (
+                logs.filter(log => 
+                  log.message.includes('library') || 
+                  log.message.includes('install') || 
+                  log.message.includes('download')
+                ).slice(-5).map(log => (
+                  <LogItem key={log.id} log={log} />
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-400">
+                  No installation logs yet
+                </div>
+              )}
+            </div>
+            <div className="mt-3 space-x-2 flex justify-end">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  installLogEntry("Testing library installation features");
+                }}
+              >
+                Test Log
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => terminalService.clearLogs()}
+              >
+                Clear Logs
+              </Button>
+            </div>
+          </div>
+          
+          {selectedLibrary && (
+            <LibraryDetails 
+              library={selectedLibrary} 
+              onClose={() => setSelectedLibrary(null)}
+              onInstall={() => handleInstallLibrary(selectedLibrary)}
+            />
+          )}
+          
+          {/* Quick access to terminal */}
+          <div className="border border-slate-800 rounded-lg p-4">
+            <h3 className="text-lg font-semibold mb-3" style={{ color: currentTheme.primaryColor }}>
+              Terminal Access
+            </h3>
+            <p className="text-sm text-gray-400 mb-3">
+              Access the terminal for custom installations and commands
+            </p>
+            <div className="flex justify-between space-x-2">
+              <RunButton
+                onClick={() => window.location.href = '/terminal'}
+              >
+                Open Terminal
+              </RunButton>
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  // Add a log entry
+                  terminalService.addLog("Checking for library updates...", "info");
+                  
+                  // Simulate update check
+                  setTimeout(() => {
+                    terminalService.addLog("All libraries are up to date", "success");
+                  }, 1500);
+                }}
+              >
+                Check Updates
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
