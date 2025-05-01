@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { terminalService } from '../services/terminalService';
 import { ContainerInfo, ProgrammingLanguage } from '../models/types';
-import { Cpu, Memory, Play, Stop, Trash2, Tag } from 'lucide-react';
+import { Cpu, HardDrive, Play, Square, Trash2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RunButton } from './ui/terminal-button';
@@ -152,7 +151,7 @@ export const ContainersList: React.FC<ContainersListProps> = ({
                   <span>CPU: {container.cpuUsage.toFixed(1)}%</span>
                 </div>
                 <div className="flex items-center">
-                  <Memory className="w-4 h-4 mr-2 text-gray-400" />
+                  <HardDrive className="w-4 h-4 mr-2 text-gray-400" />
                   <span>Memory: {container.memoryUsage.toFixed(1)} MB</span>
                 </div>
                 <div className="flex items-center">
@@ -197,7 +196,7 @@ export const ContainersList: React.FC<ContainersListProps> = ({
                     }}
                     className="text-amber-500 border-amber-500 hover:bg-amber-900 hover:bg-opacity-20"
                   >
-                    <Stop className="w-4 h-4 mr-2" />
+                    <Square className="w-4 h-4 mr-2" />
                     Stop
                   </Button>
                 )}

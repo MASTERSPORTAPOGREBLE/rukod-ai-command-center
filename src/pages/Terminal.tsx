@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { CommandInput } from '../components/CommandInput';
+import React, { useState, useEffect } from 'react';
 import { CommandOutput } from '../components/CommandOutput';
 import { SystemStats } from '../components/SystemStats';
 import { useTheme } from '../context/ThemeContext';
@@ -8,23 +7,16 @@ import { useCommandContext } from '../context/CommandContext';
 import { TerminalLogs } from '../components/TerminalLogs';
 import { ContainersList } from '../components/ContainersList';
 import { terminalService } from '../services/terminalService';
+import { TerminalHeader } from '../components/TerminalHeader';
+import { QuickFileRunner } from '../components/QuickFileRunner';
+import { TerminalCommandInput } from '../components/TerminalCommandInput';
 import { 
-  Cpu, 
   Code, 
   Terminal as TerminalIcon, 
   History, 
-  Settings, 
   BookOpen,
-  GitBranch,
-  PanelLeft,
-  ListFilter,
   AlertCircle,
-  Server,
-  Maximize2,
-  Minimize2,
-  Send,
-  List,
-  Play
+  Server
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -32,7 +24,7 @@ import { toast } from 'sonner';
 
 const Terminal = () => {
   const { currentTheme } = useTheme();
-  const { installedModules, history } = useCommandContext();
+  const { installedModules } = useCommandContext();
   const [terminalInfo, setTerminalInfo] = useState({
     version: '1.0.0',
     status: 'active',
@@ -46,7 +38,6 @@ const Terminal = () => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [selectedFile, setSelectedFile] = useState('main.py');
   const [isRunning, setIsRunning] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   
   // Update memory usage to simulate activity
   useEffect(() => {
@@ -108,149 +99,22 @@ const Terminal = () => {
     }
   };
   
-  // Run the selected file
-  const handleRunFile = async () => {
-    if (isRunning) return;
-    
-    setIsRunning(true);
-    try {
-      terminalService.addLog(`Запуск файла: ${selectedFile}`, 'info');
-      
-      // Simulating execution
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // Add some mock output
-      if (selectedFile.includes('.py')) {
-        terminalService.addLog('Python interpreter started', 'info');
-        terminalService.addLog('Importing dependencies...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Dependencies loaded successfully', 'success');
-        terminalService.addLog('Running main function...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Output: Hello, РУКОД Terminal!', 'success');
-      } else if (selectedFile.includes('.cpp')) {
-        terminalService.addLog('Compiling C++ code...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        terminalService.addLog('Compilation successful', 'success');
-        terminalService.addLog('Running executable...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Output: Hello, C++ World!', 'success');
-      } else {
-        terminalService.addLog(`Executing ${selectedFile}...`, 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Execution completed successfully', 'success');
-      }
-      
-      toast.success(`Файл ${selectedFile} успешно выполнен`);
-    } catch (error) {
-      console.error('Error running file:', error);
-      terminalService.addLog(`Ошибка выполнения файла: ${error}`, 'error');
-      toast.error(`Ошибка выполнения файла ${selectedFile}`);
-    } finally {
-      setIsRunning(false);
-    }
-  };
-  
-  // Get installed library count per language
-  const getLibraryCount = (language: string) => {
-    // Mock counts, in a real app this would come from the actual installed libraries
-    const counts: Record<string, number> = {
-      python: 18,
-      cpp: 16,
-      lua: 10,
-      javascript: 6,
-      rust: 3,
-      ruby: 1
-    };
-    return counts[language] || 0;
-  };
-  
-  const environmentOptions = [
-    { id: 'python', name: 'Python 3.11', icon: <Code className="h-4 w-4" /> },
-    { id: 'cpp', name: 'C++ 17', icon: <Code className="h-4 w-4" /> },
-    { id: 'lua', name: 'Lua 5.4', icon: <Code className="h-4 w-4" /> },
-    { id: 'javascript', name: 'Node.js', icon: <Code className="h-4 w-4" /> },
-    { id: 'rust', name: 'Rust', icon: <Code className="h-4 w-4" /> }
-  ];
-  
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
     if (!isFullscreen) {
       toast.success("Полноэкранный режим включен");
     }
   };
-
-  // Sample files for quick access
-  const sampleFiles = [
-    { name: 'main.py', language: 'python' },
-    { name: 'app.js', language: 'javascript' },
-    { name: 'main.cpp', language: 'cpp' },
-    { name: 'game.lua', language: 'lua' },
-    { name: 'src/utils.rs', language: 'rust' }
-  ];
   
   return (
     <div className={`flex flex-col animate-fade-in ${isFullscreen ? 'fixed inset-0 z-50 bg-slate-950' : 'h-[calc(100vh-120px)]'}`}>
-      <header className="p-3 border-b border-gray-800">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <TerminalIcon 
-              className="h-6 w-6 mr-2" 
-              style={{ color: currentTheme.primaryColor }} 
-            />
-            <h1 className="text-xl font-bold" style={{ color: currentTheme.primaryColor }}>
-              CodeVerse Terminal
-            </h1>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              {environmentOptions.map((env) => (
-                <button
-                  key={env.id}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
-                    terminalInfo.activeEnvironment === env.id 
-                      ? 'bg-rukod-purple bg-opacity-20 text-rukod-purple' 
-                      : 'text-slate-300 hover:bg-rukod-purple hover:bg-opacity-10'
-                  }`}
-                  onClick={() => {
-                    setTerminalInfo(prev => ({ ...prev, activeEnvironment: env.id }));
-                    toast.info(`Среда ${env.name} выбрана`);
-                    terminalService.addLog(`Выбрана среда исполнения: ${env.name}`, 'info');
-                  }}
-                >
-                  {env.icon}
-                  <span>{env.name}</span>
-                  <span className="ml-1 opacity-70">({getLibraryCount(env.id)})</span>
-                </button>
-              ))}
-            </div>
-            
-            <div className="flex items-center gap-1 ml-2">
-              <Cpu className="h-4 w-4" style={{ color: currentTheme.accentColor }} />
-              <span className="text-xs text-slate-400">v{terminalInfo.version}</span>
-            </div>
-            
-            <div className="flex items-center gap-1 ml-2">
-              <span className="h-2 w-2 rounded-full bg-green-500"></span>
-              <span className="text-xs text-slate-400">{terminalInfo.status}</span>
-            </div>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="ml-2"
-              onClick={toggleFullscreen}
-            >
-              {isFullscreen ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <Maximize2 className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </div>
-      </header>
+      <TerminalHeader 
+        currentTheme={currentTheme}
+        terminalInfo={terminalInfo}
+        setTerminalInfo={setTerminalInfo}
+        isFullscreen={isFullscreen}
+        toggleFullscreen={toggleFullscreen}
+      />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col">
         <div className="border-b border-gray-800 bg-rukod-dark">
@@ -284,55 +148,24 @@ const Terminal = () => {
               <SystemStats />
             </div>
             
-            {/* Quick run file selector */}
-            <div className="flex items-center gap-2 p-2 bg-slate-900 rounded border border-slate-800">
-              <span className="text-xs text-slate-400">Быстрый запуск:</span>
-              <select 
-                className="bg-slate-800 text-sm p-1 rounded border border-slate-700"
-                value={selectedFile}
-                onChange={(e) => setSelectedFile(e.target.value)}
-              >
-                {sampleFiles.map((file, idx) => (
-                  <option key={idx} value={file.name}>{file.name}</option>
-                ))}
-              </select>
-              
-              <Button 
-                className={`ml-auto ${isRunning ? 'bg-amber-600' : 'bg-green-600'}`}
-                size="sm"
-                onClick={handleRunFile}
-                disabled={isRunning}
-              >
-                <Play className="h-4 w-4 mr-1" />
-                {isRunning ? 'Выполняется...' : 'Запустить'}
-              </Button>
-            </div>
+            <QuickFileRunner 
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+              isRunning={isRunning}
+              setIsRunning={setIsRunning}
+            />
             
             <div className="flex-grow overflow-auto">
               <CommandOutput />
             </div>
             
-            <div className="mt-auto flex">
-              <div className="relative flex-grow">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={terminalInput}
-                  onChange={(e) => setTerminalInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-l-md focus:outline-none focus:border-rukod-purple"
-                  placeholder="Введите команду..."
-                />
-              </div>
-              <Button 
-                className="rounded-l-none"
-                style={{ backgroundColor: currentTheme.primaryColor }}
-                onClick={handleSubmitCommand}
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Выполнить
-              </Button>
-            </div>
+            <TerminalCommandInput 
+              terminalInput={terminalInput}
+              setTerminalInput={setTerminalInput}
+              handleSubmitCommand={handleSubmitCommand}
+              handleKeyDown={handleKeyDown}
+              currentTheme={currentTheme}
+            />
             
             <div className="w-full text-center">
               <span className="text-xs text-slate-500">
@@ -369,22 +202,6 @@ const Terminal = () => {
                 <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>
                   Управление контейнерами
                 </h3>
-                <div className="flex gap-2">
-                  {environmentOptions.map((env) => (
-                    <Button 
-                      key={env.id}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => {
-                        const result = terminalService.executeCommand(`container start ${env.id}`);
-                      }}
-                    >
-                      {env.icon}
-                      <span className="ml-1">Start {env.id}</span>
-                    </Button>
-                  ))}
-                </div>
               </div>
               <ContainersList />
             </div>
@@ -402,9 +219,6 @@ const Terminal = () => {
                       style={{ backgroundColor: currentTheme.primaryColor }}
                       onClick={() => {
                         setTerminalInput(cmd);
-                        if (inputRef.current) {
-                          inputRef.current.focus();
-                        }
                       }}
                     >
                       <span className="font-mono text-sm">{cmd}</span>
@@ -415,9 +229,6 @@ const Terminal = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           setTerminalInput(cmd);
-                          if (inputRef.current) {
-                            inputRef.current.focus();
-                          }
                           handleSubmitCommand();
                         }}
                       >
@@ -471,14 +282,6 @@ const Terminal = () => {
                     <div className="font-mono text-sm">список библиотек [язык]</div>
                     <div className="text-xs opacity-70">Показать список установленных библиотек</div>
                   </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">обновить библиотеку [имя]</div>
-                    <div className="text-xs opacity-70">Обновить библиотеку до последней версии</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">удалить библиотеку [имя]</div>
-                    <div className="text-xs opacity-70">Удалить установленную библиотеку</div>
-                  </div>
                 </div>
               </div>
               
@@ -493,14 +296,6 @@ const Terminal = () => {
                     <div className="font-mono text-sm">container stop [id]</div>
                     <div className="text-xs opacity-70">Остановить указанный контейнер</div>
                   </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">container list</div>
-                    <div className="text-xs opacity-70">Список запущенных контейнеров</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">container logs [id]</div>
-                    <div className="text-xs opacity-70">Показать логи контейнера</div>
-                  </div>
                 </div>
               </div>
               
@@ -514,14 +309,6 @@ const Terminal = () => {
                   <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
                     <div className="font-mono text-sm">дебаг [имя файла]</div>
                     <div className="text-xs opacity-70">Запустить в режиме отладки</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">тест [имя файла/директории]</div>
-                    <div className="text-xs opacity-70">Запустить тесты</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">компилировать [имя файла]</div>
-                    <div className="text-xs opacity-70">Скомпилировать файл</div>
                   </div>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { Play, Mic, MicOff, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCommandContext } from '@/context/CommandContext';
 import { toast } from '@/hooks/use-toast';
+import { CommandSuggestions } from './CommandSuggestions';
 
 export const CommandInput: React.FC = () => {
   const [command, setCommand] = useState('');
@@ -19,9 +20,8 @@ export const CommandInput: React.FC = () => {
     language,
     setLanguage,
     userPreferences
-   } = useCommandContext();
+  } = useCommandContext();
   const inputRef = useRef<HTMLInputElement>(null);
-  const suggestionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Focus input on component mount
@@ -297,28 +297,13 @@ export const CommandInput: React.FC = () => {
       </div>
       
       {/* Command suggestions dropdown */}
-      {suggestions.length > 0 && (
-        <div 
-          ref={suggestionRef}
-          className="absolute z-10 mt-1 w-full bg-rukod-dark border border-rukod-purple border-opacity-30 rounded-md overflow-hidden shadow-lg"
-        >
-          {suggestions.map((suggestion, index) => (
-            <div
-              key={index}
-              className={`px-4 py-2 cursor-pointer hover:bg-rukod-purple hover:bg-opacity-20 terminal-text ${
-                index === activeSuggestion ? 'bg-rukod-purple bg-opacity-20' : ''
-              }`}
-              onClick={() => {
-                setCommand(suggestion);
-                setSuggestions([]);
-                inputRef.current?.focus();
-              }}
-            >
-              {suggestion}
-            </div>
-          ))}
-        </div>
-      )}
+      <CommandSuggestions 
+        suggestions={suggestions}
+        activeSuggestion={activeSuggestion}
+        setCommand={setCommand}
+        setSuggestions={setSuggestions}
+        inputRef={inputRef}
+      />
     </div>
   );
 };
