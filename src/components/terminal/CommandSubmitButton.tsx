@@ -21,6 +21,7 @@ export const CommandSubmitButton: React.FC<CommandSubmitButtonProps> = ({
       variant="ghost"
       size="icon"
       className="ml-1 hover:bg-rukod-purple hover:bg-opacity-20"
+      title="Выполнить команду"
     >
       <Play className="h-4 w-4 text-rukod-purple" />
     </Button>

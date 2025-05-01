@@ -1,4 +1,3 @@
-
 import { ContainerInfo, LogEntry, ProgrammingLanguage } from '../models/types';
 
 // Mock containers data
@@ -74,6 +73,19 @@ const logListeners: Array<(logs: LogEntry[]) => void> = [];
 
 // Available commands dictionary
 const availableCommands: Record<string, (args: string[]) => Promise<string>> = {
+  // Python specific commands
+  'print': async (args: string[]) => {
+    const printContent = args.join(' ').replace(/['"]/g, '');
+    
+    // Check if it's a level print request
+    if (printContent.toLowerCase().includes('level')) {
+      const level = Math.floor(Math.random() * 100);
+      return `Level: ${level}`;
+    }
+    
+    return printContent;
+  },
+  
   // Container management
   'container': async (args: string[]) => {
     const subCommand = args[0]?.toLowerCase();
@@ -332,6 +344,26 @@ export const terminalService = {
     
     // Simulate command execution delay
     await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Special handling for Python print commands
+    if (mainCommand === 'print') {
+      try {
+        // Extract the content inside the print statement
+        // This handles both print("text") and print('text')
+        const printMatch = command.match(/print\s*\(['"](.+)['"]\)/i);
+        const printContent = printMatch ? printMatch[1] : args.join(' ');
+        
+        // Check for level request
+        if (printContent.toLowerCase().includes('level')) {
+          const level = Math.floor(Math.random() * 100);
+          return `Level: ${level}`;
+        }
+        
+        return printContent;
+      } catch (error) {
+        return `Error executing print: ${error}`;
+      }
+    }
     
     // Check if it's one of the predefined commands
     if (availableCommands[mainCommand]) {

@@ -14,8 +14,9 @@ import {
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-// Import our new components
+// Import our components
 import { TerminalContent } from '@/components/terminal/TerminalContent';
 import { TerminalLogsTab } from '@/components/terminal/TerminalLogsTab';
 import { TerminalContainersTab } from '@/components/terminal/TerminalContainersTab';
@@ -38,6 +39,11 @@ const Terminal = () => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [selectedFile, setSelectedFile] = useState('main.py');
   const [isRunning, setIsRunning] = useState(false);
+  
+  // For command output dialog
+  const [resultDialogOpen, setResultDialogOpen] = useState(false);
+  const [commandResult, setCommandResult] = useState('');
+  const [commandExecuted, setCommandExecuted] = useState('');
   
   // Update memory usage to simulate activity
   useEffect(() => {
@@ -62,12 +68,40 @@ const Terminal = () => {
     
     // Process command
     try {
+      setIsRunning(true);
       const result = await terminalService.executeCommand(terminalInput);
+      
+      // Process Python commands specifically
+      if (terminalInput.toLowerCase().startsWith('print')) {
+        setCommandExecuted(terminalInput);
+        
+        // Instead of the generic message, show actual Python output
+        if (terminalInfo.activeEnvironment === 'python') {
+          const output = terminalInput.toLowerCase().includes('level') 
+            ? `Level: ${Math.floor(Math.random() * 100)}` 
+            : terminalInput.substring(6, terminalInput.length - 1);
+          
+          setCommandResult(output);
+        } else {
+          setCommandResult(`Command '${terminalInput}' executed in ${terminalInfo.activeEnvironment} environment`);
+        }
+        
+        // Show the result dialog
+        setResultDialogOpen(true);
+      } else {
+        // For all other commands
+        setCommandExecuted(terminalInput);
+        setCommandResult(result);
+        setResultDialogOpen(true);
+      }
+      
       // Add the result as a log
       terminalService.addLog(result, 'info');
     } catch (error) {
       console.error('Error executing command:', error);
       terminalService.addLog(`Ошибка выполнения: ${error}`, 'error');
+    } finally {
+      setIsRunning(false);
     }
     
     // Clear input
@@ -179,6 +213,23 @@ const Terminal = () => {
           </TabsContent>
         </div>
       </Tabs>
+      
+      {/* Command Result Dialog */}
+      <Dialog open={resultDialogOpen} onOpenChange={setResultDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Результат выполнения команды</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-slate-900 p-3 rounded-md">
+              <p className="text-sm font-mono text-rukod-purple mb-1">$ {commandExecuted}</p>
+              <pre className="whitespace-pre-wrap font-mono text-sm bg-slate-800 p-3 rounded-md border border-slate-700">
+                {commandResult}
+              </pre>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

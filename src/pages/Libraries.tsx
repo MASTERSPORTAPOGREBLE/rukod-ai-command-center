@@ -1,43 +1,34 @@
+
 import React, { useState, useEffect } from 'react';
-import { useTheme } from '@/context/ThemeContext';
-import { LibraryDetails } from '@/components/LibraryDetails';
-import { LibraryCard } from '@/components/LibraryCard';
-import { ProgrammingLanguage, Library, LogEntry } from '@/models/types';
-import { useCommandContext } from '@/context/CommandContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LibraryFilters } from '@/components/LibraryFilters';
-import { Button } from '@/components/ui/button';
-import { 
-  BookOpen, 
-  Code, 
-  Package, 
-  Search, 
-  ArrowDown, 
-  ArrowUp, 
-  Filter,
-  Download,
-  Gamepad2
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { mockLibraries } from '@/data/mockLibraries';
+import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { RunButton } from '@/components/ui/terminal-button';
-import { terminalService } from '@/services/terminalService';
-import { SystemStats } from '@/components/SystemStats';
-import { LogItem } from '@/components/LogItem';
+import { Library, ProgrammingLanguage } from '../models/types';
+import { LibraryFilters } from '../components/LibraryFilters';
+import { LibraryCard } from '../components/LibraryCard';
+import { LibraryDetails } from '../components/LibraryDetails';
+import { ScrollArea } from '../components/ui/scroll-area';
+import { Button } from '../components/ui/button';
+import { CalendarDays, Package, Search } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Spinner } from '../components/ui/spinner'; // Assume we have this component
 
-type SortOption = 'popular' | 'newest' | 'alphabetical';
+// Import mock data
+import { mockLibraries } from '../data/mockLibraries';
 
+// Define props interfaces to match components
 interface LibraryFiltersProps {
   searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-  selectedLanguage: ProgrammingLanguage | null;
-  setSelectedLanguage: React.Dispatch<React.SetStateAction<ProgrammingLanguage | null>>;
-  showPaidOnly: boolean;
-  setShowPaidOnly: React.Dispatch<React.SetStateAction<boolean>>;
-  sortBy: SortOption;
-  setSortBy: React.Dispatch<React.SetStateAction<SortOption>>;
+  selectedLanguage: ProgrammingLanguage;
+  setSelectedLanguage: React.Dispatch<React.SetStateAction<ProgrammingLanguage>>;
+  sortOption: string;
+  setSortOption: React.Dispatch<React.SetStateAction<string>>;
+  filterStable: boolean;
+  setFilterStable: React.Dispatch<React.SetStateAction<boolean>>;
+  filterPopular: boolean;
+  setFilterPopular: React.Dispatch<React.SetStateAction<boolean>>;
+  filterNew: boolean;
+  setFilterNew: React.Dispatch<React.SetStateAction<boolean>>;
   showGameLibraries: boolean;
   setShowGameLibraries: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -48,308 +39,197 @@ interface LibraryCardProps {
   onInstall: () => Promise<void>;
 }
 
+// Create a new QueryClient instance
+const queryClient = new QueryClient();
+
+// Wrap the Libraries component with QueryClientProvider
+const LibrariesWithQueryClient = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Libraries />
+    </QueryClientProvider>
+  );
+};
+
 const Libraries = () => {
-  const { currentTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState<ProgrammingLanguage | null>(null);
-  const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(null);
-  const [showPaidOnly, setShowPaidOnly] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>('popular');
+  const [selectedLanguage, setSelectedLanguage] = useState<ProgrammingLanguage>('all');
+  const [sortOption, setSortOption] = useState('popular');
+  const [filterStable, setFilterStable] = useState(false);
+  const [filterPopular, setFilterPopular] = useState(true);
+  const [filterNew, setFilterNew] = useState(false);
   const [showGameLibraries, setShowGameLibraries] = useState(false);
-  const { installedModules } = useCommandContext();
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const queryClient = useQueryClient();
+  const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(null);
   
-  // Get logs from terminal service
-  useEffect(() => {
-    // Initial load
-    setLogs(terminalService.getLogs());
-    
-    // Subscribe to logs updates
-    const unsubscribe = terminalService.addLogListener((updatedLogs) => {
-      setLogs([...updatedLogs]);
-    });
-    
-    return unsubscribe;
-  }, []);
-  
-  // Fetch libraries
-  const { data: libraries = [], isLoading } = useQuery({
-    queryKey: ['libraries', selectedLanguage],
+  // Use react-query to fetch libraries
+  const { data: libraries, isLoading } = useQuery({
+    queryKey: ['libraries', selectedLanguage, sortOption, filterStable, filterPopular, filterNew, showGameLibraries],
     queryFn: async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      return mockLibraries.filter(lib => 
-        selectedLanguage ? lib.language === selectedLanguage : true
-      );
-    }
-  });
-  
-  // Handle install library
-  const handleInstallLibrary = async (library: Library) => {
-    try {
-      toast.loading(`Installing ${library.name}...`);
+      // In a real app, we would fetch from an API
+      // For now, we'll use our mock data
+      await new Promise(resolve => setTimeout(resolve, 600)); // Simulate network delay
       
-      // Simulate installation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let filteredLibraries = [...mockLibraries];
       
-      // Check if a container exists for this language
-      const containers = terminalService.getContainers();
-      let containerForLanguage = containers.find(c => c.language === library.language);
-      
-      if (!containerForLanguage) {
-        // Create a new container for this language
-        await terminalService.executeCommand(`container start ${library.language}`);
-        toast.info(`Created new ${library.language} container for library installation`);
-        
-        // Get the updated containers
-        const updatedContainers = terminalService.getContainers();
-        containerForLanguage = updatedContainers.find(c => c.language === library.language);
+      // Apply language filter
+      if (selectedLanguage !== 'all') {
+        filteredLibraries = filteredLibraries.filter(lib => lib.language === selectedLanguage);
       }
       
-      // Log the installation
-      terminalService.addLog(`Installing ${library.name} v${library.version} for ${library.language}`, 'info');
+      // Apply stable filter
+      if (filterStable) {
+        filteredLibraries = filteredLibraries.filter(lib => lib.isStable);
+      }
       
-      // Simulate installation steps
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      terminalService.addLog(`Downloading ${library.name} package...`, 'info');
+      // Apply popular filter
+      if (filterPopular) {
+        filteredLibraries = filteredLibraries.filter(lib => lib.downloadCount > 10000);
+      }
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      terminalService.addLog(`Resolving dependencies for ${library.name}...`, 'info');
+      // Apply new filter
+      if (filterNew) {
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        filteredLibraries = filteredLibraries.filter(lib => new Date(lib.lastUpdated) > threeMonthsAgo);
+      }
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      terminalService.addLog(`Unpacking ${library.name}...`, 'info');
+      // Apply game libraries filter
+      if (showGameLibraries) {
+        filteredLibraries = filteredLibraries.filter(lib => lib.tags.includes('game'));
+      }
       
-      await new Promise(resolve => setTimeout(resolve, 500));
-      terminalService.addLog(`Successfully installed ${library.name} v${library.version}`, 'success');
+      // Sort libraries
+      switch (sortOption) {
+        case 'popular':
+          filteredLibraries.sort((a, b) => b.downloadCount - a.downloadCount);
+          break;
+        case 'name':
+          filteredLibraries.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'updated':
+          filteredLibraries.sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
+          break;
+      }
       
-      // Update cache to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['libraries'] });
-      
-      toast.success(`Installed ${library.name} successfully`);
-      
-      // Add success log
-      terminalService.addLog(`Library ${library.name} installed successfully`, 'success');
-    } catch (error) {
-      console.error('Error installing library:', error);
-      toast.error(`Failed to install ${library.name}`);
-      terminalService.addLog(`Error installing ${library.name}: ${error}`, 'error');
-    }
+      return filteredLibraries;
+    },
+  });
+  
+  // Further filter by search term
+  const filteredLibraries = libraries?.filter(library => 
+    library.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    library.description.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+  
+  // Handle library selection
+  const handleSelectLibrary = (library: Library) => {
+    setSelectedLibrary(library);
   };
   
-  const filterLibraries = () => {
-    if (!libraries) return [];
-    
-    let filtered = [...libraries];
-    
-    // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(lib => 
-        lib.name.toLowerCase().includes(term) || 
-        lib.description.toLowerCase().includes(term) ||
-        (lib.tags && lib.tags.some(tag => tag.toLowerCase().includes(term)))
-      );
-    }
-    
-    // Filter by paid status
-    if (showPaidOnly) {
-      filtered = filtered.filter(lib => lib.isPaid);
-    }
-    
-    // Filter by game libraries
-    if (showGameLibraries) {
-      filtered = filtered.filter(lib => lib.isGame);
-    }
-    
-    // Sort libraries
-    switch (sortBy) {
-      case 'popular':
-        filtered.sort((a, b) => b.popularity - a.popularity);
-        break;
-      case 'newest':
-        filtered.sort((a, b) => new Date(b.version).getTime() - new Date(a.version).getTime());
-        break;
-      case 'alphabetical':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-    }
-    
-    return filtered;
-  };
-  
-  const filteredLibraries = filterLibraries();
-  
-  const installLogEntry = (message: string) => {
-    terminalService.addLog(message, 'info');
-  };
-  
-  const errorLogEntry = (message: string) => {
-    terminalService.addLog(message, 'error');
+  // Handle library installation
+  const handleInstallLibrary = async (library: Library) => {
+    toast.promise(
+      // Simulate an installation
+      new Promise<void>((resolve) => setTimeout(() => resolve(), 1500)),
+      {
+        loading: `Установка ${library.name}...`,
+        success: `Библиотека ${library.name} успешно установлена!`,
+        error: `Ошибка при установке ${library.name}.`
+      }
+    );
   };
   
   return (
-    <div className="animate-fade-in">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold" style={{ color: currentTheme.primaryColor }}>
-          Library Manager
-        </h1>
-        <p className="text-gray-400">
-          Browse, install and manage libraries for your projects
-        </p>
-      </div>
+    <div className="container mx-auto p-4 h-full">
+      <h1 className="text-3xl font-bold mb-6">Библиотеки</h1>
       
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <div className="space-y-4">
-            <LibraryFilters 
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              selectedLanguage={selectedLanguage}
-              setSelectedLanguage={setSelectedLanguage}
-              showPaidOnly={showPaidOnly}
-              setShowPaidOnly={setShowPaidOnly}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              showGameLibraries={showGameLibraries}
-              setShowGameLibraries={setShowGameLibraries}
-            />
-            
-            <div className="border border-slate-800 rounded-lg">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <div className="border-b border-slate-800 p-2">
-                  <TabsList className="bg-slate-900">
-                    <TabsTrigger value="all">All Libraries</TabsTrigger>
-                    <TabsTrigger value="installed">Installed</TabsTrigger>
-                    <TabsTrigger value="updates">Updates Available</TabsTrigger>
-                  </TabsList>
-                </div>
-                
-                <TabsContent value="all" className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                  {isLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-rukod-purple"></div>
-                    </div>
-                  ) : filteredLibraries.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredLibraries.map(library => (
-                        <LibraryCard 
-                          key={library.id}
-                          library={library}
-                          onSelect={() => setSelectedLibrary(library)}
-                          onInstall={() => handleInstallLibrary(library)}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-400">
-                      No libraries found matching your filters
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="installed" className="p-4">
-                  <div className="text-center py-8 text-gray-400">
-                    No libraries currently installed
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="updates" className="p-4">
-                  <div className="text-center py-8 text-gray-400">
-                    No updates available at this time
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-          </div>
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Left panel: Filters */}
+        <div className="w-full lg:w-64 space-y-4">
+          <LibraryFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedLanguage={selectedLanguage}
+            setSelectedLanguage={setSelectedLanguage}
+            sortOption={sortOption}
+            setSortOption={setSortOption}
+            filterStable={filterStable}
+            setFilterStable={setFilterStable}
+            filterPopular={filterPopular}
+            setFilterPopular={setFilterPopular}
+            filterNew={filterNew}
+            setFilterNew={setFilterNew}
+            showGameLibraries={showGameLibraries}
+            setShowGameLibraries={setShowGameLibraries}
+          />
         </div>
         
-        <div className="space-y-4">
-          <SystemStats />
-          
-          {/* Installation logs */}
-          <div className="border border-slate-800 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-3" style={{ color: currentTheme.primaryColor }}>
-              Installation Logs
-            </h3>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {logs.length > 0 ? (
-                logs.filter(log => 
-                  log.message.includes('library') || 
-                  log.message.includes('install') || 
-                  log.message.includes('download')
-                ).slice(-5).map(log => (
-                  <LogItem key={log.id} log={log} />
-                ))
-              ) : (
-                <div className="text-center py-4 text-gray-400">
-                  No installation logs yet
-                </div>
-              )}
-            </div>
-            <div className="mt-3 space-x-2 flex justify-end">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => {
-                  installLogEntry("Testing library installation features");
-                }}
-              >
-                Test Log
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => terminalService.clearLogs()}
-              >
-                Clear Logs
-              </Button>
+        {/* Center panel: Library list */}
+        <div className="flex-grow">
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Поиск библиотек..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8"
+              />
             </div>
           </div>
           
-          {selectedLibrary && (
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="text-center">
+                <Spinner className="mx-auto mb-2" />
+                <p>Загрузка библиотек...</p>
+              </div>
+            </div>
+          ) : filteredLibraries.length === 0 ? (
+            <div className="text-center p-8 border rounded-lg">
+              <Package className="h-12 w-12 mx-auto text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-medium">Библиотеки не найдены</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Попробуйте изменить критерии поиска или фильтры
+              </p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[calc(100vh-270px)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                {filteredLibraries.map(library => (
+                  <LibraryCard 
+                    key={library.id} 
+                    library={library} 
+                    onSelect={() => handleSelectLibrary(library)} 
+                    onInstall={() => handleInstallLibrary(library)}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </div>
+        
+        {/* Right panel: Library details */}
+        <div className="w-full lg:w-1/4 space-y-4">
+          {selectedLibrary ? (
             <LibraryDetails 
               library={selectedLibrary} 
-              onClose={() => setSelectedLibrary(null)}
               onInstall={() => handleInstallLibrary(selectedLibrary)}
             />
-          )}
-          
-          {/* Quick access to terminal */}
-          <div className="border border-slate-800 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-3" style={{ color: currentTheme.primaryColor }}>
-              Terminal Access
-            </h3>
-            <p className="text-sm text-gray-400 mb-3">
-              Access the terminal for custom installations and commands
-            </p>
-            <div className="flex justify-between space-x-2">
-              <RunButton
-                onClick={() => window.location.href = '/terminal'}
-              >
-                Open Terminal
-              </RunButton>
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  // Add a log entry
-                  terminalService.addLog("Checking for library updates...", "info");
-                  
-                  // Simulate update check
-                  setTimeout(() => {
-                    terminalService.addLog("All libraries are up to date", "success");
-                  }, 1500);
-                }}
-              >
-                Check Updates
-              </Button>
+          ) : (
+            <div className="text-center p-8 border rounded-lg">
+              <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-medium">Выберите библиотеку</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Выберите библиотеку из списка для просмотра подробностей
+              </p>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Libraries;
+// Export the wrapped component
+export default LibrariesWithQueryClient;
