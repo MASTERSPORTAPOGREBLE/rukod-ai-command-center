@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { LibraryDetails } from '@/components/LibraryDetails';
 import { LibraryCard } from '@/components/LibraryCard';
-import { ProgrammingLanguage } from '@/models/types';
+import { ProgrammingLanguage, Library, LogEntry } from '@/models/types';
 import { useCommandContext } from '@/context/CommandContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LibraryFilters } from '@/components/LibraryFilters';
@@ -24,8 +23,30 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { mockLibraries } from '@/data/mockLibraries';
 import { toast } from 'sonner';
 import { RunButton } from '@/components/ui/terminal-button';
+import { terminalService } from '@/services/terminalService';
+import { SystemStats } from '@/components/SystemStats';
+import { LogItem } from '@/components/LogItem';
 
 type SortOption = 'popular' | 'newest' | 'alphabetical';
+
+interface LibraryFiltersProps {
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  selectedLanguage: ProgrammingLanguage | null;
+  setSelectedLanguage: React.Dispatch<React.SetStateAction<ProgrammingLanguage | null>>;
+  showPaidOnly: boolean;
+  setShowPaidOnly: React.Dispatch<React.SetStateAction<boolean>>;
+  sortBy: SortOption;
+  setSortBy: React.Dispatch<React.SetStateAction<SortOption>>;
+  showGameLibraries: boolean;
+  setShowGameLibraries: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface LibraryCardProps {
+  library: Library;
+  onSelect: () => void;
+  onInstall: () => Promise<void>;
+}
 
 const Libraries = () => {
   const { currentTheme } = useTheme();

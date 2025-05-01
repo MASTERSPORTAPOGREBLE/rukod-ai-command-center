@@ -1,10 +1,10 @@
 
 import React, { useState, KeyboardEvent, useRef, useEffect } from 'react';
-import { Play, Mic, MicOff, Languages } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useCommandContext } from '@/context/CommandContext';
-import { toast } from '@/hooks/use-toast';
 import { CommandSuggestions } from './CommandSuggestions';
+import { VoiceRecognitionButton } from './terminal/VoiceRecognitionButton';
+import { LanguageToggleButton } from './terminal/LanguageToggleButton';
+import { CommandSubmitButton } from './terminal/CommandSubmitButton';
 
 export const CommandInput: React.FC = () => {
   const [command, setCommand] = useState('');
@@ -181,70 +181,6 @@ export const CommandInput: React.FC = () => {
     }
   };
 
-  // Toggle voice recognition with support for language detection
-  const toggleVoiceRecognition = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      toast({
-        title: "Голосовой ввод недоступен",
-        description: "Распознавание голоса не поддерживается в вашем браузере"
-      });
-      return;
-    }
-
-    if (isListening) {
-      setIsListening(false);
-      toast({
-        title: "Голосовой ввод отключен",
-        description: "Режим голосового ввода выключен"
-      });
-    } else {
-      setIsListening(true);
-      toast({
-        title: "Голосовой ввод включен",
-        description: "Говорите команду..."
-      });
-
-      try {
-        // Mock speech recognition for demo
-        setTimeout(() => {
-          const currentLang = language;
-          
-          // Select command based on current language
-          const mockCommands = currentLang === 'ru' 
-            ? ["привет", "скачать: Анимация", "помощь", "код: 2D анимация"] 
-            : ["hello", "download: Animation", "help", "code: 2D animation"];
-            
-          const randomCommand = mockCommands[Math.floor(Math.random() * mockCommands.length)];
-          setCommand(randomCommand);
-          
-          toast({
-            title: "Распознано",
-            description: `"${randomCommand}"`
-          });
-          
-          setIsListening(false);
-        }, 3000);
-      } catch (error) {
-        console.error('Error with speech recognition:', error);
-        toast({
-          title: "Ошибка",
-          description: "Ошибка распознавания голоса"
-        });
-        setIsListening(false);
-      }
-    }
-  };
-
-  // Toggle language
-  const toggleLanguage = () => {
-    const newLang = language === 'ru' ? 'en' : 'ru';
-    setLanguage(newLang);
-    toast({
-      title: newLang === 'ru' ? "Язык изменен" : "Language changed",
-      description: newLang === 'ru' ? "Русский язык активирован" : "English language activated"
-    });
-  };
-
   return (
     <div className="relative">
       <div className="relative glass-panel p-2 flex items-center">
@@ -262,38 +198,23 @@ export const CommandInput: React.FC = () => {
           spellCheck="false"
         />
         
-        <Button 
-          onClick={toggleLanguage}
-          variant="ghost"
-          size="icon"
-          className="mr-1 hover:bg-rukod-purple hover:bg-opacity-20"
-          title={language === 'ru' ? "Переключить на английский" : "Switch to Russian"}
-        >
-          <Languages className="h-4 w-4 text-rukod-purple" />
-        </Button>
+        <LanguageToggleButton 
+          language={language} 
+          setLanguage={setLanguage} 
+        />
         
-        <Button 
-          onClick={toggleVoiceRecognition}
-          variant="ghost"
-          size="icon"
-          className="mr-1 hover:bg-rukod-purple hover:bg-opacity-20"
-          title={isListening ? "Остановить голосовой ввод" : "Включить голосовой ввод"}
-        >
-          {isListening ? 
-            <MicOff className="h-4 w-4 text-red-400 animate-pulse" /> : 
-            <Mic className="h-4 w-4 text-rukod-purple" />
-          }
-        </Button>
+        <VoiceRecognitionButton 
+          isListening={isListening}
+          setIsListening={setIsListening}
+          setCommand={setCommand}
+          language={language}
+        />
         
-        <Button 
-          onClick={handleSubmit}
-          disabled={!command.trim() || isProcessing}
-          variant="ghost"
-          size="icon"
-          className="ml-1 hover:bg-rukod-purple hover:bg-opacity-20"
-        >
-          <Play className="h-4 w-4 text-rukod-purple" />
-        </Button>
+        <CommandSubmitButton 
+          command={command}
+          isProcessing={isProcessing}
+          handleSubmit={handleSubmit}
+        />
       </div>
       
       {/* Command suggestions dropdown */}
