@@ -1,15 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { CommandOutput } from '../components/CommandOutput';
-import { SystemStats } from '../components/SystemStats';
 import { useTheme } from '../context/ThemeContext';
 import { useCommandContext } from '../context/CommandContext';
-import { TerminalLogs } from '../components/TerminalLogs';
-import { ContainersList } from '../components/ContainersList';
 import { terminalService } from '../services/terminalService';
 import { TerminalHeader } from '../components/TerminalHeader';
-import { QuickFileRunner } from '../components/QuickFileRunner';
-import { TerminalCommandInput } from '../components/TerminalCommandInput';
 import { 
   Code, 
   Terminal as TerminalIcon, 
@@ -19,8 +13,14 @@ import {
   Server
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+
+// Import our new components
+import { TerminalContent } from '@/components/terminal/TerminalContent';
+import { TerminalLogsTab } from '@/components/terminal/TerminalLogsTab';
+import { TerminalContainersTab } from '@/components/terminal/TerminalContainersTab';
+import { TerminalHistoryTab } from '@/components/terminal/TerminalHistoryTab';
+import { TerminalHelpTab } from '@/components/terminal/TerminalHelpTab';
 
 const Terminal = () => {
   const { currentTheme } = useTheme();
@@ -144,186 +144,38 @@ const Terminal = () => {
         
         <div className="flex flex-col flex-grow p-2 overflow-hidden">
           <TabsContent value="terminal" className="flex-grow flex flex-col space-y-2 m-0">
-            <div>
-              <SystemStats />
-            </div>
-            
-            <QuickFileRunner 
-              selectedFile={selectedFile}
-              setSelectedFile={setSelectedFile}
-              isRunning={isRunning}
-              setIsRunning={setIsRunning}
-            />
-            
-            <div className="flex-grow overflow-auto">
-              <CommandOutput />
-            </div>
-            
-            <TerminalCommandInput 
+            <TerminalContent
               terminalInput={terminalInput}
               setTerminalInput={setTerminalInput}
               handleSubmitCommand={handleSubmitCommand}
               handleKeyDown={handleKeyDown}
               currentTheme={currentTheme}
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+              isRunning={isRunning}
+              setIsRunning={setIsRunning}
             />
-            
-            <div className="w-full text-center">
-              <span className="text-xs text-slate-500">
-                Введите "помощь" для просмотра доступных команд
-              </span>
-            </div>
           </TabsContent>
           
           <TabsContent value="logs" className="flex-grow overflow-auto m-0">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>
-                Системные логи
-              </h3>
-              <div className="w-full">
-                <TerminalLogs maxHeight="calc(100vh - 250px)" />
-              </div>
-              <div className="flex justify-end">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    terminalService.clearLogs();
-                    toast.success('Логи очищены');
-                  }}
-                >
-                  Очистить логи
-                </Button>
-              </div>
-            </div>
+            <TerminalLogsTab currentTheme={currentTheme} />
           </TabsContent>
           
           <TabsContent value="containers" className="flex-grow overflow-auto m-0">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>
-                  Управление контейнерами
-                </h3>
-              </div>
-              <ContainersList />
-            </div>
+            <TerminalContainersTab currentTheme={currentTheme} />
           </TabsContent>
           
           <TabsContent value="history" className="flex-grow overflow-auto m-0">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>История команд</h3>
-              <div className="space-y-1">
-                {terminalHistory.length > 0 ? (
-                  [...terminalHistory].reverse().map((cmd, index) => (
-                    <div 
-                      key={index} 
-                      className="p-2 rounded bg-opacity-10 hover:bg-opacity-20 cursor-pointer transition-colors flex justify-between items-center"
-                      style={{ backgroundColor: currentTheme.primaryColor }}
-                      onClick={() => {
-                        setTerminalInput(cmd);
-                      }}
-                    >
-                      <span className="font-mono text-sm">{cmd}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 text-xs"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setTerminalInput(cmd);
-                          handleSubmitCommand();
-                        }}
-                      >
-                        Повторить
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4 opacity-70">
-                    История команд пуста
-                  </div>
-                )}
-              </div>
-            </div>
+            <TerminalHistoryTab 
+              currentTheme={currentTheme}
+              terminalHistory={terminalHistory}
+              setTerminalInput={setTerminalInput}
+              handleSubmitCommand={handleSubmitCommand}
+            />
           </TabsContent>
           
           <TabsContent value="help" className="flex-grow overflow-auto m-0">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold" style={{ color: currentTheme.primaryColor }}>Справка по командам</h3>
-              
-              <div className="space-y-2">
-                <h4 className="text-md font-semibold">Общие команды</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">помощь</div>
-                    <div className="text-xs opacity-70">Показать справку по командам</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">очистить</div>
-                    <div className="text-xs opacity-70">Очистить историю команд</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">статус</div>
-                    <div className="text-xs opacity-70">Показать текущий статус системы</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">инфо [тема]</div>
-                    <div className="text-xs opacity-70">Показать информацию по теме</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h4 className="text-md font-semibold">Управление библиотеками</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">установить библиотеку [имя] для [язык]</div>
-                    <div className="text-xs opacity-70">Установить библиотеку для указанного языка</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">список библиотек [язык]</div>
-                    <div className="text-xs opacity-70">Показать список установленных библиотек</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h4 className="text-md font-semibold">Управление контейнерами</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">container start [язык]</div>
-                    <div className="text-xs opacity-70">Запустить контейнер для указанного языка</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">container stop [id]</div>
-                    <div className="text-xs opacity-70">Остановить указанный контейнер</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h4 className="text-md font-semibold">Выполнение кода</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">выполнить [имя файла]</div>
-                    <div className="text-xs opacity-70">Запустить указанный файл</div>
-                  </div>
-                  <div className="p-2 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.primaryColor }}>
-                    <div className="font-mono text-sm">дебаг [имя файла]</div>
-                    <div className="text-xs opacity-70">Запустить в режиме отладки</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-4 rounded bg-opacity-10" style={{ backgroundColor: currentTheme.accentColor }}>
-                <h4 className="text-md font-semibold mb-2">Примеры команд:</h4>
-                <div className="space-y-1">
-                  <div className="font-mono text-sm">container start python</div>
-                  <div className="font-mono text-sm">container list</div>
-                  <div className="font-mono text-sm">установить numpy</div>
-                  <div className="font-mono text-sm">выполнить main.py</div>
-                  <div className="font-mono text-sm">очистить</div>
-                </div>
-              </div>
-            </div>
+            <TerminalHelpTab currentTheme={currentTheme} />
           </TabsContent>
         </div>
       </Tabs>

@@ -1,21 +1,27 @@
 
 import React, { useState, useEffect } from 'react';
-import { LibraryCard } from '@/components/LibraryCard';
-import { LibraryFilters } from '@/components/LibraryFilters';
-import { SystemStats } from '@/components/SystemStats';
-import { LibraryDetails } from '@/components/LibraryDetails';
-import { LogItem } from '@/components/LogItem';
 import { useTheme } from '@/context/ThemeContext';
-import { terminalService } from '@/services/terminalService';
-import { Library, LogEntry, ProgrammingLanguage } from '@/models/types';
+import { LibraryDetails } from '@/components/LibraryDetails';
+import { LibraryCard } from '@/components/LibraryCard';
+import { ProgrammingLanguage } from '@/models/types';
 import { useCommandContext } from '@/context/CommandContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LibraryFilters } from '@/components/LibraryFilters';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
+import { 
+  BookOpen, 
+  Code, 
+  Package, 
+  Search, 
+  ArrowDown, 
+  ArrowUp, 
+  Filter,
+  Download,
+  Gamepad2
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import mockLibraries from '@/data/mockLibraries';
+import { mockLibraries } from '@/data/mockLibraries';
 import { toast } from 'sonner';
 import { RunButton } from '@/components/ui/terminal-button';
 
