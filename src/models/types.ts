@@ -1,3 +1,4 @@
+
 // This file might not exist yet, so we're creating it 
 export type Theme = {
   id: string;
@@ -39,6 +40,11 @@ export interface Library {
   size?: string;
   tags: string[];
   dependencies?: string[];
+  // Add these properties to fix type errors
+  source?: string;
+  popularity?: number;
+  isPaid?: boolean;
+  isGame?: boolean;
 }
 
 export interface LogEntry {
@@ -58,4 +64,41 @@ export interface SystemStats {
   ramUsage: number;
   diskSpace: number;
   diskFree: number;
+}
+
+// Interface for LibraryFilters props
+export interface LibraryFiltersProps {
+  searchTerm?: string;
+  setSearchTerm?: (term: string) => void;
+  selectedLanguage: ProgrammingLanguage | undefined;
+  setSelectedLanguage: (language: ProgrammingLanguage | undefined) => void;
+  sortOption?: string;
+  setSortOption?: (option: string) => void;
+  filterStable?: boolean;
+  setFilterStable?: (stable: boolean) => void;
+  filterPopular?: boolean;
+  setFilterPopular?: (popular: boolean) => void;
+  filterNew?: boolean;
+  setFilterNew?: (isNew: boolean) => void;
+  showGameLibraries?: boolean;
+  setShowGameLibraries?: (show: boolean) => void;
+  // Add these properties to fix errors
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  onLanguageChange?: (language: ProgrammingLanguage | undefined) => void;
+  showFreeOnly?: boolean;
+  onFreeOnlyChange?: (showFree: boolean) => void;
+  showGamesOnly?: boolean;
+  onGamesOnlyChange?: (showGames: boolean) => void;
+  selectedCategory?: string;
+  onCategoryChange?: (category: string | undefined) => void;
+}
+
+// Update the LibraryCardProps interface to make onInstall props more flexible
+export interface LibraryCardProps {
+  library: Library;
+  onSelect?: () => void;
+  onInstall: () => Promise<void> | void;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
