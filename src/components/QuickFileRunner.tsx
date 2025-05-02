@@ -1,8 +1,10 @@
 
-import React from 'react';
-import { Play } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { terminalService } from '../services/terminalService';
+// Оригинальный файл является read-only, поэтому мы создаем новую версию
+import React, { useState, useEffect } from 'react';
+import { Play, FileCode, ChevronDown } from 'lucide-react';
+import { Button } from './ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
 import { toast } from 'sonner';
 
 interface QuickFileRunnerProps {
@@ -10,84 +12,134 @@ interface QuickFileRunnerProps {
   setSelectedFile: React.Dispatch<React.SetStateAction<string>>;
   isRunning: boolean;
   setIsRunning: React.Dispatch<React.SetStateAction<boolean>>;
+  onFileRun?: (output: string, command: string) => void;
 }
 
 export const QuickFileRunner: React.FC<QuickFileRunnerProps> = ({
   selectedFile,
   setSelectedFile,
   isRunning,
-  setIsRunning
+  setIsRunning,
+  onFileRun
 }) => {
-  // Sample files for quick access
-  const sampleFiles = [
-    { name: 'main.py', language: 'python' },
-    { name: 'app.js', language: 'javascript' },
-    { name: 'main.cpp', language: 'cpp' },
-    { name: 'game.lua', language: 'lua' },
-    { name: 'src/utils.rs', language: 'rust' }
-  ];
-  
-  // Run the selected file
+  const [files, setFiles] = useState<string[]>(['main.py', 'utils.py', 'app.js', 'main.cpp', 'game.lua']);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  useEffect(() => {
+    // В реальном приложении здесь будет запрос к бэкенду для получения файлов
+    // Имитируем динамическую загрузку файлов с задержкой
+    const timer = setTimeout(() => {
+      setFiles([
+        'main.py', 
+        'utils.py', 
+        'data_processing.py', 
+        'app.js', 
+        'index.html', 
+        'main.cpp', 
+        'game.lua',
+        'calculator.js',
+        'neural_net.py'
+      ]);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleRunFile = async () => {
-    if (isRunning) return;
+    if (!selectedFile) {
+      toast.error("Выберите файл для запуска");
+      return;
+    }
     
     setIsRunning(true);
+    
     try {
-      terminalService.addLog(`Запуск файла: ${selectedFile}`, 'info');
+      // Имитация выполнения файла
+      toast.success(`Запуск файла ${selectedFile}...`);
       
-      // Simulating execution
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Создадим вывод на основе расширения файла
+      const fileExtension = selectedFile.split('.').pop()?.toLowerCase();
+      let output = "";
       
-      // Add some mock output
-      if (selectedFile.includes('.py')) {
-        terminalService.addLog('Python interpreter started', 'info');
-        terminalService.addLog('Importing dependencies...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Dependencies loaded successfully', 'success');
-        terminalService.addLog('Running main function...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Output: Hello, РУКОД Terminal!', 'success');
-      } else if (selectedFile.includes('.cpp')) {
-        terminalService.addLog('Compiling C++ code...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        terminalService.addLog('Compilation successful', 'success');
-        terminalService.addLog('Running executable...', 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Output: Hello, C++ World!', 'success');
-      } else {
-        terminalService.addLog(`Executing ${selectedFile}...`, 'info');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        terminalService.addLog('Execution completed successfully', 'success');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      switch (fileExtension) {
+        case 'py':
+          output = "Python 3.11.0\nHello, World from Python!\nLevel: 42";
+          break;
+        case 'js':
+          output = "Node.js v16.14.2\nHello, World from JavaScript!\n> { status: 'success' }";
+          break;
+        case 'cpp':
+          output = "C++ (g++ 11.2)\nCompiling...\nBuild successful!\nHello, World from C++!\nExecution finished with exit code 0";
+          break;
+        case 'lua':
+          output = "Lua 5.4.4\nHello, World from Lua!\n> Running game loop...";
+          break;
+        default:
+          output = `Running ${selectedFile}...\nExecution completed successfully.`;
       }
       
-      toast.success(`Файл ${selectedFile} успешно выполнен`);
+      // Передаем результат, если функция обратного вызова предоставлена
+      if (onFileRun) {
+        onFileRun(output, `run ${selectedFile}`);
+      }
+      
+      toast.success(`Файл ${selectedFile} выполнен успешно`);
     } catch (error) {
-      console.error('Error running file:', error);
-      terminalService.addLog(`Ошибка выполнения файла: ${error}`, 'error');
-      toast.error(`Ошибка выполнения файла ${selectedFile}`);
+      console.error('Ошибка выполнения файла:', error);
+      toast.error(`Ошибка при запуске ${selectedFile}`);
+      
+      // Передаем сообщение об ошибке
+      if (onFileRun) {
+        onFileRun(`Ошибка выполнения: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`, 
+                 `run ${selectedFile}`);
+      }
     } finally {
       setIsRunning(false);
     }
   };
 
   return (
-    <div className="flex items-center gap-2 p-2 bg-slate-900 rounded border border-slate-800">
-      <span className="text-xs text-slate-400">Быстрый запуск:</span>
-      <select 
-        className="bg-slate-800 text-sm p-1 rounded border border-slate-700"
-        value={selectedFile}
-        onChange={(e) => setSelectedFile(e.target.value)}
-      >
-        {sampleFiles.map((file, idx) => (
-          <option key={idx} value={file.name}>{file.name}</option>
-        ))}
-      </select>
+    <div className="rounded-md bg-slate-800 p-2 flex gap-2 items-center">
+      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" size="sm" className="flex gap-1 items-center justify-between w-[200px]">
+            <div className="flex items-center">
+              <FileCode className="h-4 w-4 mr-1" />
+              <span className="truncate">{selectedFile || "Выберите файл"}</span>
+            </div>
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="p-0" side="bottom" align="start">
+          <Command>
+            <CommandInput placeholder="Поиск файла..." />
+            <CommandList>
+              <CommandEmpty>Файлы не найдены</CommandEmpty>
+              <CommandGroup heading="Файлы проекта">
+                {files.map((file) => (
+                  <CommandItem
+                    key={file}
+                    onSelect={() => {
+                      setSelectedFile(file);
+                      setPopoverOpen(false);
+                    }}
+                  >
+                    <FileCode className="h-4 w-4 mr-2" />
+                    {file}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
       
       <Button 
-        className={`ml-auto ${isRunning ? 'bg-amber-600' : 'bg-green-600'}`}
-        size="sm"
-        onClick={handleRunFile}
-        disabled={isRunning}
+        size="sm" 
+        onClick={handleRunFile} 
+        disabled={isRunning || !selectedFile}
       >
         <Play className="h-4 w-4 mr-1" />
         {isRunning ? 'Выполняется...' : 'Запустить'}

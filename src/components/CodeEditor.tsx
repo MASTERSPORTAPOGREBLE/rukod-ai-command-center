@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { 
@@ -21,6 +22,7 @@ import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
 import { useCommandContext } from '../context/CommandContext';
+import { CodeRunner } from './code/CodeRunner';
 
 interface CodeFile {
   id: string;
@@ -263,15 +265,16 @@ export const CodeEditor: React.FC = () => {
             </SelectContent>
           </Select>
           
-          <Button 
-            variant="outline"
-            size="sm"
-            onClick={runCode}
-            className="ml-2"
-            disabled={!activeFileId}
-          >
-            Запустить
-          </Button>
+          {activeFile && (
+            <div className="ml-2">
+              <CodeRunner 
+                code={activeFile.content}
+                language={activeFile.language}
+                fileName={activeFile.name}
+              />
+            </div>
+          )}
+          
           <Button 
             variant="ghost"
             size="sm"

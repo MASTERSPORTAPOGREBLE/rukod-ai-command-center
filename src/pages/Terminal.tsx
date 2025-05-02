@@ -15,6 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CodeExecutionResult } from '@/components/code/CodeExecutionResult';
 
 // Import our components
 import { TerminalContent } from '@/components/terminal/TerminalContent';
@@ -40,7 +41,7 @@ const Terminal = () => {
   const [selectedFile, setSelectedFile] = useState('main.py');
   const [isRunning, setIsRunning] = useState(false);
   
-  // For command output dialog
+  // Для диалога с результатами выполнения команды
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const [commandResult, setCommandResult] = useState('');
   const [commandExecuted, setCommandExecuted] = useState('');
@@ -87,6 +88,26 @@ const Terminal = () => {
         }
         
         // Show the result dialog
+        setResultDialogOpen(true);
+      } else if (terminalInput.toLowerCase().startsWith('run') || 
+                terminalInput.toLowerCase().includes('python') ||
+                terminalInput.toLowerCase().includes('node')) {
+        // Для команд запуска файла и интерпретаторов
+        setCommandExecuted(terminalInput);
+        
+        // Создаем вывод в зависимости от команды
+        let output = '';
+        if (terminalInput.toLowerCase().includes('.py')) {
+          output = `Python 3.11.0\n>>> Executing Python script...\n\nHello, World!\nCalculation complete.\nLevel: ${Math.floor(Math.random() * 100)}\n\nScript executed successfully with exit code 0`;
+        } else if (terminalInput.toLowerCase().includes('.js')) {
+          output = `Node.js v16.14.2\n> Executing JavaScript...\n\nHello, World!\n{ status: 'success', data: { id: ${Math.floor(Math.random() * 1000)} } }\n\nExecution completed successfully`;
+        } else if (terminalInput.toLowerCase().includes('.cpp')) {
+          output = `g++ (GCC) 11.2.0\n> Compiling C++ code...\n> Compilation successful\n> Running executable\n\nHello, World!\nProgram executed successfully with exit code 0`;
+        } else {
+          output = `Executing: ${terminalInput}\n\nOutput: Command processed successfully\nStatus: OK\nExecution time: ${Math.floor(Math.random() * 100)}ms`;
+        }
+        
+        setCommandResult(output);
         setResultDialogOpen(true);
       } else {
         // For all other commands
@@ -213,23 +234,14 @@ const Terminal = () => {
           </TabsContent>
         </div>
       </Tabs>
-      
-      {/* Command Result Dialog */}
-      <Dialog open={resultDialogOpen} onOpenChange={setResultDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Результат выполнения команды</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-slate-900 p-3 rounded-md">
-              <p className="text-sm font-mono text-rukod-purple mb-1">$ {commandExecuted}</p>
-              <pre className="whitespace-pre-wrap font-mono text-sm bg-slate-800 p-3 rounded-md border border-slate-700">
-                {commandResult}
-              </pre>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
+      <CodeExecutionResult
+        open={resultDialogOpen}
+        onOpenChange={setResultDialogOpen}
+        output={commandResult}
+        fileName={commandExecuted}
+        language={terminalInfo.activeEnvironment}
+      />
     </div>
   );
 };

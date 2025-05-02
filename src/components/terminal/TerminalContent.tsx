@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { CommandOutput } from '../CommandOutput';
 import { SystemStats } from '../SystemStats';
 import { TerminalCommandInput } from '../TerminalCommandInput';
 import { QuickFileRunner } from '../QuickFileRunner';
+import { CodeExecutionResult } from '../code/CodeExecutionResult';
 
 interface TerminalContentProps {
   terminalInput: string;
@@ -28,6 +29,17 @@ export const TerminalContent: React.FC<TerminalContentProps> = ({
   isRunning,
   setIsRunning
 }) => {
+  const [resultDialogOpen, setResultDialogOpen] = useState(false);
+  const [commandOutput, setCommandOutput] = useState("");
+  const [executedCommand, setExecutedCommand] = useState("");
+
+  // Расширяем функциональность QuickFileRunner для отображения результатов
+  const onFileRun = (output: string, command: string) => {
+    setCommandOutput(output);
+    setExecutedCommand(command);
+    setResultDialogOpen(true);
+  };
+
   return (
     <div className="flex-grow flex flex-col space-y-2 m-0">
       <div>
@@ -39,6 +51,7 @@ export const TerminalContent: React.FC<TerminalContentProps> = ({
         setSelectedFile={setSelectedFile}
         isRunning={isRunning}
         setIsRunning={setIsRunning}
+        onFileRun={onFileRun}
       />
       
       <div className="flex-grow overflow-auto">
@@ -58,6 +71,15 @@ export const TerminalContent: React.FC<TerminalContentProps> = ({
           Введите "помощь" для просмотра доступных команд
         </span>
       </div>
+
+      <CodeExecutionResult
+        open={resultDialogOpen}
+        onOpenChange={setResultDialogOpen}
+        output={commandOutput}
+        fileName={selectedFile}
+        executionTime={0}
+        language="terminal"
+      />
     </div>
   );
 };
