@@ -1,11 +1,13 @@
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { ContainerProvider } from './context/ContainerContext';
 import { CommandProvider } from './context/CommandContext';
+import { AuthProvider } from './context/AuthContext'; // Add AuthProvider
 import { Toaster } from 'sonner';
 import { NavigationBar } from './components/NavigationBar';
 import { ThemeCustomizer } from './components/ThemeCustomizer';
+import { useAuth } from './context/AuthContext';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -15,10 +17,24 @@ import NotFound from './pages/NotFound';
 import Libraries from './pages/Libraries';
 import Authentication from './pages/Authentication';
 import Help from './pages/Help';
+import UserProfile from './pages/UserProfile'; // New page for user profile
 
 import './App.css';
 
-function App() {
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Загрузка...</div>;
+  }
+  
+  return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
+};
+
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <ThemeProvider>
       <ContainerProvider>
@@ -33,11 +49,14 @@ function App() {
               </div>
               
               <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/terminal" element={<Terminal />} />
-                <Route path="/code" element={<CodeTerminal />} />
-                <Route path="/libraries" element={<Libraries />} />
-                <Route path="/auth" element={<Authentication />} />
+                <Route path="/auth" element={!isAuthenticated ? <Authentication /> : <Navigate to="/" replace />} />
+                
+                {/* Protected routes */}
+                <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+                <Route path="/terminal" element={<ProtectedRoute><Terminal /></ProtectedRoute>} />
+                <Route path="/code" element={<ProtectedRoute><CodeTerminal /></ProtectedRoute>} />
+                <Route path="/libraries" element={<ProtectedRoute><Libraries /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
                 <Route path="/help" element={<Help />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -48,6 +67,14 @@ function App() {
         </CommandProvider>
       </ContainerProvider>
     </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

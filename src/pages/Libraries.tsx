@@ -10,34 +10,10 @@ import { ScrollArea } from '../components/ui/scroll-area';
 import { Button } from '../components/ui/button';
 import { CalendarDays, Package, Search } from 'lucide-react';
 import { Input } from '../components/ui/input';
-import { Spinner } from '../components/ui/spinner'; // Assume we have this component
+import { Spinner } from '../components/ui/spinner';
 
 // Import mock data
 import { mockLibraries } from '../data/mockLibraries';
-
-// Define props interfaces to match components
-interface LibraryFiltersProps {
-  searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-  selectedLanguage: ProgrammingLanguage;
-  setSelectedLanguage: React.Dispatch<React.SetStateAction<ProgrammingLanguage>>;
-  sortOption: string;
-  setSortOption: React.Dispatch<React.SetStateAction<string>>;
-  filterStable: boolean;
-  setFilterStable: React.Dispatch<React.SetStateAction<boolean>>;
-  filterPopular: boolean;
-  setFilterPopular: React.Dispatch<React.SetStateAction<boolean>>;
-  filterNew: boolean;
-  setFilterNew: React.Dispatch<React.SetStateAction<boolean>>;
-  showGameLibraries: boolean;
-  setShowGameLibraries: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-interface LibraryCardProps {
-  library: Library;
-  onSelect: () => void;
-  onInstall: () => Promise<void>;
-}
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();

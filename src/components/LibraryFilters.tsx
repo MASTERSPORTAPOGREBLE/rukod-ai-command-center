@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ProgrammingLanguage } from '../models/types';
 import { useTheme } from '../context/ThemeContext';
@@ -10,57 +9,59 @@ import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 
-interface LibraryFiltersProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  selectedLanguage: ProgrammingLanguage | undefined;
-  onLanguageChange: (language?: ProgrammingLanguage) => void;
-  showFreeOnly: boolean;
-  onFreeOnlyChange: (value: boolean) => void;
-  showGamesOnly: boolean;
-  onGamesOnlyChange: (value: boolean) => void;
-  selectedCategory?: string;
-  onCategoryChange?: (category?: string) => void;
+export interface LibraryFiltersProps {
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  selectedLanguage: ProgrammingLanguage;
+  setSelectedLanguage: React.Dispatch<React.SetStateAction<ProgrammingLanguage>>;
+  sortOption: string;
+  setSortOption: React.Dispatch<React.SetStateAction<string>>;
+  filterStable: boolean;
+  setFilterStable: React.Dispatch<React.SetStateAction<boolean>>;
+  filterPopular: boolean;
+  setFilterPopular: React.Dispatch<React.SetStateAction<boolean>>;
+  filterNew: boolean;
+  setFilterNew: React.Dispatch<React.SetStateAction<boolean>>;
+  showGameLibraries: boolean;
+  setShowGameLibraries: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
-  searchQuery,
-  onSearchChange,
+  searchTerm,
+  setSearchTerm,
   selectedLanguage,
-  onLanguageChange,
-  showFreeOnly,
-  onFreeOnlyChange,
-  showGamesOnly,
-  onGamesOnlyChange,
-  selectedCategory,
-  onCategoryChange
+  setSelectedLanguage,
+  sortOption,
+  setSortOption,
+  filterStable,
+  setFilterStable,
+  filterPopular,
+  setFilterPopular,
+  filterNew,
+  setFilterNew,
+  showGameLibraries,
+  setShowGameLibraries
 }) => {
   const { currentTheme } = useTheme();
   
   const handleReset = () => {
-    onSearchChange('');
-    onLanguageChange(undefined);
-    onFreeOnlyChange(false);
-    onGamesOnlyChange(false);
-    if (onCategoryChange) onCategoryChange(undefined);
+    setSearchTerm('');
+    setSelectedLanguage('all');
+    setSortOption('popular');
+    setFilterStable(false);
+    setFilterPopular(true);
+    setFilterNew(false);
+    setShowGameLibraries(false);
   };
 
-  const categories = [
-    { id: 'machine-learning', name: 'Машинное обучение', icon: ChartBar },
-    { id: 'web-dev', name: 'Веб-разработка', icon: Globe },
-    { id: 'game-dev', name: 'Игровая разработка', icon: Gamepad2 },
-    { id: 'data-science', name: 'Обработка данных', icon: BookOpen },
-    { id: 'gui', name: 'Интерфейсы', icon: Layout }
-  ];
-  
   return (
     <div className="mb-6 space-y-4">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Поиск библиотек..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-9"
           style={{
             backgroundColor: currentTheme.backgroundColor,
@@ -70,8 +71,7 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
         />
       </div>
       
-      <Tabs defaultValue={selectedLanguage || "all"} onValueChange={(value) => 
-        onLanguageChange(value === "all" ? undefined : value as ProgrammingLanguage)}>
+      <Tabs defaultValue={selectedLanguage} onValueChange={(value) => setSelectedLanguage(value as ProgrammingLanguage)}>
         <TabsList className="w-full grid grid-cols-8">
           <TabsTrigger value="all">Все</TabsTrigger>
           <TabsTrigger value="python">Python</TabsTrigger>
@@ -83,41 +83,42 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
           <TabsTrigger value="more">Ещё...</TabsTrigger>
         </TabsList>
       </Tabs>
-
-      {/* Categories */}
-      <div className="flex flex-wrap gap-2">
-        {categories.map(category => (
-          <Badge 
-            key={category.id}
-            variant={selectedCategory === category.id ? "default" : "outline"}
-            className="cursor-pointer flex items-center gap-1 px-3 py-1"
-            onClick={() => onCategoryChange && onCategoryChange(
-              selectedCategory === category.id ? undefined : category.id
-            )}
-          >
-            <category.icon className="h-3 w-3" />
-            <span>{category.name}</span>
-          </Badge>
-        ))}
-      </div>
       
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Switch 
-            id="free-only" 
-            checked={showFreeOnly} 
-            onCheckedChange={onFreeOnlyChange}
+            id="stable" 
+            checked={filterStable} 
+            onCheckedChange={setFilterStable}
           />
-          <Label htmlFor="free-only">Только бесплатные</Label>
+          <Label htmlFor="stable">Только стабильные</Label>
         </div>
         
         <div className="flex items-center gap-2">
           <Switch 
-            id="games-only" 
-            checked={showGamesOnly} 
-            onCheckedChange={onGamesOnlyChange}
+            id="popular" 
+            checked={filterPopular} 
+            onCheckedChange={setFilterPopular}
           />
-          <Label htmlFor="games-only">Для игр</Label>
+          <Label htmlFor="popular">Только популярные</Label>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Switch 
+            id="new" 
+            checked={filterNew} 
+            onCheckedChange={setFilterNew}
+          />
+          <Label htmlFor="new">Только новые</Label>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Switch 
+            id="game-libraries" 
+            checked={showGameLibraries} 
+            onCheckedChange={setShowGameLibraries}
+          />
+          <Label htmlFor="game-libraries">Только для игр</Label>
         </div>
       </div>
       

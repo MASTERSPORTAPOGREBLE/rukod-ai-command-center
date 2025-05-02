@@ -1,4 +1,3 @@
-
 // This file might not exist yet, so we're creating it 
 export type Theme = {
   id: string;
@@ -10,7 +9,7 @@ export type Theme = {
   accentColor: string;
 };
 
-export type ProgrammingLanguage = 'python' | 'cpp' | 'lua' | 'javascript' | 'rust' | 'ruby';
+export type ProgrammingLanguage = 'python' | 'cpp' | 'javascript' | 'typescript' | 'rust' | 'ruby' | 'lua' | 'all';
 
 export interface ContainerInfo {
   id: string;
@@ -28,13 +27,18 @@ export interface Library {
   id: string;
   name: string;
   description: string;
-  version: string;
   language: ProgrammingLanguage;
-  source: string;
-  popularity: number;
-  tags?: string[];
-  isPaid?: boolean;
-  isGame?: boolean;
+  version: string;
+  author: string;
+  isStable: boolean;
+  downloadCount: number;
+  lastUpdated: string;
+  documentation?: string;
+  repository?: string;
+  license: string;
+  size?: string;
+  tags: string[];
+  dependencies?: string[];
 }
 
 export interface LogEntry {

@@ -17,10 +17,12 @@ import {
   TabsList,
   TabsTrigger,
 } from './ui/tabs';
-import { Eye, EyeOff, LogIn, UserPlus, Lock, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, LogIn, UserPlus, Lock, Mail, User, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '../context/AuthContext';
 
 export const AuthenticationForm: React.FC = () => {
+  const { login, register, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
   
@@ -34,18 +36,18 @@ export const AuthenticationForm: React.FC = () => {
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
   
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Mock login logic - in a real app, this would call an authentication API
-    if (loginEmail && loginPassword) {
-      toast.success('Вход выполнен успешно!');
-    } else {
+    if (!loginEmail || !loginPassword) {
       toast.error('Пожалуйста, заполните все поля');
+      return;
     }
+    
+    await login(loginEmail, loginPassword);
   };
   
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simple validation
@@ -59,8 +61,7 @@ export const AuthenticationForm: React.FC = () => {
       return;
     }
     
-    // Mock registration logic - in a real app, this would call an API
-    toast.success('Регистрация прошла успешно!');
+    await register(registerName, registerEmail, registerPassword);
   };
   
   return (
@@ -96,6 +97,7 @@ export const AuthenticationForm: React.FC = () => {
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="pl-10"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -115,11 +117,13 @@ export const AuthenticationForm: React.FC = () => {
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     className="pl-10"
+                    disabled={isLoading}
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -128,9 +132,18 @@ export const AuthenticationForm: React.FC = () => {
             </CardContent>
             
             <CardFooter>
-              <Button type="submit" className="w-full">
-                <LogIn className="mr-2 h-4 w-4" />
-                Войти
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Загрузка...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Войти
+                  </>
+                )}
               </Button>
             </CardFooter>
           </form>
@@ -149,6 +162,7 @@ export const AuthenticationForm: React.FC = () => {
                     value={registerName}
                     onChange={(e) => setRegisterName(e.target.value)}
                     className="pl-10"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -164,6 +178,7 @@ export const AuthenticationForm: React.FC = () => {
                     value={registerEmail}
                     onChange={(e) => setRegisterEmail(e.target.value)}
                     className="pl-10"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -178,11 +193,13 @@ export const AuthenticationForm: React.FC = () => {
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
                     className="pl-10"
+                    disabled={isLoading}
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -199,15 +216,25 @@ export const AuthenticationForm: React.FC = () => {
                     value={registerConfirmPassword}
                     onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                     className="pl-10"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
             </CardContent>
             
             <CardFooter>
-              <Button type="submit" className="w-full">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Зарегистрироваться
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Загрузка...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Зарегистрироваться
+                  </>
+                )}
               </Button>
             </CardFooter>
           </form>
@@ -224,6 +251,7 @@ export const AuthenticationForm: React.FC = () => {
             variant="link" 
             className="p-0 h-auto text-blue-500"
             onClick={() => setActiveTab(activeTab === 'login' ? 'register' : 'login')}
+            disabled={isLoading}
           >
             {activeTab === 'login' ? 'Зарегистрироваться' : 'Войти'}
           </Button>

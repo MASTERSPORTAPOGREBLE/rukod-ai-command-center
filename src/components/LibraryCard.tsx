@@ -1,92 +1,36 @@
-
 import React from 'react';
-import { Library } from '../models/types';
-import { useTheme } from '../context/ThemeContext';
-import { toast } from 'sonner';
-import { Download, Star, Check } from 'lucide-react';
-import { Card } from './ui/card';
-import { Badge } from './ui/badge';
+import { Card, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
-import { Checkbox } from './ui/checkbox';
+import { Download, ExternalLink, Info } from 'lucide-react';
+import { Library } from '../models/types';
 
-interface LibraryCardProps {
+export interface LibraryCardProps {
   library: Library;
-  onInstall: (libraryId: string) => void;
-  isSelected?: boolean;
-  onToggleSelect?: () => void;
+  onSelect: () => void;  // Add this missing prop
+  onInstall: () => Promise<void>;
 }
 
-export const LibraryCard: React.FC<LibraryCardProps> = ({ 
-  library, 
-  onInstall, 
-  isSelected = false, 
-  onToggleSelect 
-}) => {
-  const { currentTheme } = useTheme();
-
-  const handleInstall = () => {
-    onInstall(library.id);
-    toast.success(`Начало установки ${library.name}`, {
-      description: 'Библиотека будет доступна после завершения установки'
-    });
-  };
-
+export const LibraryCard: React.FC<LibraryCardProps> = ({ library, onSelect, onInstall }) => {
   return (
-    <Card className={`w-full mb-4 overflow-hidden hover:shadow-lg transition-shadow duration-300 ${isSelected ? 'ring-2 ring-offset-2' : ''}`}
-          style={{ 
-            backgroundColor: currentTheme.backgroundColor, 
-            color: currentTheme.textColor, 
-            borderColor: currentTheme.primaryColor,
-            ...(isSelected && { ringColor: currentTheme.primaryColor })
-          }}>
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center">
-            {onToggleSelect && (
-              <Checkbox 
-                checked={isSelected}
-                onCheckedChange={onToggleSelect}
-                className="mr-3"
-              />
-            )}
-            <h3 className="text-xl font-semibold" style={{ color: currentTheme.primaryColor }}>{library.name}</h3>
-          </div>
-          <div className="flex items-center">
-            <Star className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500" />
-            <span className="text-sm">{library.popularity.toFixed(1)}</span>
-          </div>
+    <Card className="bg-slate-900 border border-slate-800 shadow-sm rounded-lg">
+      <CardContent className="p-4 space-y-2">
+        <h3 className="text-lg font-semibold">{library.name}</h3>
+        <p className="text-sm text-muted-foreground">{library.description.substring(0, 60)}...</p>
+        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+          <span>{library.language}</span>
+          <span>v{library.version}</span>
         </div>
-        
-        <div className="text-sm mb-2">{library.description}</div>
-        
-        <div className="flex items-center justify-between mb-3 text-xs">
-          <span>Версия: {library.version}</span>
-          <span>Источник: {library.source}</span>
-        </div>
-        
-        <div className="flex flex-wrap gap-1 mb-3">
-          {library.tags.map(tag => (
-            <Badge key={tag} variant="outline" className="text-xs" 
-                  style={{ borderColor: currentTheme.accentColor, color: currentTheme.accentColor }}>
-              {tag}
-            </Badge>
-          ))}
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <span className="text-xs">
-            {library.isPaid ? 'Платная' : 'Бесплатная'}
-          </span>
-          <Button 
-            onClick={handleInstall}
-            className="flex items-center gap-1 px-3 py-1"
-            style={{ backgroundColor: currentTheme.accentColor, color: currentTheme.backgroundColor }}
-          >
-            <Download className="h-4 w-4" />
-            Установить
-          </Button>
-        </div>
-      </div>
+      </CardContent>
+      <CardFooter className="flex justify-between items-center p-4">
+        <Button variant="outline" size="sm" onClick={onSelect}>
+          <Info className="h-4 w-4 mr-2" />
+          Подробнее
+        </Button>
+        <Button size="sm" onClick={onInstall}>
+          <Download className="h-4 w-4 mr-2" />
+          Установить
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
