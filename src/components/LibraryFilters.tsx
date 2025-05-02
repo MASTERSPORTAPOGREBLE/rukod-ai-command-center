@@ -1,57 +1,47 @@
+
 import React from 'react';
 import { ProgrammingLanguage } from '../models/types';
 import { useTheme } from '../context/ThemeContext';
-import { Search, Flame, Code, Filter, BookOpen, Globe, Gamepad2, ChartBar, Layout } from 'lucide-react';
+import { Search, Filter, Book } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
-import { Badge } from './ui/badge';
 
 export interface LibraryFiltersProps {
-  searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-  selectedLanguage: ProgrammingLanguage;
-  setSelectedLanguage: React.Dispatch<React.SetStateAction<ProgrammingLanguage>>;
-  sortOption: string;
-  setSortOption: React.Dispatch<React.SetStateAction<string>>;
-  filterStable: boolean;
-  setFilterStable: React.Dispatch<React.SetStateAction<boolean>>;
-  filterPopular: boolean;
-  setFilterPopular: React.Dispatch<React.SetStateAction<boolean>>;
-  filterNew: boolean;
-  setFilterNew: React.Dispatch<React.SetStateAction<boolean>>;
-  showGameLibraries: boolean;
-  setShowGameLibraries: React.Dispatch<React.SetStateAction<boolean>>;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  selectedLanguage?: ProgrammingLanguage;
+  onLanguageChange?: (language: ProgrammingLanguage | undefined) => void;
+  showFreeOnly?: boolean;
+  onFreeOnlyChange?: (showFree: boolean) => void;
+  showGamesOnly?: boolean;
+  onGamesOnlyChange?: (showGames: boolean) => void;
+  selectedCategory?: string;
+  onCategoryChange?: (category: string | undefined) => void;
 }
 
 export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
-  searchTerm,
-  setSearchTerm,
-  selectedLanguage,
-  setSelectedLanguage,
-  sortOption,
-  setSortOption,
-  filterStable,
-  setFilterStable,
-  filterPopular,
-  setFilterPopular,
-  filterNew,
-  setFilterNew,
-  showGameLibraries,
-  setShowGameLibraries
+  searchQuery = '',
+  onSearchChange = () => {},
+  selectedLanguage = 'all',
+  onLanguageChange = () => {},
+  showFreeOnly = false,
+  onFreeOnlyChange = () => {},
+  showGamesOnly = false,
+  onGamesOnlyChange = () => {},
+  selectedCategory,
+  onCategoryChange = () => {}
 }) => {
   const { currentTheme } = useTheme();
   
   const handleReset = () => {
-    setSearchTerm('');
-    setSelectedLanguage('all');
-    setSortOption('popular');
-    setFilterStable(false);
-    setFilterPopular(true);
-    setFilterNew(false);
-    setShowGameLibraries(false);
+    onSearchChange('');
+    onLanguageChange('all');
+    onFreeOnlyChange(false);
+    onGamesOnlyChange(false);
+    onCategoryChange(undefined);
   };
 
   return (
@@ -60,8 +50,8 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Поиск библиотек..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9"
           style={{
             backgroundColor: currentTheme.backgroundColor,
@@ -71,7 +61,7 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
         />
       </div>
       
-      <Tabs defaultValue={selectedLanguage} onValueChange={(value) => setSelectedLanguage(value as ProgrammingLanguage)}>
+      <Tabs value={selectedLanguage} onValueChange={(value) => onLanguageChange(value as ProgrammingLanguage)}>
         <TabsList className="w-full grid grid-cols-8">
           <TabsTrigger value="all">Все</TabsTrigger>
           <TabsTrigger value="python">Python</TabsTrigger>
@@ -87,38 +77,20 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Switch 
-            id="stable" 
-            checked={filterStable} 
-            onCheckedChange={setFilterStable}
+            id="free-only" 
+            checked={showFreeOnly} 
+            onCheckedChange={onFreeOnlyChange}
           />
-          <Label htmlFor="stable">Только стабильные</Label>
+          <Label htmlFor="free-only">Только бесплатные</Label>
         </div>
         
         <div className="flex items-center gap-2">
           <Switch 
-            id="popular" 
-            checked={filterPopular} 
-            onCheckedChange={setFilterPopular}
+            id="games-only" 
+            checked={showGamesOnly} 
+            onCheckedChange={onGamesOnlyChange}
           />
-          <Label htmlFor="popular">Только популярные</Label>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Switch 
-            id="new" 
-            checked={filterNew} 
-            onCheckedChange={setFilterNew}
-          />
-          <Label htmlFor="new">Только новые</Label>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Switch 
-            id="game-libraries" 
-            checked={showGameLibraries} 
-            onCheckedChange={setShowGameLibraries}
-          />
-          <Label htmlFor="game-libraries">Только для игр</Label>
+          <Label htmlFor="games-only">Только для игр</Label>
         </div>
       </div>
       

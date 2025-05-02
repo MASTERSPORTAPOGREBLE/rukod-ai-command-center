@@ -110,20 +110,10 @@ export const LibrariesContent = () => {
         {/* Left panel: Filters */}
         <div className="w-full lg:w-64 space-y-4">
           <LibraryFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
+            searchQuery={searchTerm}
+            onSearchChange={setSearchTerm}
             selectedLanguage={selectedLanguage}
-            setSelectedLanguage={setSelectedLanguage}
-            sortOption={sortOption}
-            setSortOption={setSortOption}
-            filterStable={filterStable}
-            setFilterStable={setFilterStable}
-            filterPopular={filterPopular}
-            setFilterPopular={setFilterPopular}
-            filterNew={filterNew}
-            setFilterNew={setFilterNew}
-            showGameLibraries={showGameLibraries}
-            setShowGameLibraries={setShowGameLibraries}
+            onLanguageChange={setSelectedLanguage}
           />
         </div>
         
