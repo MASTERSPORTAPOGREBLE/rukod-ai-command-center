@@ -13,7 +13,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 5.0,
     tags: ["ui", "frontend", "virtual-dom"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Facebook",
+    isStable: true,
+    downloadCount: 15000000,
+    lastUpdated: new Date("2023-06-15"),
+    license: "MIT"
   },
   {
     id: "javascript-vue",
@@ -25,7 +30,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["ui", "frontend", "framework"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Evan You",
+    isStable: true,
+    downloadCount: 10000000,
+    lastUpdated: new Date("2023-05-20"),
+    license: "MIT"
   },
   {
     id: "javascript-angular",
@@ -37,7 +47,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["framework", "frontend", "enterprise"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Google",
+    isStable: true,
+    downloadCount: 8000000,
+    lastUpdated: new Date("2023-06-01"),
+    license: "MIT"
   },
   {
     id: "javascript-express",
@@ -49,7 +64,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.9,
     tags: ["backend", "server", "http"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "TJ Holowaychuk",
+    isStable: true,
+    downloadCount: 20000000,
+    lastUpdated: new Date("2022-10-08"),
+    license: "MIT"
   },
   {
     id: "javascript-next",
@@ -61,7 +81,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.9,
     tags: ["react", "ssr", "framework"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Vercel",
+    isStable: true,
+    downloadCount: 9000000,
+    lastUpdated: new Date("2023-05-30"),
+    license: "MIT"
   },
   {
     id: "javascript-lodash",
@@ -73,7 +98,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["utilities", "functional", "helpers"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "John-David Dalton",
+    isStable: true,
+    downloadCount: 25000000,
+    lastUpdated: new Date("2021-02-02"),
+    license: "MIT"
   },
   {
     id: "javascript-axios",
@@ -85,7 +115,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.9,
     tags: ["http", "ajax", "requests"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Matt Zabriskie",
+    isStable: true,
+    downloadCount: 18000000,
+    lastUpdated: new Date("2023-05-13"),
+    license: "MIT"
   },
   {
     id: "javascript-jest",
@@ -97,7 +132,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["testing", "tdd", "mocking"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Facebook",
+    isStable: true,
+    downloadCount: 12000000,
+    lastUpdated: new Date("2023-05-16"),
+    license: "MIT"
   },
   {
     id: "javascript-redux",
@@ -109,7 +149,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["state-management", "flux", "store"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Dan Abramov",
+    isStable: true,
+    downloadCount: 15000000,
+    lastUpdated: new Date("2022-12-20"),
+    license: "MIT"
   },
   {
     id: "javascript-typescript",
@@ -121,7 +166,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.9,
     tags: ["types", "compiler", "static-typing"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Microsoft",
+    isStable: true,
+    downloadCount: 20000000,
+    lastUpdated: new Date("2023-05-27"),
+    license: "Apache-2.0"
   },
   {
     id: "javascript-webpack",
@@ -133,7 +183,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["bundler", "build-tool", "module"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Tobias Koppers",
+    isStable: true,
+    downloadCount: 16000000,
+    lastUpdated: new Date("2023-05-26"),
+    license: "MIT"
   },
   {
     id: "javascript-three",
@@ -145,7 +200,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["3d", "webgl", "graphics"],
     isPaid: false,
-    isGame: true
+    isGame: true,
+    author: "Ricardo Cabello",
+    isStable: true,
+    downloadCount: 7000000,
+    lastUpdated: new Date("2023-06-03"),
+    license: "MIT"
   },
   {
     id: "javascript-moment",
@@ -157,7 +217,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["date", "time", "formatting"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Tim Wood",
+    isStable: true,
+    downloadCount: 19000000,
+    lastUpdated: new Date("2022-06-30"),
+    license: "MIT"
   },
   {
     id: "javascript-babel",
@@ -169,7 +234,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["compiler", "transpiler", "es6"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Sebastian McKenzie",
+    isStable: true,
+    downloadCount: 18000000,
+    lastUpdated: new Date("2023-05-30"),
+    license: "MIT"
   },
   {
     id: "javascript-tailwind",
@@ -181,7 +251,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.9,
     tags: ["css", "utility", "design"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Adam Wathan",
+    isStable: true,
+    downloadCount: 14000000,
+    lastUpdated: new Date("2023-05-20"),
+    license: "MIT"
   },
   {
     id: "javascript-electron",
@@ -193,7 +268,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["desktop", "cross-platform", "chromium"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "GitHub",
+    isStable: true,
+    downloadCount: 9000000,
+    lastUpdated: new Date("2023-05-23"),
+    license: "MIT"
   },
   {
     id: "javascript-eslint",
@@ -205,7 +285,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["linting", "quality", "static-analysis"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Nicholas C. Zakas",
+    isStable: true,
+    downloadCount: 17000000,
+    lastUpdated: new Date("2023-05-26"),
+    license: "MIT"
   },
   {
     id: "javascript-socket-io",
@@ -217,7 +302,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["websocket", "realtime", "communication"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Guillermo Rauch",
+    isStable: true,
+    downloadCount: 8000000,
+    lastUpdated: new Date("2023-03-07"),
+    license: "MIT"
   },
   {
     id: "javascript-styled-components",
@@ -229,7 +319,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["css-in-js", "styling", "theming"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Max Stoiber",
+    isStable: true,
+    downloadCount: 10000000,
+    lastUpdated: new Date("2023-05-11"),
+    license: "MIT"
   },
   {
     id: "javascript-nestjs",
@@ -241,7 +336,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["backend", "framework", "typescript"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Kamil Myśliwiec",
+    isStable: true,
+    downloadCount: 7000000,
+    lastUpdated: new Date("2023-06-01"),
+    license: "MIT"
   },
   {
     id: "javascript-gatsby",
@@ -253,7 +353,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.6,
     tags: ["static-site", "react", "graphql"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Gatsby Inc",
+    isStable: true,
+    downloadCount: 6500000,
+    lastUpdated: new Date("2023-05-20"),
+    license: "MIT"
   },
   {
     id: "javascript-d3",
@@ -265,7 +370,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["visualization", "svg", "charts"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Mike Bostock",
+    isStable: true,
+    downloadCount: 9500000,
+    lastUpdated: new Date("2023-05-03"),
+    license: "BSD-3-Clause"
   },
   {
     id: "javascript-svelte",
@@ -277,7 +387,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["ui", "compiler", "frontend"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Rich Harris",
+    isStable: true,
+    downloadCount: 5000000,
+    lastUpdated: new Date("2023-05-01"),
+    license: "MIT"
   },
   {
     id: "javascript-material-ui",
@@ -289,7 +404,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["ui", "react", "material-design"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Material-UI Team",
+    isStable: true,
+    downloadCount: 12000000,
+    lastUpdated: new Date("2023-05-23"),
+    license: "MIT"
   },
   {
     id: "javascript-mongoose",
@@ -301,7 +421,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["mongodb", "database", "odm"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Automattic",
+    isStable: true,
+    downloadCount: 14000000,
+    lastUpdated: new Date("2023-06-07"),
+    license: "MIT"
   },
   {
     id: "javascript-graphql",
@@ -313,7 +438,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["graphql", "api", "query-language"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Facebook",
+    isStable: true,
+    downloadCount: 9000000,
+    lastUpdated: new Date("2023-06-10"),
+    license: "MIT"
   },
   {
     id: "javascript-storybook",
@@ -325,7 +455,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["ui", "components", "development"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Storybook Team",
+    isStable: true,
+    downloadCount: 7500000,
+    lastUpdated: new Date("2023-05-29"),
+    license: "MIT"
   },
   {
     id: "javascript-bootstrap",
@@ -337,7 +472,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["css", "ui", "responsive"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Twitter",
+    isStable: true,
+    downloadCount: 22000000,
+    lastUpdated: new Date("2023-04-03"),
+    license: "MIT"
   },
   {
     id: "javascript-phaser",
@@ -349,7 +489,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["game", "canvas", "webgl"],
     isPaid: false,
-    isGame: true
+    isGame: true,
+    author: "Richard Davey",
+    isStable: true,
+    downloadCount: 3500000,
+    lastUpdated: new Date("2023-05-04"),
+    license: "MIT"
   },
   {
     id: "javascript-ember",
@@ -361,7 +506,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.4,
     tags: ["ui", "framework", "frontend"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Ember.js Team",
+    isStable: true,
+    downloadCount: 4000000,
+    lastUpdated: new Date("2023-06-09"),
+    license: "MIT"
   },
   {
     id: "javascript-mocha",
@@ -373,7 +523,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["testing", "tdd", "bdd"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "TJ Holowaychuk",
+    isStable: true,
+    downloadCount: 15000000,
+    lastUpdated: new Date("2023-01-01"),
+    license: "MIT"
   },
   {
     id: "javascript-cypress",
@@ -385,7 +540,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["testing", "e2e", "automation"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Cypress.io",
+    isStable: true,
+    downloadCount: 8000000,
+    lastUpdated: new Date("2023-06-01"),
+    license: "MIT"
   },
   {
     id: "javascript-pixi",
@@ -397,7 +557,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.6,
     tags: ["webgl", "canvas", "2d"],
     isPaid: false,
-    isGame: true
+    isGame: true,
+    author: "Mathew Groves",
+    isStable: true,
+    downloadCount: 5000000,
+    lastUpdated: new Date("2023-05-15"),
+    license: "MIT"
   },
   {
     id: "javascript-gsap",
@@ -409,7 +574,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.8,
     tags: ["animation", "transitions", "effects"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "GreenSock",
+    isStable: true,
+    downloadCount: 9000000,
+    lastUpdated: new Date("2023-05-31"),
+    license: "Standard GreenSock License"
   },
   {
     id: "javascript-chart-js",
@@ -421,7 +591,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["charts", "visualization", "canvas"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Chart.js Team",
+    isStable: true,
+    downloadCount: 11000000,
+    lastUpdated: new Date("2023-05-20"),
+    license: "MIT"
   },
   {
     id: "javascript-vue-router",
@@ -433,7 +608,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["vue", "routing", "spa"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Evan You",
+    isStable: true,
+    downloadCount: 8000000,
+    lastUpdated: new Date("2023-05-11"),
+    license: "MIT"
   },
   {
     id: "javascript-nuxt",
@@ -445,7 +625,12 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.7,
     tags: ["vue", "ssr", "framework"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Nuxt Team",
+    isStable: true,
+    downloadCount: 7000000,
+    lastUpdated: new Date("2023-05-30"),
+    license: "MIT"
   },
   {
     id: "javascript-vite",
@@ -457,6 +642,301 @@ export const javascriptLibraries: Library[] = [
     popularity: 4.9,
     tags: ["bundler", "dev-server", "hmr"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Evan You",
+    isStable: true,
+    downloadCount: 10000000,
+    lastUpdated: new Date("2023-05-24"),
+    license: "MIT"
+  },
+  // Дополнительные библиотеки
+  {
+    id: "javascript-react-router",
+    name: "React Router",
+    description: "Декларативная маршрутизация для React",
+    version: "6.14.0",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.8,
+    tags: ["react", "routing", "spa"],
+    isPaid: false,
+    isGame: false,
+    author: "Remix Software",
+    isStable: true,
+    downloadCount: 14000000,
+    lastUpdated: new Date("2023-06-09"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-zustand",
+    name: "Zustand",
+    description: "Упрощенное управление состоянием для React",
+    version: "4.3.8",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.7,
+    tags: ["react", "state-management", "store"],
+    isPaid: false,
+    isGame: false,
+    author: "Daishi Kato",
+    isStable: true,
+    downloadCount: 5000000,
+    lastUpdated: new Date("2023-05-25"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-jotai",
+    name: "Jotai",
+    description: "Примитивное и гибкое управление состоянием для React",
+    version: "2.2.2",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.6,
+    tags: ["react", "state-management", "atomic"],
+    isPaid: false,
+    isGame: false,
+    author: "Daishi Kato",
+    isStable: true,
+    downloadCount: 3000000,
+    lastUpdated: new Date("2023-05-20"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-framer-motion",
+    name: "Framer Motion",
+    description: "Библиотека анимаций для React",
+    version: "10.12.17",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.8,
+    tags: ["react", "animation", "motion"],
+    isPaid: false,
+    isGame: false,
+    author: "Framer",
+    isStable: true,
+    downloadCount: 7000000,
+    lastUpdated: new Date("2023-06-09"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-typescript",
+    name: "TypeScript",
+    description: "Строготипизированное надмножество JavaScript",
+    version: "5.1.3",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.9,
+    tags: ["language", "types", "compiler"],
+    isPaid: false,
+    isGame: false,
+    author: "Microsoft",
+    isStable: true,
+    downloadCount: 25000000,
+    lastUpdated: new Date("2023-05-24"),
+    license: "Apache-2.0"
+  },
+  {
+    id: "javascript-deno",
+    name: "Deno",
+    description: "JavaScript и TypeScript рантайм, основанный на V8 и Rust",
+    version: "1.34.3",
+    language: "javascript",
+    source: "github",
+    popularity: 4.5,
+    tags: ["runtime", "typescript", "secure"],
+    isPaid: false,
+    isGame: false,
+    author: "Ryan Dahl",
+    isStable: true,
+    downloadCount: 2000000,
+    lastUpdated: new Date("2023-06-05"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-bun",
+    name: "Bun",
+    description: "Быстрый JavaScript/TypeScript рантайм, транспайлер, бандлер и пакетный менеджер",
+    version: "0.6.7",
+    language: "javascript",
+    source: "github",
+    popularity: 4.4,
+    tags: ["runtime", "bundler", "package-manager"],
+    isPaid: false,
+    isGame: false,
+    author: "Jarred Sumner",
+    isStable: false,
+    downloadCount: 1500000,
+    lastUpdated: new Date("2023-06-02"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-quasar",
+    name: "Quasar",
+    description: "Высокопроизводительный Vue.js фреймворк для разработки SPA, PWA, SSR, мобильных и десктопных приложений",
+    version: "2.12.0",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.5,
+    tags: ["vue", "framework", "cross-platform"],
+    isPaid: false,
+    isGame: false,
+    author: "Quasar Team",
+    isStable: true,
+    downloadCount: 2500000,
+    lastUpdated: new Date("2023-05-27"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-alpine",
+    name: "Alpine.js",
+    description: "Минималистичный JavaScript фреймворк для создания декларативных веб-интерфейсов",
+    version: "3.12.0",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.6,
+    tags: ["ui", "lightweight", "reactive"],
+    isPaid: false,
+    isGame: false,
+    author: "Caleb Porzio",
+    isStable: true,
+    downloadCount: 3500000,
+    lastUpdated: new Date("2023-05-11"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-lit",
+    name: "Lit",
+    description: "Простая библиотека для создания быстрых и легковесных веб-компонентов",
+    version: "2.7.4",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.5,
+    tags: ["web-components", "ui", "reactive"],
+    isPaid: false,
+    isGame: false,
+    author: "Google",
+    isStable: true,
+    downloadCount: 2000000,
+    lastUpdated: new Date("2023-05-08"),
+    license: "BSD-3-Clause"
+  },
+  {
+    id: "javascript-solid",
+    name: "SolidJS",
+    description: "Декларативная, эффективная и гибкая JavaScript библиотека для создания пользовательских интерфейсов",
+    version: "1.7.6",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.6,
+    tags: ["ui", "reactive", "jsx"],
+    isPaid: false,
+    isGame: false,
+    author: "Ryan Carniato",
+    isStable: true,
+    downloadCount: 1800000,
+    lastUpdated: new Date("2023-05-29"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-preact",
+    name: "Preact",
+    description: "Быстрая альтернатива React с тем же современным API",
+    version: "10.15.1",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.7,
+    tags: ["ui", "react", "lightweight"],
+    isPaid: false,
+    isGame: false,
+    author: "Jason Miller",
+    isStable: true,
+    downloadCount: 5000000,
+    lastUpdated: new Date("2023-06-05"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-playwright",
+    name: "Playwright",
+    description: "Фреймворк для веб-тестирования и автоматизации",
+    version: "1.35.0",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.7,
+    tags: ["testing", "automation", "browser"],
+    isPaid: false,
+    isGame: false,
+    author: "Microsoft",
+    isStable: true,
+    downloadCount: 4500000,
+    lastUpdated: new Date("2023-06-10"),
+    license: "Apache-2.0"
+  },
+  {
+    id: "javascript-rxjs",
+    name: "RxJS",
+    description: "Реактивное программирование с использованием Observables",
+    version: "7.8.1",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.7,
+    tags: ["reactive", "async", "observables"],
+    isPaid: false,
+    isGame: false,
+    author: "Ben Lesh",
+    isStable: true,
+    downloadCount: 10000000,
+    lastUpdated: new Date("2023-03-24"),
+    license: "Apache-2.0"
+  },
+  {
+    id: "javascript-firebase",
+    name: "Firebase JS SDK",
+    description: "Firebase JavaScript SDK для веб и Node.js приложений",
+    version: "9.22.2",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.9,
+    tags: ["backend", "database", "authentication"],
+    isPaid: false,
+    isGame: false,
+    author: "Google",
+    isStable: true,
+    downloadCount: 15000000,
+    lastUpdated: new Date("2023-06-01"),
+    license: "Apache-2.0"
+  },
+  {
+    id: "javascript-tone",
+    name: "Tone.js",
+    description: "Фреймворк для создания интерактивной музыки в браузере",
+    version: "14.7.77",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.5,
+    tags: ["audio", "music", "sound"],
+    isPaid: false,
+    isGame: true,
+    author: "Yotam Mann",
+    isStable: true,
+    downloadCount: 1500000,
+    lastUpdated: new Date("2021-02-26"),
+    license: "MIT"
+  },
+  {
+    id: "javascript-tensorflow",
+    name: "TensorFlow.js",
+    description: "JavaScript библиотека машинного обучения",
+    version: "4.7.0",
+    language: "javascript",
+    source: "npm",
+    popularity: 4.8,
+    tags: ["machine-learning", "ai", "neural-networks"],
+    isPaid: false,
+    isGame: false,
+    author: "Google",
+    isStable: true,
+    downloadCount: 3000000,
+    lastUpdated: new Date("2023-05-30"),
+    license: "Apache-2.0"
   }
 ];
