@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CodeExecutionResult } from '@/components/code/CodeExecutionResult';
 
 // Import our components
@@ -23,28 +22,69 @@ import { TerminalLogsTab } from '@/components/terminal/TerminalLogsTab';
 import { TerminalContainersTab } from '@/components/terminal/TerminalContainersTab';
 import { TerminalHistoryTab } from '@/components/terminal/TerminalHistoryTab';
 import { TerminalHelpTab } from '@/components/terminal/TerminalHelpTab';
+import { useTerminalState } from '@/components/terminal/TerminalStateManager';
+import { useTerminalExecution } from '@/components/terminal/TerminalExecutionEngine';
 
 const Terminal = () => {
   const { currentTheme } = useTheme();
   const { installedModules } = useCommandContext();
-  const [terminalInfo, setTerminalInfo] = useState({
-    version: '1.0.0',
-    status: 'active',
-    activeEnvironment: 'python',
-    memoryUsage: '128MB'
-  });
   const [activeTab, setActiveTab] = useState('terminal');
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [terminalInput, setTerminalInput] = useState('');
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [selectedFile, setSelectedFile] = useState('main.py');
-  const [isRunning, setIsRunning] = useState(false);
   
-  // Для диалога с результатами выполнения команды
-  const [resultDialogOpen, setResultDialogOpen] = useState(false);
-  const [commandResult, setCommandResult] = useState('');
-  const [commandExecuted, setCommandExecuted] = useState('');
+  // Use our custom hooks
+  const {
+    executionResult,
+    isRunning,
+    openResultDialog,
+    runCommand,
+    setOpenResultDialog
+  } = useTerminalExecution();
+  
+  const onHistoryNavigation = (direction: 'up' | 'down') => {
+    if (direction === 'up') {
+      if (historyIndex < terminalHistory.length - 1) {
+        const newIndex = historyIndex + 1;
+        setHistoryIndex(newIndex);
+        setTerminalInput(terminalHistory[terminalHistory.length - 1 - newIndex]);
+      }
+    } else {
+      if (historyIndex > 0) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        setTerminalInput(terminalHistory[terminalHistory.length - 1 - newIndex]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setTerminalInput('');
+      }
+    }
+  };
+  
+  const handleSubmitCommand = async () => {
+    if (!terminalInput.trim()) return;
+    
+    // Add to history
+    setTerminalHistory(prev => [...prev, terminalInput]);
+    setHistoryIndex(-1);
+    
+    // Process command through our execution engine
+    await runCommand(terminalInput);
+    
+    // Clear input
+    setTerminalInput('');
+  };
+  
+  const {
+    terminalInfo,
+    setTerminalInfo,
+    isFullscreen,
+    toggleFullscreen,
+    terminalInput,
+    setTerminalInput,
+    selectedFile,
+    setSelectedFile,
+    handleTerminalKeyDown
+  } = useTerminalState(handleSubmitCommand, onHistoryNavigation);
   
   // Update memory usage to simulate activity
   useEffect(() => {
@@ -59,108 +99,7 @@ const Terminal = () => {
     
     return () => clearInterval(timer);
   }, []);
-  
-  const handleSubmitCommand = async () => {
-    if (!terminalInput.trim()) return;
-    
-    // Add to history
-    setTerminalHistory(prev => [...prev, terminalInput]);
-    setHistoryIndex(-1);
-    
-    // Process command
-    try {
-      setIsRunning(true);
-      const result = await terminalService.executeCommand(terminalInput);
-      
-      // Process Python commands specifically
-      if (terminalInput.toLowerCase().startsWith('print')) {
-        setCommandExecuted(terminalInput);
-        
-        // Instead of the generic message, show actual Python output
-        if (terminalInfo.activeEnvironment === 'python') {
-          const output = terminalInput.toLowerCase().includes('level') 
-            ? `Level: ${Math.floor(Math.random() * 100)}` 
-            : terminalInput.substring(6, terminalInput.length - 1);
-          
-          setCommandResult(output);
-        } else {
-          setCommandResult(`Command '${terminalInput}' executed in ${terminalInfo.activeEnvironment} environment`);
-        }
-        
-        // Show the result dialog
-        setResultDialogOpen(true);
-      } else if (terminalInput.toLowerCase().startsWith('run') || 
-                terminalInput.toLowerCase().includes('python') ||
-                terminalInput.toLowerCase().includes('node')) {
-        // Для команд запуска файла и интерпретаторов
-        setCommandExecuted(terminalInput);
-        
-        // Создаем вывод в зависимости от команды
-        let output = '';
-        if (terminalInput.toLowerCase().includes('.py')) {
-          output = `Python 3.11.0\n>>> Executing Python script...\n\nHello, World!\nCalculation complete.\nLevel: ${Math.floor(Math.random() * 100)}\n\nScript executed successfully with exit code 0`;
-        } else if (terminalInput.toLowerCase().includes('.js')) {
-          output = `Node.js v16.14.2\n> Executing JavaScript...\n\nHello, World!\n{ status: 'success', data: { id: ${Math.floor(Math.random() * 1000)} } }\n\nExecution completed successfully`;
-        } else if (terminalInput.toLowerCase().includes('.cpp')) {
-          output = `g++ (GCC) 11.2.0\n> Compiling C++ code...\n> Compilation successful\n> Running executable\n\nHello, World!\nProgram executed successfully with exit code 0`;
-        } else {
-          output = `Executing: ${terminalInput}\n\nOutput: Command processed successfully\nStatus: OK\nExecution time: ${Math.floor(Math.random() * 100)}ms`;
-        }
-        
-        setCommandResult(output);
-        setResultDialogOpen(true);
-      } else {
-        // For all other commands
-        setCommandExecuted(terminalInput);
-        setCommandResult(result);
-        setResultDialogOpen(true);
-      }
-      
-      // Add the result as a log
-      terminalService.addLog(result, 'info');
-    } catch (error) {
-      console.error('Error executing command:', error);
-      terminalService.addLog(`Ошибка выполнения: ${error}`, 'error');
-    } finally {
-      setIsRunning(false);
-    }
-    
-    // Clear input
-    setTerminalInput('');
-  };
-  
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSubmitCommand();
-    } else if (e.key === 'ArrowUp') {
-      // Navigate history upwards
-      e.preventDefault();
-      if (historyIndex < terminalHistory.length - 1) {
-        const newIndex = historyIndex + 1;
-        setHistoryIndex(newIndex);
-        setTerminalInput(terminalHistory[terminalHistory.length - 1 - newIndex]);
-      }
-    } else if (e.key === 'ArrowDown') {
-      // Navigate history downwards
-      e.preventDefault();
-      if (historyIndex > 0) {
-        const newIndex = historyIndex - 1;
-        setHistoryIndex(newIndex);
-        setTerminalInput(terminalHistory[terminalHistory.length - 1 - newIndex]);
-      } else if (historyIndex === 0) {
-        setHistoryIndex(-1);
-        setTerminalInput('');
-      }
-    }
-  };
-  
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-    if (!isFullscreen) {
-      toast.success("Полноэкранный режим включен");
-    }
-  };
-  
+
   return (
     <div className={`flex flex-col animate-fade-in ${isFullscreen ? 'fixed inset-0 z-50 bg-slate-950' : 'h-[calc(100vh-120px)]'}`}>
       <TerminalHeader 
@@ -203,12 +142,13 @@ const Terminal = () => {
               terminalInput={terminalInput}
               setTerminalInput={setTerminalInput}
               handleSubmitCommand={handleSubmitCommand}
-              handleKeyDown={handleKeyDown}
+              handleKeyDown={handleTerminalKeyDown}
               currentTheme={currentTheme}
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
               isRunning={isRunning}
-              setIsRunning={setIsRunning}
+              setIsRunning={() => {}} // This is now handled by useTerminalExecution
+              onFileRun={runCommand}
             />
           </TabsContent>
           
@@ -236,11 +176,14 @@ const Terminal = () => {
       </Tabs>
 
       <CodeExecutionResult
-        open={resultDialogOpen}
-        onOpenChange={setResultDialogOpen}
-        output={commandResult}
-        fileName={commandExecuted}
+        open={openResultDialog}
+        onOpenChange={setOpenResultDialog}
+        output={executionResult.output}
+        fileName={executionResult.command}
+        executionTime={executionResult.executionTime}
         language={terminalInfo.activeEnvironment}
+        hasError={executionResult.hasError}
+        suggestions={executionResult.suggestions}
       />
     </div>
   );

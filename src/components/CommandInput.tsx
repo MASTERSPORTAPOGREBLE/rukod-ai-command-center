@@ -1,18 +1,19 @@
 
-import React, { useState, KeyboardEvent, useRef, useEffect } from 'react';
+import React, { useState, KeyboardEvent, useRef } from 'react';
 import { useCommandContext } from '@/context/CommandContext';
 import { CommandSuggestions } from './CommandSuggestions';
 import { VoiceRecognitionButton } from './terminal/VoiceRecognitionButton';
 import { LanguageToggleButton } from './terminal/LanguageToggleButton';
 import { CommandSubmitButton } from './terminal/CommandSubmitButton';
+import { CommandInputField } from './terminal/CommandInputField';
+import { useCommandHistory } from './terminal/CommandHistoryManager';
+import { useSuggestions } from './terminal/SuggestionsManager';
 
 export const CommandInput: React.FC = () => {
   const [command, setCommand] = useState('');
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
   const [isListening, setIsListening] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [translatedCommand, setTranslatedCommand] = useState<string | undefined>(undefined);
+  
   const { 
     addCommand, 
     isProcessing, 
@@ -21,12 +22,35 @@ export const CommandInput: React.FC = () => {
     setLanguage,
     userPreferences
   } = useCommandContext();
+  
+  // Get all available commands from installed modules
+  const availableCommands = installedModules.flatMap(module => 
+    Object.keys(module.commands)
+  );
+  
+  // Get recent commands from user preferences
+  const recentCommands = userPreferences.recentCommands || [];
+  
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // Focus input on component mount
-    inputRef.current?.focus();
-  }, []);
+  
+  // Use our custom hooks
+  const { 
+    commandHistory, 
+    historyIndex, 
+    addToHistory, 
+    navigateHistory, 
+    resetHistoryIndex 
+  } = useCommandHistory();
+  
+  const {
+    suggestions,
+    activeSuggestion,
+    setSuggestions,
+    setActiveSuggestion,
+    navigateSuggestions,
+    selectActiveSuggestion,
+    generateSuggestions
+  } = useSuggestions();
 
   const handleSubmit = () => {
     if (!command.trim() || isProcessing) return;
@@ -34,69 +58,32 @@ export const CommandInput: React.FC = () => {
     // Hide suggestions after submit
     setSuggestions([]);
     
+    // Add command to history
+    addToHistory(command);
+    
+    // Process command
     addCommand(command);
-    // Add to command history
-    setCommandHistory(prev => [command, ...prev.slice(0, 19)]);
-    setHistoryIndex(-1);
+    
+    // Clear input
     setCommand('');
-  };
-
-  const generateSuggestions = (input: string) => {
-    if (!input.trim()) {
-      setSuggestions([]);
-      return;
-    }
-    
-    const currentInput = input.toLowerCase();
-    
-    // Get all available commands from installed modules
-    const availableCommands: string[] = [];
-    
-    // Add commands from installed modules
-    installedModules.forEach(module => {
-      Object.keys(module.commands).forEach(cmd => {
-        availableCommands.push(cmd);
-      });
-    });
-    
-    // Add special commands
-    const specialCommands = ['скачать:', 'запуск:', 'авторизация:', 'генерация:'];
-    const specialPrefixes = ['код:', 'помощь:', 'язык:'];
-    
-    // Add recent commands from user preferences
-    const recentCommands = userPreferences.recentCommands || [];
-    
-    // Combine all potential completions
-    const allSuggestions = [
-      ...availableCommands,
-      ...specialCommands,
-      ...specialPrefixes,
-      ...recentCommands
-    ];
-    
-    // Find matching commands
-    const matchingSuggestions = allSuggestions
-      .filter(cmd => cmd.toLowerCase().startsWith(currentInput) && cmd.toLowerCase() !== currentInput)
-      .slice(0, 5); // Limit to 5 suggestions
-    
-    setSuggestions(matchingSuggestions);
-    setActiveSuggestion(-1); // Reset active suggestion
+    resetHistoryIndex();
   };
 
   // Handle input change with suggestion generation
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newCommand = e.target.value;
     setCommand(newCommand);
-    generateSuggestions(newCommand);
+    generateSuggestions(newCommand, availableCommands, recentCommands);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       
-      if (activeSuggestion >= 0 && suggestions[activeSuggestion]) {
+      const selectedSuggestion = selectActiveSuggestion();
+      if (selectedSuggestion) {
         // Use the selected suggestion
-        setCommand(suggestions[activeSuggestion]);
+        setCommand(selectedSuggestion);
         setSuggestions([]);
       } else {
         handleSubmit();
@@ -106,15 +93,12 @@ export const CommandInput: React.FC = () => {
       
       if (suggestions.length > 0) {
         // Navigate suggestions upwards
-        setActiveSuggestion(prevActive => 
-          prevActive <= 0 ? suggestions.length - 1 : prevActive - 1
-        );
+        navigateSuggestions('up');
       } else {
         // Navigate command history upwards
-        if (historyIndex < commandHistory.length - 1) {
-          const newIndex = historyIndex + 1;
-          setHistoryIndex(newIndex);
-          setCommand(commandHistory[newIndex]);
+        const historyCommand = navigateHistory('up');
+        if (historyCommand !== null) {
+          setCommand(historyCommand);
         }
       }
     } else if (e.key === 'ArrowDown') {
@@ -122,18 +106,12 @@ export const CommandInput: React.FC = () => {
       
       if (suggestions.length > 0) {
         // Navigate suggestions downwards
-        setActiveSuggestion(prevActive => 
-          prevActive >= suggestions.length - 1 ? 0 : prevActive + 1
-        );
+        navigateSuggestions('down');
       } else {
         // Navigate command history downwards
-        if (historyIndex > 0) {
-          const newIndex = historyIndex - 1;
-          setHistoryIndex(newIndex);
-          setCommand(commandHistory[newIndex]);
-        } else if (historyIndex === 0) {
-          setHistoryIndex(-1);
-          setCommand('');
+        const historyCommand = navigateHistory('down');
+        if (historyCommand !== null) {
+          setCommand(historyCommand);
         }
       }
     } else if (e.key === 'Escape') {
@@ -160,18 +138,13 @@ export const CommandInput: React.FC = () => {
         // Basic auto-completion for commands
         const currentInput = command.toLowerCase();
         
-        // Get all available commands from installed modules
-        const availableCommands = installedModules.flatMap(module => 
-          Object.keys(module.commands)
-        );
-        
         // Special commands
         const specialCommands = ['скачать:', 'запуск:', 'авторизация:', 'генерация:', 'код:', 'помощь:', 'язык:'];
         const allCommands = [...availableCommands, ...specialCommands];
         
         // Find matching command
         const matchingCommand = allCommands.find(cmd => 
-          cmd.startsWith(currentInput) && cmd !== currentInput
+          cmd.toLowerCase().startsWith(currentInput) && cmd.toLowerCase() !== currentInput
         );
         
         if (matchingCommand) {
@@ -185,17 +158,15 @@ export const CommandInput: React.FC = () => {
     <div className="relative">
       <div className="relative glass-panel p-2 flex items-center">
         <span className="text-rukod-purple mx-2 terminal-text">$</span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={command}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          disabled={isProcessing || isListening}
-          placeholder={isListening ? "Распознавание голоса..." : "Введите команду или запрос..."}
-          className="command-input terminal-text py-2 flex-grow"
-          autoComplete="off"
-          spellCheck="false"
+        
+        <CommandInputField
+          command={command}
+          setCommand={handleInputChange}
+          handleKeyDown={handleKeyDown}
+          isProcessing={isProcessing}
+          isListening={isListening}
+          translatedCommand={translatedCommand}
+          inputRef={inputRef}
         />
         
         <LanguageToggleButton 

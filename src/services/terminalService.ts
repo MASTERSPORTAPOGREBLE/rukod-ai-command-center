@@ -1,4 +1,6 @@
+
 import { ContainerInfo, LogEntry, ProgrammingLanguage } from '../models/types';
+import { commandHandlers, processContainerCommand } from './commandHandlers';
 
 // Mock containers data
 const mockContainers: ContainerInfo[] = [
@@ -73,162 +75,124 @@ const logListeners: Array<(logs: LogEntry[]) => void> = [];
 
 // Available commands dictionary
 const availableCommands: Record<string, (args: string[]) => Promise<string>> = {
-  // Python specific commands
-  'print': async (args: string[]) => {
-    const printContent = args.join(' ').replace(/['"]/g, '');
-    
-    // Check if it's a level print request
-    if (printContent.toLowerCase().includes('level')) {
-      const level = Math.floor(Math.random() * 100);
-      return `Level: ${level}`;
-    }
-    
-    return printContent;
-  },
+  // Container commands
+  'container': async (args: string[]) => processContainerCommand(args),
   
-  // Container management
-  'container': async (args: string[]) => {
-    const subCommand = args[0]?.toLowerCase();
-    const param = args[1];
-    
-    switch (subCommand) {
-      case 'start':
-        if (!param) return 'Missing language parameter. Usage: container start [language]';
-        return terminalService.executeCommand(`container start ${param}`);
-      case 'stop':
-        if (!param) return 'Missing container ID. Usage: container stop [id]';
-        return terminalService.executeCommand(`container stop ${param}`);
-      case 'list':
-        return terminalService.executeCommand('container list');
-      case 'remove':
-      case 'rm':
-        if (!param) return 'Missing container ID. Usage: container remove [id]';
-        if (terminalService.removeContainer(param)) {
-          return `Container ${param} removed`;
-        }
-        return `Container ${param} not found`;
-      case 'logs':
-        if (!param) return 'Missing container ID. Usage: container logs [id]';
-        const container = mockContainers.find(c => c.id === param);
-        if (!container) return `Container ${param} not found`;
-        terminalService.addLog(`Showing logs for container ${param}`, 'info');
-        return `Logs for container ${param} (${container.name}): No logs available`;
-      default:
-        return `Unknown container subcommand: ${subCommand}. Available: start, stop, list, remove, logs`;
-    }
-  },
-  
-  // System commands
-  'ls': async (args: string[]) => {
-    const files = [
-      'main.py', 'utils.py', 'data.json', 'config.yml',
-      'app.js', 'index.html', 'styles.css',
-      'main.cpp', 'header.h', 'Makefile',
-      'game.lua', 'engine.lua', 'sprites/'
-    ];
-    return files.join('\n');
-  },
-  
-  'cd': async (args: string[]) => {
-    const dir = args[0] || '';
-    return `Changed directory to ${dir || '/'}`; 
-  },
-  
-  'pwd': async () => '/home/user/project',
-  
-  'echo': async (args: string[]) => args.join(' '),
-  
-  'cat': async (args: string[]) => {
-    const file = args[0];
-    if (!file) return 'Missing file parameter. Usage: cat [file]';
-    
-    // Simple mock content for a few files
-    const fileContents: Record<string, string> = {
-      'main.py': 'def main():\n    print("Hello, World!")\n\nif __name__ == "__main__":\n    main()',
-      'app.js': 'console.log("Hello from JavaScript!");',
-      'main.cpp': '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}',
-      'game.lua': 'function love.draw()\n    love.graphics.print("Hello World!", 400, 300)\nend'
-    };
-    
-    return fileContents[file] || `File ${file} not found`;
-  },
+  // File system commands
+  'ls': commandHandlers.fileSystemCommands.ls,
+  'cd': commandHandlers.fileSystemCommands.cd,
+  'pwd': commandHandlers.fileSystemCommands.pwd,
+  'echo': commandHandlers.utilityCommands.echo,
+  'cat': commandHandlers.fileSystemCommands.cat,
   
   // Package management
-  'install': async (args: string[]) => {
-    const pkg = args[0];
-    if (!pkg) return 'Missing package name. Usage: install [package]';
-    
-    terminalService.addLog(`Installing package: ${pkg}`, 'info');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    terminalService.addLog(`Package ${pkg} installed successfully`, 'success');
-    
-    return `Package ${pkg} installed successfully`;
-  },
-  
-  'uninstall': async (args: string[]) => {
-    const pkg = args[0];
-    if (!pkg) return 'Missing package name. Usage: uninstall [package]';
-    
-    terminalService.addLog(`Uninstalling package: ${pkg}`, 'info');
-    await new Promise(resolve => setTimeout(resolve, 800));
-    terminalService.addLog(`Package ${pkg} uninstalled`, 'success');
-    
-    return `Package ${pkg} uninstalled`;
-  },
+  'install': commandHandlers.packageCommands.install,
+  'uninstall': commandHandlers.packageCommands.uninstall,
   
   // Utility commands
-  'clear': async () => {
-    terminalService.clearLogs();
-    return 'Terminal cleared';
-  },
+  'clear': commandHandlers.utilityCommands.clear,
+  'help': commandHandlers.utilityCommands.help,
   
-  'help': async () => {
-    terminalService.addLog('Showing help information', 'info');
-    return `Available commands:
-- container start [language] - Start a container for the specified language
-- container stop [id] - Stop a container
-- container list - List all containers
-- container remove [id] - Remove a container
-- container logs [id] - Show logs for a container
-- ls - List files
-- cd [dir] - Change directory
-- pwd - Show current directory
-- echo [text] - Print text
-- cat [file] - Show file contents
-- install [package] - Install a package
-- uninstall [package] - Uninstall a package
-- run [file] - Run a file
-- clear - Clear the terminal
-- help - Show this help information`;
-  },
+  // Python commands
+  'print': commandHandlers.pythonCommands.print,
   
-  'run': async (args: string[]) => {
-    const file = args[0];
-    if (!file) return 'Missing file parameter. Usage: run [file]';
-    
-    terminalService.addLog(`Running file: ${file}`, 'info');
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    if (file.endsWith('.py')) {
-      terminalService.addLog('Python interpreter started', 'info');
-      await new Promise(resolve => setTimeout(resolve, 500));
-      terminalService.addLog('Output: Hello from Python!', 'success');
-      return 'File executed successfully';
-    } else if (file.endsWith('.js')) {
-      terminalService.addLog('Node.js runtime started', 'info');
-      await new Promise(resolve => setTimeout(resolve, 500));
-      terminalService.addLog('Output: Hello from JavaScript!', 'success');
-      return 'File executed successfully';
-    } else if (file.endsWith('.cpp')) {
-      terminalService.addLog('Compiling C++ code...', 'info');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      terminalService.addLog('Compilation successful', 'success');
-      terminalService.addLog('Running executable...', 'info');
-      await new Promise(resolve => setTimeout(resolve, 500));
-      terminalService.addLog('Output: Hello from C++!', 'success');
-      return 'File compiled and executed successfully';
+  // Execution commands
+  'run': commandHandlers.executionCommands.run
+};
+
+// Language-specific interpreters
+const languageInterpreters: Record<string, (code: string) => Promise<string>> = {
+  'python': async (code: string) => {
+    // Simulate Python execution
+    if (code.includes('print') || code.includes('print(')) {
+      try {
+        // Extract the content inside the print statement
+        const printMatch = code.match(/print\s*\(['"](.+)['"]\)/i);
+        if (printMatch) {
+          return printMatch[1];
+        } else {
+          return 'Error: Invalid print syntax';
+        }
+      } catch (error) {
+        return `Error executing Python code: ${error}`;
+      }
+    } else if (code.includes('import') && !code.includes('matplotlib')) {
+      return 'Module imported successfully';
+    } else if (code.includes('def')) {
+      return 'Function defined';
+    } else if (code.includes('class')) {
+      return 'Class defined';
     } else {
-      return `Cannot execute file with extension ${file.split('.').pop()}`;
+      // Generic execution result
+      return `Executing Python code:\n${code}\n\nExecution complete.`;
+    }
+  },
+  
+  'javascript': async (code: string) => {
+    // Simulate JavaScript execution
+    if (code.includes('console.log')) {
+      try {
+        const logMatch = code.match(/console\.log\(['"](.+)['"]\)/i);
+        if (logMatch) {
+          return logMatch[1];
+        } else {
+          return 'Error: Invalid console.log syntax';
+        }
+      } catch (error) {
+        return `Error executing JavaScript code: ${error}`;
+      }
+    } else if (code.includes('function')) {
+      return 'Function defined';
+    } else if (code.includes('class')) {
+      return 'Class defined';
+    } else {
+      // Generic execution result
+      return `Executing JavaScript code:\n${code}\n\nExecution complete.`;
+    }
+  },
+  
+  'cpp': async (code: string) => {
+    // Check for common C++ patterns
+    if (code.includes('std::cout') || code.includes('cout <<')) {
+      try {
+        const coutMatch = code.match(/cout\s*<<\s*["'](.+)["']/i) || 
+                          code.match(/std::cout\s*<<\s*["'](.+)["']/i);
+        if (coutMatch) {
+          return coutMatch[1];
+        } else {
+          return 'Error: Invalid cout syntax';
+        }
+      } catch (error) {
+        return `Error executing C++ code: ${error}`;
+      }
+    } else if (code.includes('int main')) {
+      return 'C++ program compiled and executed successfully.';
+    } else {
+      // Generic compilation and execution
+      return `Compiling C++ code:\n${code}\n\nCompilation successful.\nExecution complete.`;
+    }
+  },
+  
+  'lua': async (code: string) => {
+    // Simulate Lua execution
+    if (code.includes('print(')) {
+      try {
+        const printMatch = code.match(/print\s*\(['"](.+)['"]\)/i);
+        if (printMatch) {
+          return printMatch[1];
+        } else {
+          return 'Error: Invalid print syntax';
+        }
+      } catch (error) {
+        return `Error executing Lua code: ${error}`;
+      }
+    } else if (code.includes('function')) {
+      return 'Lua function defined';
+    } else if (code.includes('local')) {
+      return 'Lua variable defined';
+    } else {
+      // Generic execution result
+      return `Executing Lua code:\n${code}\n\nExecution complete.`;
     }
   }
 };
@@ -332,6 +296,66 @@ export const terminalService = {
     return true;
   },
 
+  // Enhanced code execution method
+  executeCode: async (code: string, language: string): Promise<{ success: boolean, output: string, error?: string }> => {
+    // Add log for code execution
+    terminalService.addLog(`Выполнение кода на языке ${language}`, 'info');
+    
+    // Validate input
+    if (!code || !code.trim()) {
+      return { 
+        success: false, 
+        output: '', 
+        error: 'Empty code provided' 
+      };
+    }
+    
+    // Check if we have an interpreter for this language
+    const interpreter = languageInterpreters[language.toLowerCase()];
+    if (!interpreter) {
+      return { 
+        success: false, 
+        output: '', 
+        error: `No interpreter available for ${language}` 
+      };
+    }
+    
+    try {
+      // Simulate execution delay
+      await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+      
+      // Execute code using the appropriate interpreter
+      const result = await interpreter(code);
+      
+      // Check for error patterns in the result
+      if (result.toLowerCase().includes('error')) {
+        terminalService.addLog(`Ошибка выполнения кода на языке ${language}`, 'error');
+        return {
+          success: false,
+          output: '',
+          error: result
+        };
+      }
+      
+      // Log successful execution
+      terminalService.addLog(`Код на языке ${language} успешно выполнен`, 'success');
+      
+      return {
+        success: true,
+        output: result
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      terminalService.addLog(`Ошибка выполнения кода: ${errorMessage}`, 'error');
+      
+      return {
+        success: false,
+        output: '',
+        error: errorMessage
+      };
+    }
+  },
+
   // Execute command method - enhanced to handle any command
   executeCommand: async (command: string) => {
     // Add log for command execution
@@ -374,6 +398,39 @@ export const terminalService = {
         terminalService.addLog(`Error executing command: ${error}`, 'error');
         return `Error: ${error}`;
       }
+    }
+    
+    // Process language-specific execution
+    if (command.toLowerCase().startsWith('python ') || 
+        command.toLowerCase().startsWith('node ') || 
+        command.toLowerCase().startsWith('lua ') ||
+        command.toLowerCase().startsWith('g++ ')) {
+      
+      let language = 'unknown';
+      let code = '';
+      
+      if (command.toLowerCase().startsWith('python ')) {
+        language = 'python';
+        code = command.substring(7);
+      } else if (command.toLowerCase().startsWith('node ')) {
+        language = 'javascript';
+        code = command.substring(5);
+      } else if (command.toLowerCase().startsWith('lua ')) {
+        language = 'lua';
+        code = command.substring(4);
+      } else if (command.toLowerCase().startsWith('g++ ')) {
+        language = 'cpp';
+        code = command.substring(4);
+      }
+      
+      // Execute code as string
+      const { success, output, error } = await terminalService.executeCode(code, language);
+      
+      if (!success) {
+        return `Ошибка выполнения кода на языке ${language}: ${error}`;
+      }
+      
+      return `Результат выполнения (${language}):\n${output}`;
     }
     
     // Process different commands (legacy command handling)

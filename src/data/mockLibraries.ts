@@ -1,4 +1,3 @@
-
 import { Library, ProgrammingLanguage } from "../models/types";
 import { luaLibraries } from "./luaLibraries";
 import { rubyLibraries } from "./rubyLibraries";
@@ -19,7 +18,12 @@ export const pythonLibraries: Library[] = [
     popularity: 5.0,
     tags: ["numerical", "array", "scientific"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "NumPy Team",
+    isStable: true,
+    downloadCount: 15000000,
+    lastUpdated: "2023-12-15",
+    license: "BSD-3-Clause"
   },
   {
     id: "python-pandas",
@@ -31,7 +35,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.9,
     tags: ["data-analysis", "dataframes", "statistics"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Pandas Development Team",
+    isStable: true,
+    downloadCount: 12000000,
+    lastUpdated: "2023-11-20",
+    license: "BSD-3-Clause"
   },
   {
     id: "python-matplotlib",
@@ -43,7 +52,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.8,
     tags: ["visualization", "plotting", "charts"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Matplotlib Development Team",
+    isStable: true,
+    downloadCount: 10000000,
+    lastUpdated: "2023-10-10",
+    license: "PSF-2.0"
   },
   {
     id: "python-tensorflow",
@@ -55,7 +69,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.9,
     tags: ["machine-learning", "deep-learning", "neural-networks"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Google Brain Team",
+    isStable: true,
+    downloadCount: 8000000,
+    lastUpdated: "2023-11-15",
+    license: "Apache-2.0"
   },
   {
     id: "python-pytorch",
@@ -67,7 +86,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.9,
     tags: ["machine-learning", "deep-learning", "neural-networks"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Facebook AI Research",
+    isStable: true,
+    downloadCount: 7500000,
+    lastUpdated: "2023-12-01",
+    license: "BSD-3-Clause"
   },
   {
     id: "python-scikitlearn",
@@ -79,7 +103,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.8,
     tags: ["machine-learning", "classification", "regression"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "scikit-learn developers",
+    isStable: true,
+    downloadCount: 9000000,
+    lastUpdated: "2023-09-25",
+    license: "BSD-3-Clause"
   },
   
   // Python Web Development
@@ -93,7 +122,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.7,
     tags: ["web", "framework", "mvc"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Django Software Foundation",
+    isStable: true,
+    downloadCount: 7000000,
+    lastUpdated: "2024-01-05",
+    license: "BSD-3-Clause"
   },
   {
     id: "python-flask",
@@ -105,7 +139,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.8,
     tags: ["web", "microframework", "restful"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Pallets Team",
+    isStable: true,
+    downloadCount: 8000000,
+    lastUpdated: "2023-11-30",
+    license: "BSD-3-Clause"
   },
   {
     id: "python-fastapi",
@@ -117,7 +156,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.8,
     tags: ["web", "api", "async"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Sebastián Ramírez",
+    isStable: true,
+    downloadCount: 5000000,
+    lastUpdated: "2024-01-10",
+    license: "MIT"
   },
   
   // Python UI and Visualization
@@ -131,7 +175,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.7,
     tags: ["ui", "material-design", "mobile"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "KivyMD Team",
+    isStable: true,
+    downloadCount: 800000,
+    lastUpdated: "2023-07-20",
+    license: "MIT"
   },
   {
     id: "python-opencv",
@@ -143,7 +192,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.9,
     tags: ["computer-vision", "image-processing"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "OpenCV Team",
+    isStable: true,
+    downloadCount: 6000000,
+    lastUpdated: "2023-08-15",
+    license: "BSD-3-Clause"
   },
   {
     id: "python-pygame",
@@ -155,7 +209,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.8,
     tags: ["games", "graphics", "multimedia"],
     isPaid: false,
-    isGame: true
+    isGame: true,
+    author: "Pygame Community",
+    isStable: true,
+    downloadCount: 3000000,
+    lastUpdated: "2023-10-05",
+    license: "LGPL-2.1"
   },
   {
     id: "python-pillow",
@@ -167,7 +226,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.7,
     tags: ["image-processing", "graphics"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Alex Clark and Contributors",
+    isStable: true,
+    downloadCount: 7000000,
+    lastUpdated: "2023-12-20",
+    license: "HPND"
   },
   {
     id: "python-plotly",
@@ -179,7 +243,12 @@ export const pythonLibraries: Library[] = [
     popularity: 4.8,
     tags: ["visualization", "interactive", "dashboards"],
     isPaid: false,
-    isGame: false
+    isGame: false,
+    author: "Plotly Team",
+    isStable: true,
+    downloadCount: 4000000,
+    lastUpdated: "2023-11-10",
+    license: "MIT"
   },
   
   // New Python libraries
@@ -694,7 +763,7 @@ export const pythonLibraries: Library[] = [
   {
     id: "python-click",
     name: "Click",
-    description: "Создание красивых интерфейсов командной строки",
+    description: "Создание красивых интерфейсов командн��й строки",
     version: "8.1.7",
     language: "python",
     source: "PyPI",
