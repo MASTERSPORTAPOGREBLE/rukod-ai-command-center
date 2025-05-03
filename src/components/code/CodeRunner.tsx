@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { CodeExecutionResult } from './CodeExecutionResult';
 import { toast } from 'sonner';
 import { ProgrammingLanguage } from '@/models/types';
+import { executeCode } from '@/utils/codeUtils';
 
 interface CodeRunnerProps {
   code: string;
@@ -17,6 +18,8 @@ export const CodeRunner: React.FC<CodeRunnerProps> = ({ code, language, fileName
   const [executionResult, setExecutionResult] = useState<string>('');
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const [executionTime, setExecutionTime] = useState(0);
+  const [hasError, setHasError] = useState(false);
+  const [suggestions, setSuggestions] = useState<{text: string; action: () => void; label: string}[]>([]);
 
   const runCode = async () => {
     if (!code.trim()) {
@@ -29,70 +32,108 @@ export const CodeRunner: React.FC<CodeRunnerProps> = ({ code, language, fileName
     // Запоминаем время начала выполнения
     const startTime = performance.now();
     
-    // Симулируем исполнение кода
-    let output = '';
-    
     try {
-      // Задержка для имитации выполнения
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Простая симуляция вывода на основе языка и содержания кода
-      if (language === 'python') {
-        if (code.includes('print(')) {
-          // Извлекаем содержимое print
-          const printMatches = code.match(/print\s*\(['"](.+?)['"]\)/g);
-          if (printMatches) {
-            output = printMatches.map(match => {
-              const content = match.match(/print\s*\(['"](.+?)['"]\)/);
-              return content ? content[1] : '';
-            }).join('\n');
-          } else {
-            output = "Hello, World!";
-          }
-        } else {
-          output = "Выполнено без вывода";
-        }
-      } else if (language === 'cpp') {
-        if (code.includes('cout')) {
-          output = "Hello, C++ World!";
-        } else {
-          output = "Программа выполнена успешно";
-        }
-      } else if (language === 'javascript') {
-        if (code.includes('console.log')) {
-          const logMatches = code.match(/console\.log\s*\(['"](.+?)['"]\)/g);
-          if (logMatches) {
-            output = logMatches.map(match => {
-              const content = match.match(/console\.log\s*\(['"](.+?)['"]\)/);
-              return content ? content[1] : '';
-            }).join('\n');
-          } else {
-            output = "Hello, JavaScript World!";
-          }
-        } else {
-          output = "Выполнено без вывода";
-        }
-      } else {
-        output = `Выполнение кода для языка ${language}:\n\nHello, World!`;
-      }
+      const result = await executeCode(code, language);
       
       // Подсчитываем время выполнения
       const endTime = performance.now();
       setExecutionTime(Math.round(endTime - startTime));
       
-      // Устанавливаем результат
-      setExecutionResult(output || "Программа выполнена без вывода");
+      if (result.success) {
+        // Успешное выполнение
+        setExecutionResult(result.output);
+        setHasError(false);
+        setSuggestions([]);
+      } else {
+        // Ошибка выполнения
+        setExecutionResult(result.error || 'Неизвестная ошибка');
+        setHasError(true);
+        
+        // Генерируем предложения по исправлению
+        const newSuggestions = [];
+        
+        if (result.error?.includes('not defined') || result.error?.includes('is not defined')) {
+          const missingVar = result.error.match(/(\w+) is not defined/)?.[1];
+          if (missingVar) {
+            newSuggestions.push({
+              text: `Переменная "${missingVar}" не определена.`,
+              action: () => {
+                toast.info(`Добавьте объявление переменной ${missingVar} перед её использованием.`);
+              },
+              label: 'Подробнее'
+            });
+          }
+        }
+        
+        if (result.error?.includes('import') || result.error?.includes('require')) {
+          newSuggestions.push({
+            text: `Возможно, отсутствует необходимый модуль.`,
+            action: () => {
+              toast.info('Используйте команду "install [имя-пакета]" в терминале для установки необходимой библиотеки.');
+            },
+            label: 'Установить'
+          });
+        }
+        
+        if (result.error?.includes('Syntax Error') || result.error?.includes('SyntaxError')) {
+          newSuggestions.push({
+            text: `Синтаксическая ошибка в коде.`,
+            action: () => {
+              toast.info('Проверьте правильность синтаксиса: скобки, точки с запятой, кавычки и т.д.');
+            },
+            label: 'Подсказки'
+          });
+        }
+        
+        // Если не нашли конкретных ошибок, добавим общую подсказку
+        if (newSuggestions.length === 0) {
+          newSuggestions.push({
+            text: `Для исправления ошибки попробуйте найти помощь в документации.`,
+            action: () => {
+              const docsUrl = {
+                'python': 'https://docs.python.org/3/',
+                'javascript': 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
+                'cpp': 'https://en.cppreference.com/w/',
+                'lua': 'https://www.lua.org/manual/5.4/'
+              }[language] || 'https://www.google.com/search?q=' + encodeURIComponent(`${language} documentation`);
+              
+              window.open(docsUrl, '_blank');
+            },
+            label: 'Документация'
+          });
+        }
+        
+        setSuggestions(newSuggestions);
+      }
       
       // Показываем диалог с результатом
       setResultDialogOpen(true);
       
-      toast.success('Код успешно выполнен');
+      if (!result.success) {
+        toast.error('Ошибка выполнения кода');
+      } else {
+        toast.success('Код успешно выполнен');
+      }
     } catch (error) {
       console.error('Ошибка выполнения кода:', error);
-      toast.error(`Ошибка выполнения: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
       
-      setExecutionResult(`Ошибка выполнения:\n${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+      setExecutionResult(`Ошибка выполнения:\n${errorMessage}`);
+      setHasError(true);
+      
+      const endTime = performance.now();
+      setExecutionTime(Math.round(endTime - startTime));
+      
       setResultDialogOpen(true);
+      toast.error(`Ошибка выполнения: ${errorMessage}`);
+      
+      setSuggestions([{
+        text: 'Произошла неожиданная ошибка при выполнении кода.',
+        action: () => {
+          toast.info('Проверьте консоль разработчика для получения дополнительной информации.');
+        },
+        label: 'Подробнее'
+      }]);
     } finally {
       setIsRunning(false);
     }
@@ -118,6 +159,8 @@ export const CodeRunner: React.FC<CodeRunnerProps> = ({ code, language, fileName
         fileName={fileName}
         executionTime={executionTime}
         language={language}
+        hasError={hasError}
+        suggestions={suggestions}
       />
     </>
   );

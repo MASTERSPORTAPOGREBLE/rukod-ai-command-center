@@ -6,6 +6,8 @@ import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
 import { toast } from 'sonner';
+import { executeCode } from '@/utils/codeUtils';
+import { ProgrammingLanguage } from '@/models/types';
 
 interface QuickFileRunnerProps {
   selectedFile: string;
@@ -24,6 +26,16 @@ export const QuickFileRunner: React.FC<QuickFileRunnerProps> = ({
 }) => {
   const [files, setFiles] = useState<string[]>(['main.py', 'utils.py', 'app.js', 'main.cpp', 'game.lua']);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [fileContents, setFileContents] = useState<Record<string, string>>({
+    'main.py': 'print("Hello, World from Python!")\n\ndef calculate():\n    level = 42\n    print(f"Level: {level}")\n\ncalculate()',
+    'utils.py': 'def get_data():\n    return {"status": "success"}\n\nprint("Utils module loaded")',
+    'app.js': 'console.log("Hello from JavaScript!");\n\nconst data = { status: "success" };\nconsole.log(data);',
+    'main.cpp': '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World from C++!" << std::endl;\n    return 0;\n}',
+    'game.lua': 'function love.draw()\n    love.graphics.print("Hello World!", 400, 300)\nend\n\nprint("Game initialized")',
+    'calculator.js': 'function add(a, b) {\n    return a + b;\n}\n\nconsole.log("Sum:", add(5, 3));',
+    'neural_net.py': 'import tensorflow as tf\n\ndef create_model():\n    model = tf.keras.Sequential()\n    model.add(tf.keras.layers.Dense(10))\n    return model\n\nprint("Model created")',
+    'data_processing.py': 'def process_data(data):\n    print("Processing data...")\n    return data\n\nresult = process_data([1, 2, 3])\nprint("Result:", result)'
+  });
 
   useEffect(() => {
     // В реальном приложении здесь будет запрос к бэкенду для получения файлов
@@ -54,47 +66,66 @@ export const QuickFileRunner: React.FC<QuickFileRunnerProps> = ({
     setIsRunning(true);
     
     try {
-      // Имитация выполнения файла
-      toast.success(`Запуск файла ${selectedFile}...`);
-      
-      // Создадим вывод на основе расширения файла
+      // Получаем содержимое файла
+      const fileContent = fileContents[selectedFile] || '';
+      if (!fileContent) {
+        toast.error(`Файл ${selectedFile} пуст или не существует`);
+        setIsRunning(false);
+        return;
+      }
+
+      // Определяем язык программирования на основе расширения
       const fileExtension = selectedFile.split('.').pop()?.toLowerCase();
-      let output = "";
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      let language: ProgrammingLanguage = 'python';
       
       switch (fileExtension) {
-        case 'py':
-          output = "Python 3.11.0\nHello, World from Python!\nLevel: 42";
+        case 'py': 
+          language = 'python';
           break;
         case 'js':
-          output = "Node.js v16.14.2\nHello, World from JavaScript!\n> { status: 'success' }";
+          language = 'javascript';
           break;
         case 'cpp':
-          output = "C++ (g++ 11.2)\nCompiling...\nBuild successful!\nHello, World from C++!\nExecution finished with exit code 0";
+        case 'h':
+          language = 'cpp';
           break;
         case 'lua':
-          output = "Lua 5.4.4\nHello, World from Lua!\n> Running game loop...";
+          language = 'lua';
           break;
         default:
-          output = `Running ${selectedFile}...\nExecution completed successfully.`;
+          language = 'python';
+      }
+
+      toast.info(`Запуск файла ${selectedFile}...`);
+      
+      // Выполняем код с помощью нашего интерпретатора
+      const result = await executeCode(fileContent, language);
+      
+      // Формируем вывод для отображения
+      let output = '';
+      
+      if (result.success) {
+        output = result.output;
+        toast.success(`Файл ${selectedFile} выполнен успешно`);
+      } else {
+        output = `Ошибка выполнения:\n${result.error}`;
+        toast.error(`Ошибка при запуске ${selectedFile}`);
       }
       
       // Передаем результат, если функция обратного вызова предоставлена
       if (onFileRun) {
         onFileRun(output, `run ${selectedFile}`);
       }
-      
-      toast.success(`Файл ${selectedFile} выполнен успешно`);
     } catch (error) {
       console.error('Ошибка выполнения файла:', error);
-      toast.error(`Ошибка при запуске ${selectedFile}`);
       
       // Передаем сообщение об ошибке
       if (onFileRun) {
         onFileRun(`Ошибка выполнения: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`, 
                  `run ${selectedFile}`);
       }
+      
+      toast.error(`Ошибка при запуске ${selectedFile}`);
     } finally {
       setIsRunning(false);
     }
