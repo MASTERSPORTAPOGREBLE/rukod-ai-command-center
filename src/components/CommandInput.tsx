@@ -161,8 +161,9 @@ export const CommandInput: React.FC = () => {
         
         <CommandInputField
           command={command}
-          setCommand={handleInputChange}
+          setCommand={setCommand}
           handleKeyDown={handleKeyDown}
+          handleInputChange={handleInputChange}
           isProcessing={isProcessing}
           isListening={isListening}
           translatedCommand={translatedCommand}

@@ -36,9 +36,9 @@ export const CodeExecutionResult: React.FC<CodeExecutionResultProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl bg-slate-950 text-white border-slate-700">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-white">
             Результат выполнения {fileName}
             {executionTime > 0 && <span className="ml-2 text-xs text-muted-foreground">({executionTime} ms)</span>}
           </DialogTitle>
@@ -47,7 +47,7 @@ export const CodeExecutionResult: React.FC<CodeExecutionResultProps> = ({
         <div className="space-y-4">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center">
-              <span className="font-medium mr-2">Язык:</span> 
+              <span className="font-medium mr-2 text-gray-300">Язык:</span> 
               <span className="text-rukod-purple">{language}</span>
             </div>
             <div>
@@ -60,13 +60,13 @@ export const CodeExecutionResult: React.FC<CodeExecutionResultProps> = ({
           </div>
           
           <ScrollArea className="h-80">
-            <div className={`p-4 rounded-md border font-mono text-sm whitespace-pre-wrap ${hasError ? 'bg-red-950 border-red-800 text-red-100' : 'bg-slate-900 border-slate-700'}`}>
+            <div className={`p-4 rounded-md border font-mono text-sm whitespace-pre-wrap ${hasError ? 'bg-red-950 border-red-800 text-red-100' : 'bg-slate-900 border-slate-700 text-white'}`}>
               {output}
             </div>
           </ScrollArea>
           
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={handleCopyOutput}>
+            <Button variant="outline" size="sm" onClick={handleCopyOutput} className="text-white border-slate-600 hover:bg-slate-800">
               <Copy className="h-4 w-4 mr-2" />
               Копировать
             </Button>

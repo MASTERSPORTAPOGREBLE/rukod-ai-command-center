@@ -1,1259 +1,440 @@
-import { Library, ProgrammingLanguage } from "../models/types";
-import { luaLibraries } from "./luaLibraries";
-import { rubyLibraries } from "./rubyLibraries";
-import { rustLibraries } from "./rustLibraries";
-import { javascriptLibraries } from "./javascriptLibraries";
-import { cppLibraries } from "./cppLibraries";
+import { Library } from '@/models/types';
 
-// Core set of Python libraries (kept inline for reference)
-export const pythonLibraries: Library[] = [
-  // Python Libraries - Machine Learning & Data Science
-  {
-    id: "python-numpy",
-    name: "NumPy",
-    description: "Фундаментальный пакет для научных вычислений с Python",
-    version: "1.26.3",
-    language: "python",
-    source: "PyPI",
-    popularity: 5.0,
-    tags: ["numerical", "array", "scientific"],
-    isPaid: false,
-    isGame: false,
-    author: "NumPy Team",
-    isStable: true,
-    downloadCount: 15000000,
-    lastUpdated: "2023-12-15",
-    license: "BSD-3-Clause"
-  },
-  {
-    id: "python-pandas",
-    name: "Pandas",
-    description: "Мощная библиотека для анализа и манипуляции данными",
-    version: "2.1.4",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.9,
-    tags: ["data-analysis", "dataframes", "statistics"],
-    isPaid: false,
-    isGame: false,
-    author: "Pandas Development Team",
-    isStable: true,
-    downloadCount: 12000000,
-    lastUpdated: "2023-11-20",
-    license: "BSD-3-Clause"
-  },
-  {
-    id: "python-matplotlib",
-    name: "Matplotlib",
-    description: "Библиотека визуализации данных для Python",
-    version: "3.8.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["visualization", "plotting", "charts"],
-    isPaid: false,
-    isGame: false,
-    author: "Matplotlib Development Team",
-    isStable: true,
-    downloadCount: 10000000,
-    lastUpdated: "2023-10-10",
-    license: "PSF-2.0"
-  },
-  {
-    id: "python-tensorflow",
-    name: "TensorFlow",
-    description: "Библиотека машинного обучения с открытым исходным кодом",
-    version: "2.15.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.9,
-    tags: ["machine-learning", "deep-learning", "neural-networks"],
-    isPaid: false,
-    isGame: false,
-    author: "Google Brain Team",
-    isStable: true,
-    downloadCount: 8000000,
-    lastUpdated: "2023-11-15",
-    license: "Apache-2.0"
-  },
-  {
-    id: "python-pytorch",
-    name: "PyTorch",
-    description: "Библиотека для машинного обучения и компьютерного зрения",
-    version: "2.1.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.9,
-    tags: ["machine-learning", "deep-learning", "neural-networks"],
-    isPaid: false,
-    isGame: false,
-    author: "Facebook AI Research",
-    isStable: true,
-    downloadCount: 7500000,
-    lastUpdated: "2023-12-01",
-    license: "BSD-3-Clause"
-  },
-  {
-    id: "python-scikitlearn",
-    name: "scikit-learn",
-    description: "Инструменты машинного обучения для Python",
-    version: "1.3.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["machine-learning", "classification", "regression"],
-    isPaid: false,
-    isGame: false,
-    author: "scikit-learn developers",
-    isStable: true,
-    downloadCount: 9000000,
-    lastUpdated: "2023-09-25",
-    license: "BSD-3-Clause"
-  },
-  
-  // Python Web Development
-  {
-    id: "python-django",
-    name: "Django",
-    description: "Полнофункциональный веб-фреймворк для Python",
-    version: "5.0.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["web", "framework", "mvc"],
-    isPaid: false,
-    isGame: false,
-    author: "Django Software Foundation",
-    isStable: true,
-    downloadCount: 7000000,
-    lastUpdated: "2024-01-05",
-    license: "BSD-3-Clause"
-  },
-  {
-    id: "python-flask",
-    name: "Flask",
-    description: "Легковесный WSGI веб-фреймворк",
-    version: "3.0.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["web", "microframework", "restful"],
-    isPaid: false,
-    isGame: false,
-    author: "Pallets Team",
-    isStable: true,
-    downloadCount: 8000000,
-    lastUpdated: "2023-11-30",
-    license: "BSD-3-Clause"
-  },
-  {
-    id: "python-fastapi",
-    name: "FastAPI",
-    description: "Современный, быстрый веб-фреймворк для создания API",
-    version: "0.109.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["web", "api", "async"],
-    isPaid: false,
-    isGame: false,
-    author: "Sebastián Ramírez",
-    isStable: true,
-    downloadCount: 5000000,
-    lastUpdated: "2024-01-10",
-    license: "MIT"
-  },
-  
-  // Python UI and Visualization
-  {
-    id: "python-kivymd",
-    name: "KivyMD",
-    description: "Набор виджетов Material Design для фреймворка Kivy",
-    version: "1.2.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["ui", "material-design", "mobile"],
-    isPaid: false,
-    isGame: false,
-    author: "KivyMD Team",
-    isStable: true,
-    downloadCount: 800000,
-    lastUpdated: "2023-07-20",
-    license: "MIT"
-  },
-  {
-    id: "python-opencv",
-    name: "OpenCV",
-    description: "Библиотека компьютерного зрения с открытым исходным кодом",
-    version: "4.8.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.9,
-    tags: ["computer-vision", "image-processing"],
-    isPaid: false,
-    isGame: false,
-    author: "OpenCV Team",
-    isStable: true,
-    downloadCount: 6000000,
-    lastUpdated: "2023-08-15",
-    license: "BSD-3-Clause"
-  },
-  {
-    id: "python-pygame",
-    name: "Pygame",
-    description: "Библиотека разработки игр на Python",
-    version: "2.5.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["games", "graphics", "multimedia"],
-    isPaid: false,
-    isGame: true,
-    author: "Pygame Community",
-    isStable: true,
-    downloadCount: 3000000,
-    lastUpdated: "2023-10-05",
-    license: "LGPL-2.1"
-  },
-  {
-    id: "python-pillow",
-    name: "Pillow",
-    description: "Библиотека для обработки изображений в Python",
-    version: "10.2.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["image-processing", "graphics"],
-    isPaid: false,
-    isGame: false,
-    author: "Alex Clark and Contributors",
-    isStable: true,
-    downloadCount: 7000000,
-    lastUpdated: "2023-12-20",
-    license: "HPND"
-  },
-  {
-    id: "python-plotly",
-    name: "Plotly",
-    description: "Интерактивная библиотека визуализации для Python",
-    version: "5.18.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["visualization", "interactive", "dashboards"],
-    isPaid: false,
-    isGame: false,
-    author: "Plotly Team",
-    isStable: true,
-    downloadCount: 4000000,
-    lastUpdated: "2023-11-10",
-    license: "MIT"
-  },
-  
-  // New Python libraries
-  {
-    id: "python-requests",
-    name: "Requests",
-    description: "Элегантная HTTP-библиотека для Python",
-    version: "2.31.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.9,
-    tags: ["http", "api", "web"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-beautifulsoup",
-    name: "BeautifulSoup4",
-    description: "Библиотека для парсинга HTML и XML документов",
-    version: "4.12.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["parsing", "html", "scraping"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-sqlalchemy",
-    name: "SQLAlchemy",
-    description: "Python SQL инструментарий и ORM",
-    version: "2.0.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["database", "orm", "sql"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-tornado",
-    name: "Tornado",
-    description: "Асинхронный веб-фреймворк и библиотека клиент-сервера",
-    version: "6.4.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.5,
-    tags: ["web", "async", "framework"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-pydantic",
-    name: "Pydantic",
-    description: "Библиотека валидации данных с аннотациями типов Python",
-    version: "2.5.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["validation", "types", "schema"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Additional Python Libraries - Data Processing
-  {
-    id: "python-polars",
-    name: "Polars",
-    description: "Быстрая библиотека обработки данных в памяти, альтернатива Pandas",
-    version: "0.19.3",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["data-processing", "dataframes", "high-performance"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-vaex",
-    name: "Vaex",
-    description: "Библиотека для обработки больших табличных данных",
-    version: "4.17.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.4,
-    tags: ["big-data", "visualization", "dataframes"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-dask",
-    name: "Dask",
-    description: "Параллельные вычисления для Python с интерфейсом как у NumPy/Pandas",
-    version: "2023.7.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.6,
-    tags: ["parallel", "big-data", "distributed"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-awkward",
-    name: "Awkward Array",
-    description: "Манипуляция вложенными, неоднородными данными для анализа",
-    version: "2.3.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.3,
-    tags: ["arrays", "nested-data", "json-like"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-zarr",
-    name: "Zarr",
-    description: "Формат данных для хранения сжатых, чанкированных N-мерных массивов",
-    version: "2.16.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.4,
-    tags: ["array", "storage", "chunked-data"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Python - Testing and Development
-  {
-    id: "python-pytest",
-    name: "pytest",
-    description: "Фреймворк для написания небольших тестов",
-    version: "7.4.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.9,
-    tags: ["testing", "tdd", "fixtures"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-coverage",
-    name: "coverage",
-    description: "Измерение покрытия кода тестами",
-    version: "7.3.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["testing", "coverage", "quality"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-black",
-    name: "Black",
-    description: "Бескомпромиссный форматировщик кода Python",
-    version: "23.10.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["formatter", "linting", "code-quality"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-mypy",
-    name: "mypy",
-    description: "Статический анализатор типов для Python",
-    version: "1.6.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["type-checking", "static-analysis", "quality"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-rope",
-    name: "rope",
-    description: "Инструмент рефакторинга для Python",
-    version: "1.10.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.4,
-    tags: ["refactoring", "ide", "code-analysis"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-pylint",
-    name: "pylint",
-    description: "Статический анализатор кода Python",
-    version: "3.0.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["linting", "code-quality", "pep8"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Python - Database
-  {
-    id: "python-psycopg2",
-    name: "psycopg2",
-    description: "PostgreSQL адаптер для Python",
-    version: "2.9.9",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["database", "postgresql", "sql"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-pymongo",
-    name: "PyMongo",
-    description: "Драйвер MongoDB для Python",
-    version: "4.5.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["database", "mongodb", "nosql"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-redis",
-    name: "redis-py",
-    description: "Клиент Redis для Python",
-    version: "5.0.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["database", "redis", "caching"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-peewee",
-    name: "peewee",
-    description: "Маленький и выразительный ORM",
-    version: "3.16.3",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.5,
-    tags: ["database", "orm", "sql"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-cassandra-driver",
-    name: "Cassandra Driver",
-    description: "Драйвер Apache Cassandra для Python",
-    version: "3.28.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.4,
-    tags: ["database", "cassandra", "nosql"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Python - DevOps and Infrastructure
-  {
-    id: "python-docker",
-    name: "Docker SDK",
-    description: "SDK для управления Docker из Python",
-    version: "6.1.3",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.6,
-    tags: ["docker", "containers", "devops"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-ansible",
-    name: "Ansible Core",
-    description: "Автоматизация IT-инфраструктуры",
-    version: "2.15.5",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["automation", "devops", "configuration"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-terraform",
-    name: "python-terraform",
-    description: "Python обертка для Terraform",
-    version: "0.10.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.2,
-    tags: ["infrastructure", "terraform", "devops"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-fabric",
-    name: "Fabric",
-    description: "Упрощение SSH для application deployment",
-    version: "3.2.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.4,
-    tags: ["deployment", "ssh", "automation"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-boto3",
-    name: "Boto3",
-    description: "AWS SDK для Python",
-    version: "1.28.62",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["aws", "cloud", "sdk"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Python - Web APIs & Microservices
-  {
-    id: "python-graphene",
-    name: "Graphene",
-    description: "GraphQL фреймворк для Python",
-    version: "3.3",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.5,
-    tags: ["graphql", "api", "web"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-nameko",
-    name: "Nameko",
-    description: "Фреймворк для микросервисов Python",
-    version: "2.14.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.3,
-    tags: ["microservices", "rpc", "events"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-celery",
-    name: "Celery",
-    description: "Распределенная очередь задач",
-    version: "5.3.4",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["task-queue", "async", "distributed"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-uvicorn",
-    name: "Uvicorn",
-    description: "ASGI сервер для Python",
-    version: "0.23.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["asgi", "web", "server"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-starlette",
-    name: "Starlette",
-    description: "Легковесный ASGI фреймворк",
-    version: "0.31.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.6,
-    tags: ["asgi", "web", "framework"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Python - Security
-  {
-    id: "python-cryptography",
-    name: "cryptography",
-    description: "Криптографические рецепты и примитивы для Python",
-    version: "41.0.4",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["cryptography", "security", "encryption"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-passlib",
-    name: "passlib",
-    description: "Полная библиотека хеширования паролей",
-    version: "1.7.4",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["password", "security", "hashing"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-authlib",
-    name: "Authlib",
-    description: "Библиотека для OAuth и OpenID Connect",
-    version: "1.2.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.5,
-    tags: ["oauth", "authentication", "security"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-oauthlib",
-    name: "OAuthLib",
-    description: "OAuth запросы и валидация для Python",
-    version: "3.2.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.6,
-    tags: ["oauth", "authentication", "security"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-pyotp",
-    name: "PyOTP",
-    description: "Генератор и валидатор паролей одноразового доступа",
-    version: "2.9.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.5,
-    tags: ["otp", "authentication", "security"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Python - Science & Specialized
-  {
-    id: "python-biopython",
-    name: "BioPython",
-    description: "Инструменты для биологических вычислений",
-    version: "1.81",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.6,
-    tags: ["biology", "science", "bioinformatics"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-networkx",
-    name: "NetworkX",
-    description: "Библиотека для изучения сложных сетей",
-    version: "3.1",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["graph", "network", "algorithms"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-gensim",
-    name: "Gensim",
-    description: "Тематическое моделирование для людей",
-    version: "4.3.2",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.5,
-    tags: ["nlp", "topic-models", "text-mining"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-astropy",
-    name: "Astropy",
-    description: "Астрономия в Python",
-    version: "5.3.4",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.6,
-    tags: ["astronomy", "science", "astrophysics"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-sympy",
-    name: "SymPy",
-    description: "Символьные математические вычисления",
-    version: "1.12",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["mathematics", "symbolic", "algebra"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // Python - CLI & System
-  {
-    id: "python-click",
-    name: "Click",
-    description: "Создание красивых интерфейсов командн��й строки",
-    version: "8.1.7",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.8,
-    tags: ["cli", "commandline", "interface"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-typer",
-    name: "Typer",
-    description: "CLI на основе type hints Python",
-    version: "0.9.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["cli", "type-hints", "interface"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-psutil",
-    name: "psutil",
-    description: "Кроссплатформенная библиотека для работы с процессами и системной информацией",
-    version: "5.9.6",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.7,
-    tags: ["system", "monitoring", "processes"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-watchdog",
-    name: "Watchdog",
-    description: "API и утилиты для мониторинга файловой системы",
-    version: "3.0.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.6,
-    tags: ["filesystem", "monitoring", "events"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "python-rich",
-    name: "Rich",
-    description: "Красивое форматирование текста в терминале",
-    version: "13.6.0",
-    language: "python",
-    source: "PyPI",
-    popularity: 4.9,
-    tags: ["terminal", "formatting", "output"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // C++ Libraries - Core and Utilities
-  {
-    id: "cpp-boost",
-    name: "Boost",
-    description: "Набор высококачественных библиотек C++",
-    version: "1.83.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.9,
-    tags: ["utilities", "algorithms", "performance"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-eigen",
-    name: "Eigen",
-    description: "Библиотека линейной алгебры для C++",
-    version: "3.4.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.7,
-    tags: ["linear-algebra", "matrices", "scientific"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-fmt",
-    name: "fmt",
-    description: "Современная библиотека форматирования строк для C++",
-    version: "10.1.1",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.6,
-    tags: ["formatting", "strings", "io"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-abseil",
-    name: "Abseil",
-    description: "Библиотека основных компонентов C++ от Google",
-    version: "20230802.1",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.5,
-    tags: ["utilities", "google", "string"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-poco",
-    name: "POCO",
-    description: "Коллекция классов C++ для разработки сетевых приложений",
-    version: "1.12.5",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.4,
-    tags: ["networking", "database", "utilities"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // C++ Graphics and Games
-  {
-    id: "cpp-sfml",
-    name: "SFML",
-    description: "Simple and Fast Multimedia Library для C++",
-    version: "2.6.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.6,
-    tags: ["graphics", "audio", "games"],
-    isPaid: false,
-    isGame: true
-  },
-  {
-    id: "cpp-sdl2",
-    name: "SDL2",
-    description: "Simple DirectMedia Layer: мультимедийная библиотека",
-    version: "2.28.3",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.7,
-    tags: ["graphics", "audio", "input", "games"],
-    isPaid: false,
-    isGame: true
-  },
-  {
-    id: "cpp-opengl",
-    name: "OpenGL",
-    description: "API для рендеринга 2D и 3D графики",
-    version: "4.6.0",
-    language: "cpp",
-    source: "System",
-    popularity: 4.8,
-    tags: ["graphics", "rendering", "3d"],
-    isPaid: false,
-    isGame: true
-  },
-  {
-    id: "cpp-bullet",
-    name: "Bullet Physics",
-    description: "Физический движок для симуляции 3D коллизий",
-    version: "3.25",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.5,
-    tags: ["physics", "game-engine", "collision"],
-    isPaid: false,
-    isGame: true
-  },
-  
-  // C++ UI
-  {
-    id: "cpp-qt",
-    name: "Qt6",
-    description: "Кроссплатформенный фреймворк для разработки ПО",
-    version: "6.5.3",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.8,
-    tags: ["gui", "widgets", "cross-platform"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-imgui",
-    name: "Dear ImGui",
-    description: "Быстрый и минималистичный графический интерфейс для C++",
-    version: "1.90.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.9,
-    tags: ["gui", "immediate-mode", "graphics"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-wxwidgets",
-    name: "wxWidgets",
-    description: "Кроссплатформенная библиотека виджетов для C++",
-    version: "3.2.3",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.3,
-    tags: ["gui", "widgets", "cross-platform"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // C++ Network and Web
-  {
-    id: "cpp-asio",
-    name: "Asio",
-    description: "Кроссплатформенная библиотека асинхронного ввода-вывода",
-    version: "1.28.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.7,
-    tags: ["networking", "async", "io"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-crow",
-    name: "Crow",
-    description: "C++ микрофреймворк для веб-приложений",
-    version: "1.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.3,
-    tags: ["web", "http", "framework"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-grpc",
-    name: "gRPC",
-    description: "Высокопроизводительный RPC фреймворк",
-    version: "1.59.2",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.6,
-    tags: ["rpc", "protobuf", "networking"],
-    isPaid: false,
-    isGame: false
-  },
-  
-  // New C++ libraries
-  {
-    id: "cpp-catch2",
-    name: "Catch2",
-    description: "Современный фреймворк для модульного тестирования на C++",
-    version: "3.4.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.7,
-    tags: ["testing", "unit-tests", "tdd"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-nlohmann-json",
-    name: "JSON for Modern C++",
-    description: "Библиотека для работы с JSON в современном C++",
-    version: "3.11.2",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.8,
-    tags: ["json", "serialization", "parsing"],
-    isPaid: false,
-    isGame: false
-  },
-  {
-    id: "cpp-opencv",
-    name: "OpenCV",
-    description: "Библиотека компьютерного зрения для C++",
-    version: "4.8.0",
-    language: "cpp",
-    source: "Conan",
-    popularity: 4.7,
-    tags: ["computer-vision", "image-processing", "machine-learning"],
-    isPaid: false,
-    isGame: false
-  }
-];
-
-// Combine all libraries
-export const mockLibraries: Library[] = [
-  ...pythonLibraries,
-  ...cppLibraries,
-  ...luaLibraries,
-  ...rustLibraries,
-  ...rubyLibraries,
-  ...javascriptLibraries
-];
-
-// Add the missing utility functions for LibraryManager
-export const getFilteredLibraries = (
-  language?: ProgrammingLanguage,
-  searchQuery: string = '',
-  isPaid?: boolean,
-  isGame?: boolean
-): Library[] => {
-  return mockLibraries.filter(lib => {
-    // Filter by language if specified
-    if (language && lib.language !== language) {
-      return false;
-    }
-    
-    // Filter by paid status if specified
-    if (isPaid !== undefined && lib.isPaid !== isPaid) {
-      return false;
-    }
-    
-    // Filter by game status if specified
-    if (isGame !== undefined && lib.isGame !== isGame) {
-      return false;
-    }
-    
-    // Filter by search query if provided
-    if (searchQuery && 
-        !lib.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !lib.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    return true;
-  });
-};
-
-export const getLibrariesByCategory = (category: string): Library[] => {
-  return mockLibraries.filter(lib => 
-    lib.tags && lib.tags.some(tag => tag.toLowerCase() === category.toLowerCase())
-  );
-};
-
-export const getPopularLibraries = (count: number = 10): Library[] => {
-  return [...mockLibraries]
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, count);
-};
-
-// New utility functions to provide more functionality
-
-export const getLibrariesByLanguageCount = (): Record<ProgrammingLanguage | 'all', number> => {
-  const counts = {
-    all: mockLibraries.length,
-    python: 0,
-    cpp: 0,
-    lua: 0,
-    javascript: 0,
-    rust: 0,
-    ruby: 0
+// Функция для создания библиотеки с полными данными
+const createLibrary = (lib: any) => {
+  return {
+    ...lib,
+    // Добавляем недостающие поля
+    author: lib.author || 'Unknown Author',
+    isStable: lib.isStable !== undefined ? lib.isStable : true,
+    downloadCount: lib.downloadCount || Math.floor(Math.random() * 100000),
+    lastUpdated: lib.lastUpdated || new Date().toISOString().split('T')[0],
+    license: lib.license || 'MIT'
   };
-  
-  mockLibraries.forEach(lib => {
-    if (counts[lib.language as ProgrammingLanguage] !== undefined) {
-      counts[lib.language as ProgrammingLanguage]++;
-    }
-  });
-  
-  return counts;
 };
 
-export const getAllTags = (): string[] => {
-  const uniqueTags = new Set<string>();
+export const pythonLibraries: Library[] = [
+  createLibrary({
+    id: 'python-numpy',
+    name: 'Numpy',
+    description: 'Библиотека для научных вычислений на Python',
+    version: '1.23.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 95,
+    tags: ['math', 'science', 'arrays'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-pandas',
+    name: 'Pandas',
+    description: 'Библиотека для анализа данных на Python',
+    version: '1.4.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 92,
+    tags: ['data-analysis', 'data-science', 'dataframes'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-requests',
+    name: 'Requests',
+    description: 'Библиотека для отправки HTTP-запросов на Python',
+    version: '2.28.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 88,
+    tags: ['http', 'api', 'web'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-django',
+    name: 'Django',
+    description: 'Веб-фреймворк высокого уровня на Python',
+    version: '4.1.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 85,
+    tags: ['web-framework', 'web-development', 'backend'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-flask',
+    name: 'Flask',
+    description: 'Микро веб-фреймворк на Python',
+    version: '2.2.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 80,
+    tags: ['web-framework', 'web-development', 'microframework'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-pygame',
+    name: 'Pygame',
+    description: 'Библиотека для разработки игр на Python',
+    version: '2.1.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 75,
+    tags: ['game-development', '2d', 'multimedia'],
+    isPaid: false,
+    isGame: true
+  }),
+  createLibrary({
+    id: 'python-matplotlib',
+    name: 'Matplotlib',
+    description: 'Библиотека для визуализации данных на Python',
+    version: '3.6.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 90,
+    tags: ['data-visualization', 'plotting', 'charts'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-scikit-learn',
+    name: 'Scikit-learn',
+    description: 'Библиотека машинного обучения на Python',
+    version: '1.2.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 88,
+    tags: ['machine-learning', 'data-science', 'algorithms'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-opencv',
+    name: 'OpenCV',
+    description: 'Библиотека компьютерного зрения на Python',
+    version: '4.6.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 82,
+    tags: ['computer-vision', 'image-processing', 'video-analysis'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-beautifulsoup4',
+    name: 'Beautiful Soup 4',
+    description: 'Библиотека для парсинга HTML и XML на Python',
+    version: '4.11.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 78,
+    tags: ['web-scraping', 'html', 'xml'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'python-keras',
+    name: 'Keras',
+    description: 'Библиотека глубокого обучения для Python',
+    version: '2.9.0',
+    language: 'python',
+    source: 'pip',
+    popularity: 92,
+    tags: ['deep-learning', 'neural-networks', 'machine-learning'],
+    isPaid: false,
+    isGame: false
+  }),
   
-  mockLibraries.forEach(lib => {
-    if (lib.tags) {
-      lib.tags.forEach(tag => uniqueTags.add(tag));
-    }
-  });
-  
-  return Array.from(uniqueTags).sort();
-};
+  createLibrary({
+    id: 'python-tensorflow',
+    name: 'TensorFlow',
+    description: 'Библиотека машинного обучения от Google',
+    version: '2.9.1',
+    language: 'python',
+    source: 'pip',
+    popularity: 95,
+    tags: ['machine-learning', 'neural-networks', 'gpu'],
+    isPaid: false,
+    isGame: false
+  }),
+];
 
-export const getRelatedLibraries = (libraryId: string, count: number = 3): Library[] => {
-  const targetLib = mockLibraries.find(lib => lib.id === libraryId);
-  
-  if (!targetLib || !targetLib.tags || targetLib.tags.length === 0) {
-    return [];
-  }
-  
-  // Find libraries with similar tags
-  const relatedLibs = mockLibraries
-    .filter(lib => lib.id !== libraryId && lib.language === targetLib.language)
-    .map(lib => {
-      // Calculate similarity score based on matching tags
-      const matchingTags = (lib.tags || []).filter(tag => 
-        targetLib.tags?.includes(tag)
-      ).length;
-      
-      return {
-        library: lib,
-        similarity: matchingTags
-      };
-    })
-    .filter(item => item.similarity > 0)
-    .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, count);
-    
-  return relatedLibs.map(item => item.library);
-};
+export const javascriptLibraries: Library[] = [
+  createLibrary({
+    id: 'javascript-react',
+    name: 'React',
+    description: 'JavaScript-библиотека для создания пользовательских интерфейсов',
+    version: '18.0.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 95,
+    tags: ['ui', 'components', 'frontend'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'javascript-angular',
+    name: 'Angular',
+    description: 'Платформа для создания клиентских приложений с использованием HTML, CSS и TypeScript',
+    version: '14.0.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 80,
+    tags: ['framework', 'web', 'frontend'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'javascript-vue',
+    name: 'Vue',
+    description: 'Прогрессивный JavaScript-фреймворк для создания пользовательских интерфейсов',
+    version: '3.0.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 85,
+    tags: ['ui', 'components', 'frontend'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'javascript-node',
+    name: 'Node.js',
+    description: 'JavaScript-среда выполнения на стороне сервера',
+    version: '16.0.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 90,
+    tags: ['backend', 'server', 'runtime'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'javascript-express',
+    name: 'Express',
+    description: 'Минималистичный и гибкий Node.js веб-фреймворк',
+    version: '4.18.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 88,
+    tags: ['web-framework', 'backend', 'api'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'javascript-three',
+    name: 'Three.js',
+    description: 'JavaScript 3D-библиотека',
+    version: '0.140.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 75,
+    tags: ['3d', 'graphics', 'webgl'],
+    isPaid: false,
+    isGame: true
+  }),
+  createLibrary({
+    id: 'javascript-phaser',
+    name: 'Phaser',
+    description: 'Быстрый, бесплатный и забавный HTML5 игровой фреймворк',
+    version: '3.55.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 82,
+    tags: ['game-framework', '2d', 'html5'],
+    isPaid: false,
+    isGame: true
+  }),
+  createLibrary({
+    id: 'javascript-socket.io',
+    name: 'Socket.IO',
+    description: 'Библиотека для обеспечения связи в реальном времени между клиентом и сервером',
+    version: '4.5.0',
+    language: 'javascript',
+    source: 'npm',
+    popularity: 78,
+    tags: ['realtime', 'communication', 'websocket'],
+    isPaid: false,
+    isGame: false
+  }),
+];
 
-// New utility functions for enhanced features
+export const cppLibraries: Library[] = [
+  createLibrary({
+    id: 'cpp-sfml',
+    name: 'SFML',
+    description: 'Простая и быстрая мультимедийная библиотека',
+    version: '2.5.0',
+    language: 'cpp',
+    source: 'apt',
+    popularity: 70,
+    tags: ['multimedia', 'graphics', 'game-development'],
+    isPaid: false,
+    isGame: true
+  }),
+  createLibrary({
+    id: 'cpp-boost',
+    name: 'Boost',
+    description: 'Набор бесплатных рецензируемых библиотек C++',
+    version: '1.79.0',
+    language: 'cpp',
+    source: 'apt',
+    popularity: 85,
+    tags: ['utilities', 'algorithms', 'data-structures'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'cpp-opencv',
+    name: 'OpenCV',
+    description: 'Библиотека компьютерного зрения',
+    version: '4.6.0',
+    language: 'cpp',
+    source: 'apt',
+    popularity: 80,
+    tags: ['computer-vision', 'image-processing', 'video-analysis'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'cpp-sdl',
+    name: 'SDL',
+    description: 'Простая DirectMedia Layer',
+    version: '2.0.0',
+    language: 'cpp',
+    source: 'apt',
+    popularity: 75,
+    tags: ['multimedia', 'game-development', 'graphics'],
+    isPaid: false,
+    isGame: true
+  }),
+];
 
-export const getLibraryById = (id: string): Library | undefined => {
-  return mockLibraries.find(lib => lib.id === id);
-};
+export const luaLibraries: Library[] = [
+  createLibrary({
+    id: 'lua-love2d',
+    name: 'Love2D',
+    description: 'Бесплатный 2D игровой движок на Lua',
+    version: '11.3',
+    language: 'lua',
+    source: 'luarocks',
+    popularity: 90,
+    tags: ['game-engine', '2d', 'game-development'],
+    isPaid: false,
+    isGame: true
+  }),
+  createLibrary({
+    id: 'lua-socket',
+    name: 'LuaSocket',
+    description: 'Сетевая библиотека для Lua',
+    version: '3.0',
+    language: 'lua',
+    source: 'luarocks',
+    popularity: 70,
+    tags: ['networking', 'sockets', 'communication'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'lua-luasql',
+    name: 'LuaSQL',
+    description: 'Библиотека для работы с базами данных в Lua',
+    version: '2.3',
+    language: 'lua',
+    source: 'luarocks',
+    popularity: 65,
+    tags: ['database', 'sql', 'data-management'],
+    isPaid: false,
+    isGame: false
+  }),
+];
 
-export const getNewestLibraries = (count: number = 5): Library[] => {
-  // In a real app, we'd use actual release dates
-  // Here we'll simulate by returning random libraries
-  const shuffled = [...mockLibraries].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-};
+export const rubyLibraries: Library[] = [
+  createLibrary({
+    id: 'ruby-rails',
+    name: 'Rails',
+    description: 'Веб-фреймворк на Ruby',
+    version: '7.0',
+    language: 'ruby',
+    source: 'gem',
+    popularity: 90,
+    tags: ['web-framework', 'backend', 'mvc'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'ruby-sinatra',
+    name: 'Sinatra',
+    description: 'DSL для быстрого создания веб-приложений на Ruby',
+    version: '2.0',
+    language: 'ruby',
+    source: 'gem',
+    popularity: 75,
+    tags: ['web-framework', 'microframework', 'api'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'ruby-nokogiri',
+    name: 'Nokogiri',
+    description: 'Библиотека для парсинга HTML, XML, SAX и Reader на Ruby',
+    version: '1.13',
+    language: 'ruby',
+    source: 'gem',
+    popularity: 70,
+    tags: ['xml', 'html', 'parsing'],
+    isPaid: false,
+    isGame: false
+  }),
+];
 
-export const getTrendingLibraries = (count: number = 5): Library[] => {
-  // In a real app, we'd use actual trending metrics
-  // Here we'll use highest popularity score
-  return [...mockLibraries]
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, count);
-};
+export const rustLibraries: Library[] = [
+  createLibrary({
+    id: 'rust-tokio',
+    name: 'Tokio',
+    description: 'Асинхронная среда выполнения для Rust',
+    version: '1.0',
+    language: 'rust',
+    source: 'cargo',
+    popularity: 85,
+    tags: ['async', 'runtime', 'networking'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'rust-rocket',
+    name: 'Rocket',
+    description: 'Веб-фреймворк для Rust',
+    version: '0.5',
+    language: 'rust',
+    source: 'cargo',
+    popularity: 70,
+    tags: ['web-framework', 'backend', 'api'],
+    isPaid: false,
+    isGame: false
+  }),
+  createLibrary({
+    id: 'rust-ggez',
+    name: 'GGEZ',
+    description: 'Легковесный фреймворк для создания 2D игр на Rust',
+    version: '0.7',
+    language: 'rust',
+    source: 'cargo',
+    popularity: 60,
+    tags: ['game-framework', '2d', 'graphics'],
+    isPaid: false,
+    isGame: true
+  }),
+];
 
-export const getRecommendedLibraries = (language: ProgrammingLanguage, count: number = 3): Library[] => {
-  // Get only top libraries for the specified language
-  return [...mockLibraries]
-    .filter(lib => lib.language === language)
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, count);
-};
-
-export const getLibrariesByTags = (tags: string[], count: number = 10): Library[] => {
-  // Find libraries that match any of the provided tags
-  return mockLibraries
-    .filter(lib => lib.tags && lib.tags.some(tag => tags.includes(tag)))
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, count);
-};
-
-export const getMostPopularTags = (count: number = 10): { tag: string, count: number }[] => {
-  const tagCounts: Record<string, number> = {};
-  
-  mockLibraries.forEach(lib => {
-    if (lib.tags) {
-      lib.tags.forEach(tag => {
-        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-      });
-    }
-  });
-  
-  return Object.entries(tagCounts)
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, count);
-};
-
-export const searchLibrariesByFunction = (searchText: string, count: number = 10): Library[] => {
-  // This would be more sophisticated in a real app with better search capabilities
-  const lowerSearchText = searchText.toLowerCase();
-  
-  return mockLibraries
-    .filter(lib => 
-      lib.name.toLowerCase().includes(lowerSearchText) ||
-      lib.description.toLowerCase().includes(lowerSearchText) ||
-      lib.tags?.some(tag => tag.toLowerCase().includes(lowerSearchText))
-    )
-    .slice(0, count);
-};
-
-export const getPaidLibraries = (count: number = 10): Library[] => {
-  return mockLibraries
-    .filter(lib => lib.isPaid)
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, count);
-};
-
-export const getFreeAlternativesToPaidLibrary = (paidLibraryId: string, count: number = 3): Library[] => {
-  const paidLib = mockLibraries.find(lib => lib.id === paidLibraryId && lib.isPaid);
-  
-  if (!paidLib || !paidLib.tags) {
-    return [];
-  }
-  
-  return mockLibraries
-    .filter(lib => 
-      !lib.isPaid && 
-      lib.language === paidLib.language && 
-      lib.id !== paidLib.id &&
-      lib.tags?.some(tag => paidLib.tags?.includes(tag))
-    )
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, count);
+export const getAllLibraries = (): Library[] => {
+  return [
+    ...pythonLibraries,
+    ...javascriptLibraries,
+    ...cppLibraries,
+    ...luaLibraries,
+    ...rubyLibraries,
+    ...rustLibraries,
+  ];
 };

@@ -10,6 +10,7 @@ interface CommandInputFieldProps {
   isListening: boolean;
   translatedCommand?: string;
   inputRef: React.RefObject<HTMLInputElement>;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const CommandInputField: React.FC<CommandInputFieldProps> = ({
@@ -19,7 +20,8 @@ export const CommandInputField: React.FC<CommandInputFieldProps> = ({
   isProcessing,
   isListening,
   translatedCommand,
-  inputRef
+  inputRef,
+  handleInputChange
 }) => {
   // Focus input on component mount
   useEffect(() => {
@@ -32,11 +34,11 @@ export const CommandInputField: React.FC<CommandInputFieldProps> = ({
         ref={inputRef}
         type="text"
         value={command}
-        onChange={(e) => setCommand(e.target.value)}
+        onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         disabled={isProcessing || isListening}
         placeholder={isListening ? "Распознавание голоса..." : "Введите команду или запрос..."}
-        className="command-input terminal-text py-2 w-full bg-transparent"
+        className="command-input terminal-text py-2 w-full bg-transparent dark:text-white text-black"
         autoComplete="off"
         spellCheck="false"
       />
