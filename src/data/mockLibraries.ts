@@ -438,3 +438,25 @@ export const getAllLibraries = (): Library[] => {
     ...rustLibraries,
   ];
 };
+
+export const getLibrariesByCategory = (category: string): Library[] => {
+  const allLibraries = getAllLibraries();
+  return allLibraries.filter(lib => lib.tags?.includes(category) || false);
+};
+
+export const getFilteredLibraries = (filters: {
+  language?: string;
+  category?: string;
+  isPaid?: boolean;
+  isGame?: boolean;
+}): Library[] => {
+  const allLibraries = getAllLibraries();
+  
+  return allLibraries.filter(lib => {
+    if (filters.language && lib.language !== filters.language) return false;
+    if (filters.category && !lib.tags?.includes(filters.category)) return false;
+    if (filters.isPaid !== undefined && lib.isPaid !== filters.isPaid) return false;
+    if (filters.isGame !== undefined && lib.isGame !== filters.isGame) return false;
+    return true;
+  });
+};

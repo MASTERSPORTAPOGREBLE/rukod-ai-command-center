@@ -18,6 +18,7 @@ import Libraries from './pages/Libraries';
 import Authentication from './pages/Authentication';
 import Help from './pages/Help';
 import UserProfile from './pages/UserProfile'; // New page for user profile
+import { StrategyGame } from './pages/StrategyGame';
 
 import './App.css';
 
@@ -57,6 +58,7 @@ function AppContent() {
                 <Route path="/code" element={<ProtectedRoute><CodeTerminal /></ProtectedRoute>} />
                 <Route path="/libraries" element={<ProtectedRoute><Libraries /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                <Route path="/strategy-game" element={<ProtectedRoute><StrategyGame /></ProtectedRoute>} />
                 <Route path="/help" element={<Help />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

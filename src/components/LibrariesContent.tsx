@@ -12,7 +12,7 @@ import { Input } from './ui/input';
 import { Spinner } from './ui/spinner';
 
 // Import mock data
-import { mockLibraries } from '../data/mockLibraries';
+import { getAllLibraries } from '../data/mockLibraries';
 
 export const LibrariesContent = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +32,7 @@ export const LibrariesContent = () => {
       // For now, we'll use our mock data
       await new Promise(resolve => setTimeout(resolve, 600)); // Simulate network delay
       
-      let filteredLibraries = [...mockLibraries];
+      let filteredLibraries = [...getAllLibraries()];
       
       // Apply language filter
       if (selectedLanguage !== 'all') {
