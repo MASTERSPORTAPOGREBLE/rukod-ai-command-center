@@ -2,9 +2,12 @@
 // Explicit import of React to ensure it's available
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
+import { MobileOptimizer } from './utils/mobileOptimization';
 import './index.css';
+
+// Активируем мобильные оптимизации
+MobileOptimizer.activate();
 
 const rootElement = document.getElementById("root");
 
@@ -13,9 +16,7 @@ if (rootElement) {
   const root = createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <App />
     </React.StrictMode>
   );
 } else {

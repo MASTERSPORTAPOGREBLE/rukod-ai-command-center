@@ -73,6 +73,16 @@ export const getEnvApiKey = (provider: string): string => {
   switch (provider) {
     case 'gemini':
       return import.meta.env.VITE_GEMINI_API_KEY || '';
+    case 'deepseek':
+      return import.meta.env.VITE_DEEPSEEK_API_KEY || '';
+    case 'qwen':
+      return import.meta.env.VITE_QWEN_API_KEY || '';
+    case 'huggingface':
+      return import.meta.env.VITE_HUGGINGFACE_API_KEY || '';
+    case 'stability':
+      return import.meta.env.VITE_STABILITY_API_KEY || '';
+    case 'remove_bg':
+      return import.meta.env.VITE_REMOVE_BG_API_KEY || '';
     case 'replit':
       return import.meta.env.VITE_REPLIT_TOKEN || '';
     case 'github':
