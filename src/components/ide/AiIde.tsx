@@ -15,13 +15,15 @@ import {
   Play,
   Brain,
   Github,
-  ExternalLink
+  ExternalLink,
+  Eye
 } from 'lucide-react';
 
 import { CodeEditor, CodeFile } from '../editor/CodeEditor';
 import { FileManager, FileNode } from '../fileManager/FileManager';
 import { AiChat } from '../chat/AiChat';
 import { ApiKeySettings } from '../settings/ApiKeySettings';
+import { LivePreview } from '../preview/LivePreview';
 import { GeneratedCode } from '@/services/geminiService';
 import { CloudIntegrationService, CloudDeployment } from '@/services/cloudIntegration';
 
@@ -495,14 +497,37 @@ export const AiIde: React.FC = () => {
 
           <ResizableHandle />
 
-          {/* Right Sidebar - AI Chat */}
+          {/* Right Sidebar - AI Chat & Preview */}
           <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-            <AiChat
-              onCodeGenerated={handleCodeGenerated}
-              onFileCreate={(file) => handleFileSelect(file)}
-              currentProject={currentProject?.name}
-              className="h-full border-0"
-            />
+            <Tabs defaultValue="chat" className="h-full flex flex-col">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="chat" className="flex items-center gap-1">
+                  <MessageSquare className="w-4 h-4" />
+                  ИИ Чат
+                </TabsTrigger>
+                <TabsTrigger value="preview" className="flex items-center gap-1">
+                  <Eye className="w-4 h-4" />
+                  Предпросмотр
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="chat" className="flex-1 mt-0">
+                <AiChat
+                  onCodeGenerated={handleCodeGenerated}
+                  onFileCreate={(file) => handleFileSelect(file)}
+                  currentProject={currentProject?.name}
+                  className="h-full border-0"
+                />
+              </TabsContent>
+              
+              <TabsContent value="preview" className="flex-1 mt-0">
+                <LivePreview
+                  files={currentProject?.files || []}
+                  currentProject={currentProject?.name || 'Проект'}
+                  className="h-full border-0"
+                />
+              </TabsContent>
+            </Tabs>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

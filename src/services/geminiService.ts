@@ -136,21 +136,118 @@ ${request.projectType ? `ТИП ПРОЕКТА: ${request.projectType}` : ''}
     const text = response.candidates[0].content.parts[0].text;
     const results: GeneratedCode[] = [];
 
-    // Parse files from the response
-    const fileRegex = /===ФАЙЛ:\s*(.+?)===\n(.*?)\n===КОНЕЦ ФАЙЛА===/gs;
-    const explanationRegex = /===ОБЪЯСНЕНИЕ===\n(.*?)\n===КОНЕЦ ОБЪЯСНЕНИЯ===/s;
+    // 1. Парсим файлы в формате ===ФАЙЛ: имя===
+    const fileRegex = /===ФАЙЛ:\s*(.+?)===\n(.*?)(?=\n===(?:ФАЙЛ:|КОНЕЦ ФАЙЛА|ОБЪЯСНЕНИЕ)===|$)/gs;
+    const explanationRegex = /===ОБЪЯСНЕНИЕ===\n(.*?)(?=\n===КОНЕЦ ОБЪЯСНЕНИЯ===|$)/s;
 
     let match;
     while ((match = fileRegex.exec(text)) !== null) {
       const filename = match[1].trim();
       const code = match[2].trim();
       
-      results.push({
-        code,
-        language,
-        filename,
-        explanation: ''
+      if (code) {
+        const detectedLanguage = this.detectLanguageFromFilename(filename) || language;
+        results.push({
+          code,
+          language: detectedLanguage,
+          filename,
+          explanation: ''
+        });
+      }
+    }
+
+    // 2. Если не найдены файловые блоки, ищем markdown блоки кода
+    if (results.length === 0) {
+      const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+      let blockIndex = 0;
+      
+      while ((match = codeBlockRegex.exec(text)) !== null) {
+        const detectedLanguage = match[1] || language;
+        const code = match[2].trim();
+        
+        if (code) {
+          results.push({
+            code,
+            language: detectedLanguage,
+            filename: this.generateFilename(detectedLanguage, code),
+            explanation: this.extractDescription(text, match.index)
+          });
+          blockIndex++;
+        }
+      }
+    }
+
+    // 3. Ищем HTML/CSS/JS структуры в тексте
+    if (results.length === 0) {
+      const patterns = [
+        { 
+          regex: /<!DOCTYPE html>[\s\S]*?<\/html>/gi, 
+          lang: 'html', 
+          name: 'index.html',
+          description: 'HTML страница'
+        },
+        { 
+          regex: /<script[^>]*>([\s\S]*?)<\/script>/gi, 
+          lang: 'javascript', 
+          name: 'script.js',
+          description: 'JavaScript код'
+        },
+        { 
+          regex: /<style[^>]*>([\s\S]*?)<\/style>/gi, 
+          lang: 'css', 
+          name: 'styles.css',
+          description: 'CSS стили'
+        },
+        { 
+          regex: /(?:function|const|let|var)\s+\w+[\s\S]*?(?=\n\n|\n(?:function|const|let|var)|$)/gi, 
+          lang: 'javascript', 
+          name: 'functions.js',
+          description: 'JavaScript функции'
+        }
+      ];
+      
+      patterns.forEach(pattern => {
+        let patternMatch;
+        while ((patternMatch = pattern.regex.exec(text)) !== null) {
+          let code = patternMatch[0].trim();
+          
+          // Для script и style тегов извлекаем содержимое
+          if (pattern.lang === 'javascript' && code.includes('<script')) {
+            const innerMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+            if (innerMatch) code = innerMatch[1].trim();
+          }
+          if (pattern.lang === 'css' && code.includes('<style')) {
+            const innerMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/);
+            if (innerMatch) code = innerMatch[1].trim();
+          }
+          
+          if (code.length > 20) { // Минимальная длина кода
+            results.push({
+              code,
+              language: pattern.lang,
+              filename: pattern.name,
+              explanation: pattern.description
+            });
+          }
+        }
       });
+    }
+
+    // 4. Ищем React компоненты
+    const reactComponentRegex = /(?:function|const)\s+([A-Z]\w*)\s*(?:\([^)]*\))?\s*(?:=>)?\s*{[\s\S]*?return[\s\S]*?<[\s\S]*?>[\s\S]*?}/gi;
+    let reactMatch;
+    while ((reactMatch = reactComponentRegex.exec(text)) !== null) {
+      const componentName = reactMatch[1];
+      const code = reactMatch[0].trim();
+      
+      if (code.includes('<') && code.includes('>')) {
+        results.push({
+          code,
+          language: 'jsx',
+          filename: `${componentName}.jsx`,
+          explanation: `React компонент: ${componentName}`
+        });
+      }
     }
 
     // Extract explanation
@@ -159,21 +256,90 @@ ${request.projectType ? `ТИП ПРОЕКТА: ${request.projectType}` : ''}
 
     // If no files were parsed, treat the whole response as a single code block
     if (results.length === 0) {
-      const filename = this.generateFilename(language, text);
+      const detectedLang = this.detectLanguageFromContent(text) || language;
+      const filename = this.generateFilename(detectedLang, text);
       results.push({
         code: text,
-        language,
+        language: detectedLang,
         filename,
         explanation
       });
     } else {
-      // Add explanation to all files
+      // Add explanation to files that don't have one
       results.forEach(result => {
-        result.explanation = explanation;
+        if (!result.explanation) {
+          result.explanation = explanation;
+        }
       });
     }
 
     return results;
+  }
+
+  // Определение языка по имени файла
+  private detectLanguageFromFilename(filename: string): string {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const langMap: { [key: string]: string } = {
+      'js': 'javascript',
+      'jsx': 'jsx',
+      'ts': 'typescript', 
+      'tsx': 'tsx',
+      'html': 'html',
+      'css': 'css',
+      'scss': 'scss',
+      'py': 'python',
+      'java': 'java',
+      'cpp': 'cpp',
+      'c': 'c',
+      'php': 'php',
+      'rb': 'ruby',
+      'go': 'go',
+      'rs': 'rust',
+      'kt': 'kotlin',
+      'swift': 'swift',
+      'vue': 'vue',
+      'svelte': 'svelte'
+    };
+    
+    return langMap[ext || ''] || 'text';
+  }
+
+  // Определение языка по содержимому
+  private detectLanguageFromContent(content: string): string {
+    const patterns = [
+      { regex: /<!DOCTYPE html>|<html|<\/html>/i, lang: 'html' },
+      { regex: /import\s+React|from\s+['"]react['"]|jsx|<\/\w+>/i, lang: 'jsx' },
+      { regex: /function\s+\w+|const\s+\w+\s*=|let\s+\w+|var\s+\w+/i, lang: 'javascript' },
+      { regex: /interface\s+\w+|type\s+\w+\s*=|as\s+\w+/i, lang: 'typescript' },
+      { regex: /{[\s\S]*?}|\.[\w-]+\s*{|@media/i, lang: 'css' },
+      { regex: /def\s+\w+|import\s+\w+|from\s+\w+\s+import/i, lang: 'python' },
+      { regex: /public\s+class|private\s+\w+|System\.out/i, lang: 'java' },
+      { regex: /#include|int\s+main|cout\s*<<|cin\s*>>/i, lang: 'cpp' }
+    ];
+    
+    for (const pattern of patterns) {
+      if (pattern.regex.test(content)) {
+        return pattern.lang;
+      }
+    }
+    
+    return 'text';
+  }
+
+  // Извлечение описания из контекста
+  private extractDescription(content: string, matchIndex: number): string {
+    const beforeMatch = content.substring(Math.max(0, matchIndex - 200), matchIndex);
+    const lines = beforeMatch.split('\n');
+    
+    // Ищем описательные строки перед блоком кода
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i].trim();
+      if (line && !line.startsWith('```') && !line.startsWith('===')) {
+        return line;
+      }
+    }
+    
+    return 'Сгенерированный код';
   }
 
   private generateFilename(language: string, code: string): string {
