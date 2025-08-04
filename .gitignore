@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Environment variables
+.env
+.env.local
+.env.production
+
+# API Keys and secrets
+secrets/
+*.key
+*.pem
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

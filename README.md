@@ -1,73 +1,147 @@
-# Welcome to your Lovable project
+# 🚀 AI IDE - Интеллектуальная среда разработки
 
-## Project info
+Современная IDE с поддержкой искусственного интеллекта для генерации кода и автоматического развертывания проектов.
 
-**URL**: https://lovable.dev/projects/025ee0da-a0d4-4aa0-ad36-0f377dbb31ad
+## ✨ Основные возможности
 
-## How can I edit this code?
+- 🤖 **Генерация кода с помощью Gemini 2.5 Flash** - создавайте код на любом языке программирования
+- 🎨 **Современный редактор** - Monaco Editor с подсветкой синтаксиса и автодополнением
+- 📁 **Управление файлами** - полноценный файловый менеджер с поиском и организацией
+- ☁️ **Облачные интеграции** - автоматическое развертывание в Replit и GitHub Codespaces
+- 🔒 **Безопасность** - шифрование API ключей и защищенное хранение
+- 🎯 **Удобный интерфейс** - адаптивный дизайн с темной и светлой темами
 
-There are several ways of editing your application.
+## 🚀 Быстрый старт
 
-**Use Lovable**
+1. **Установите зависимости:**
+   ```bash
+   npm install
+   ```
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/025ee0da-a0d4-4aa0-ad36-0f377dbb31ad) and start prompting.
+2. **Настройте API ключ Gemini:**
+   ```bash
+   cp .env.example .env
+   # Добавьте ваш VITE_GEMINI_API_KEY в .env файл
+   ```
 
-Changes made via Lovable will be committed automatically to this repo.
+3. **Запустите проект:**
+   ```bash
+   npm run dev
+   ```
 
-**Use your preferred IDE**
+4. **Откройте в браузере:**
+   http://localhost:5173
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📖 Полная документация
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Подробное руководство по настройке и использованию читайте в [SETUP_GUIDE.md](./SETUP_GUIDE.md)
 
-Follow these steps:
+## 🛠 Технологии
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend**: React 18, TypeScript
+- **UI**: shadcn/ui, Tailwind CSS
+- **Редактор**: Monaco Editor
+- **ИИ**: Google Gemini 2.5 Flash
+- **Сборка**: Vite
+- **Интеграции**: Replit API, GitHub API
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🔑 Необходимые API ключи
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Обязательно:
+- **Gemini API Key** - для работы ИИ ([получить здесь](https://makersuite.google.com/app/apikey))
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Опционально:
+- **Replit Token** - для развертывания в Replit
+- **GitHub Token** - для создания репозиториев
+
+## 📱 Возможности IDE
+
+### Редактор кода
+- Подсветка синтаксиса для 20+ языков
+- Автодополнение и IntelliSense
+- Горячие клавиши (Ctrl+S, F11)
+- Полноэкранный режим
+- Форматирование кода
+
+### ИИ Помощник
+- Генерация кода по описанию
+- Объяснение существующего кода
+- Исправление ошибок
+- Рефакторинг и оптимизация
+- Создание документации
+
+### Интеграции
+- Автоматическое развертывание в Replit
+- Создание GitHub репозиториев с DevContainer
+- Скачивание проектов в различных форматах
+- Импорт существующих проектов
+
+## 🔒 Безопасность
+
+- Все API ключи шифруются перед сохранением
+- Локальное хранение в браузере пользователя
+- Нет передачи ключей на внешние серверы
+- Поддержка переменных окружения для разработки
+
+## 🎯 Примеры использования
+
+1. **Создание React приложения:**
+   ```
+   Создай React приложение для управления задачами с TypeScript
+   ```
+
+2. **Python API:**
+   ```
+   Напиши FastAPI сервер с авторизацией JWT
+   ```
+
+3. **Мобильное приложение:**
+   ```
+   Сделай Flutter приложение для фитнес трекера
+   ```
+
+## 🚀 Развертывание
+
+### В продакшн:
+```bash
+npm run build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+### В Vercel:
+```bash
+vercel --prod
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Docker:
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 4173
+CMD ["npm", "run", "preview"]
+```
 
-**Use GitHub Codespaces**
+## 🤝 Вклад в проект
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Форкните репозиторий
+2. Создайте ветку для новой функции
+3. Внесите изменения и добавьте тесты
+4. Отправьте Pull Request
 
-## What technologies are used for this project?
+## 📄 Лицензия
 
-This project is built with:
+MIT License - подробности в файле LICENSE
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🆘 Поддержка
 
-## How can I deploy this project?
+- 📖 Документация: [SETUP_GUIDE.md](./SETUP_GUIDE.md)
+- 🐛 Баги: [GitHub Issues](https://github.com/yourusername/ai-ide/issues)
+- 💬 Обсуждения: [GitHub Discussions](https://github.com/yourusername/ai-ide/discussions)
 
-Simply open [Lovable](https://lovable.dev/projects/025ee0da-a0d4-4aa0-ad36-0f377dbb31ad) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+**Создавайте код будущего с AI IDE! 🚀**
