@@ -1,0 +1,117 @@
+{
+  "name": "AI IDE - Умная среда разработки",
+  "short_name": "AI IDE",
+  "description": "Мощная IDE с искусственным интеллектом для создания кода, изображений и автоматического рефакторинга",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#007DFF",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "ru",
+  "categories": ["productivity", "developer", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png", 
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128", 
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Новый проект",
+      "short_name": "Проект",
+      "description": "Создать новый проект",
+      "url": "/?action=new-project",
+      "icons": [{ "src": "/icons/new-project.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "ИИ Чат",
+      "short_name": "Чат",
+      "description": "Открыть чат с ИИ",
+      "url": "/?action=ai-chat",
+      "icons": [{ "src": "/icons/ai-chat.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Генерация изображений",
+      "short_name": "Изображения",
+      "description": "Создать изображения с ИИ",
+      "url": "/?action=generate-images",
+      "icons": [{ "src": "/icons/image-gen.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Главный интерфейс AI IDE"
+    },
+    {
+      "src": "/screenshots/mobile-1.png", 
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Мобильная версия AI IDE"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.ai.ide.app",
+      "id": "com.ai.ide.app"
+    }
+  ],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "protocol_handlers": [
+    {
+      "protocol": "web+aiide",
+      "url": "/?action=open&url=%s"
+    }
+  ]
+}
